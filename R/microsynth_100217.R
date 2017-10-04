@@ -174,19 +174,23 @@
 #'
 #' @param check.feas A logical indicator of whether or not the feasibility of
 #'   the model specified by \code{match.out} is evaluated prior to calculation
-#'   of weights.  If \code{check.feas = TRUE}, feasibility is assessed.; then,
-#'   if \code{match.out} is found to not specify a feasible model, a less
-#'   restrictive backup model is used, and the backup is applied when
-#'   calculating weights for jackknife and permutation methods.
+#'   of weights.  If \code{check.feas = TRUE}, feasibility is assessed. If
+#'   \code{match.out} is found to not specify a feasible model, a less
+#'   restrictive feasible backup model will be applied to calculate the main
+#'   weights and for jackknife and permutation methods.
+#'
 #' @param use.backup A logical variable that, when true, indicates whether a
 #'   backup model should be used whenever the model specified by
-#'   \code{match.out} yields unsatisfactory weights.  Weights are deemed the be
+#'   \code{match.out} yields unsatisfactory weights.  Weights are deemed to be
 #'   unsatisfactory if they do not sufficiently satisfy the constraints imposed
-#'   by \code{match.out} and \code{match.covar}.  A backup model is to be used
-#'   for any of the main, jackknife or permuation weights as needed.
+#'   by \code{match.out} and \code{match.covar}.  Different backup models may be
+#'   used for each of the main, jackknife or permutation weights as needed.
+#'
 #' @param max.mse The maximum error (given as mean-squared error) permissible
 #'   for constraints that are to be exactly satisfied.  If max.mse is not
-#'   satisfied by these constraints, back-up models are used.
+#'   satisfied by these constraints, and either \code{check.feas = TRUE} or
+#'   \code{use.backup = TRUE}, then back-up models are used.
+#'
 #' @param result.var A vector of variable names giving the (time variant) outcome
 #'   variables for which results will be reported.  If \code{result.var = TRUE}
 #'   (the default), \code{result.var} is set as being equal to all time variant
@@ -207,12 +211,15 @@
 #'   in \code{max.time}.  When \code{max.time = NULL} (the default), it is reset
 #'   to the maximum time that appears in the column given by \code{timevar}.
 #' @param period An integer that gives the granularity of the data that will be
-#'   used for plotting and compiling results.  This does not affect calculation
-#'   of weights.  If \code{match.out} and \code{match.out.min} are not given as
-#'   a list, matching of treatment and synthetic control is performed at a
-#'   temporal granularity defined by period.  For instance, if monthly data are
-#'   provided and \code{period = 3}, data are aggregated to quarters for plots
-#'   and results (and weighting unless otherwise specified).
+#'   used for plotting and compiling results; if \code{match.out} and
+#'   \code{match.out.min} are provided a vector of variable names, it will also
+#'   affect the calculation of weights used for matching. In this case, matching
+#'   of treatment and synthetic control is performed at a temporal granularity
+#'   defined by \code{period}. For instance, if monthly data are provided and
+#'   \code{period = 3}, data are aggregated to quarters for plots and results
+#'   (and weighting unless otherwise specified). If \code{match.out} and
+#'   \code{match.out.min} are provided a list, \code{period} only affects plots
+#'   and how results are displayed.
 #' @param cut.mse The maximum error (given as mean-squared error) permissible
 #'   for permutation groups.  Permutation groups with a larger than permissible
 #'   error are dropped when calculating results.  The mean-squared error is only
@@ -234,7 +241,9 @@
 #'   Setting \code{use.survey = TRUE} makes for better inference but increases
 #'   computation time substantially.  Confidence intervals for permutation
 #'   groups are calculated only when \code{use.survey = TRUE}.
-#' @param confidence The level of confidence for confidence intervals
+#'
+#' @param confidence The level of confidence for confidence intervals.
+#'
 #' @param plot.var A vector of variable names giving the outcome variables that
 #'   are shown in plots.  If \code{plot.var = NULL} or \code{plot.var = FALSE}, no
 #'   plots are generated.  If \code{plot.var = TRUE}, it is reset as equaling all
@@ -242,19 +251,26 @@
 #' @param plot.file A character string giving the name of file that will be
 #'   created in the home directory containing plots (if \code{plot.var} is
 #'   non-\code{NULL}).  The name should have a \code{.pdf} extension.
-#' @param start.time An integer, used for plotting, that gives the first
-#'   earliest time shown in the plots.  When \code{start.time = NULL} (the
-#'   default), it is reset to the minimum time that appears in the column given
-#'   by \code{timevar}.
+#'
+#' @param start.time An integer indicating the earliest time shown in the plots;
+#'   if match.out and match.out.min are provided a vector of variable names, it
+#'   will also determine the beginning of the pre-intervention period used for
+#'   matching. When \code{start.time = NULL} (default), it is reset to the
+#'   minimum time appearing in the column given by \code{timevar}.
+#'
 #' @param sep If \code{sep = TRUE}, separate plots will be generated for each
 #'   outcome.  Applicable only if plotting variables are specified (
 #'   \code{plot.var} is \code{non-NULL}) and plots are saved to file (
 #'   \code{plot.file} is \code{non-NULL}). To change display of plots produced
 #'   as output, use \code{\link[graphics]{par}}.
+#'
 #' @param legend.spot The location of the legend in the plots.
+#'
 #' @param scale.var  A variable name.  When comparing the treatment group to all
 #'   cases, the latter is scaled to the size of the former with respect to the
-#'   variable indicated by \code{scale.var}.  Defaults to the intercept.
+#'   variable indicated by \code{scale.var}.  Defaults to the number of units
+#'   receiving treatment (i.e., the intercept).
+#'
 #' @param maxit The maximum number of iterations used within the calibration
 #'   routine (\code{survey::calibrate()} from the \code{survey} package) for
 #'   calculating weights.
