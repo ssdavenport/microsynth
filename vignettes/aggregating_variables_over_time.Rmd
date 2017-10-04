@@ -1,0 +1,63 @@
+---
+title: "Aggregating Matching Variables Over Time"
+author: "Michael Robbins and Steven Davenport"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Aggregating Matching Variables Over Time}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This is a brief discussion of how microSynth allows the user to aggregate
+outcome variables (passed to `match.out` or `match.out.min`) over time, either
+before or after matching, and how that can affect the workings of two other
+arguments: `period` and `start.time`.
+
+## Declaring outcome variables as a vector or list
+
+microSynth will match treatment and control based on the variables passed to
+`match.out` and `match.out.min`. But there are two different ways to input
+parameters to `match.out`, and they have different implications for how the
+arguments work.
+
+The simple way to pass variables to match.out is with a simple vector of
+variable names (e.g., `match.out=c("Y1", "Y2")`. A more complex way is to pass a
+list, containing a set of vectors with named corresponding to variable names and
+elements corresponding to instructions for how to aggregate those variables over
+time before matching, e.g. `match.out = list('Y1' = c(1, 3, 3), 'Y2'=
+c(2,5,1))`. Under this specification, if the intervention occurs at time 10,
+then matching will proceed across a) The value of Y1 at time 10; b) the sum of
+Y1 across times 7, 8 and 9; c) the sum of Y1 across times 4, 5 and 6; e) The sum
+of Y2 across times time 9 and 10; e) the sum of Y2 across times 4, 5, 6, 7, and
+8; f) the value of Y2 at time 3.
+
+## Interactions with other arguments
+
+The choice between the simple and the complex input method is important, and it
+alters how other arguments work.
+
+`period` specifies the granularity of the data used by microSynth. When provided
+simple input from match.out (i.e., a vector of variable names),  `period`
+indicates that those variables should be aggregated into the duration equal to
+the value of `period`.  E.g., if data are provided monthly and `period=3`, then
+variables will be aggregated to the year-quarter before matching. But when
+provided complex input from match.out (i.e., a list of names and integers), then
+the user has already manually specified how the variables should be aggregated
+prior to matching; in this case, `period` will only affect the appearance of
+charts and how results are reported (but not the matching procedure).
+
+`start.time` is also affected. When match.out is provided the simple input (a
+vector of variable names), start.time will identify the time of the beginning of
+the pre-intervention data to be used for matching, plotting, and displaying
+results. Data observed any time before the `start.time` will be ignored
+entirely. If provided the complex (list) input, then `start.time` will merely
+affect plotting behavior and suppress some of the results. But observations
+before the `start.time` will still be used for matching.
+
+In conclusion, passing a list to `match.out` will lock into place the parameters
+around the matching procedure; arguments such as `period` and `start.time` will
+only alter how results are reported and how charts are plotted. But when
+`match.out` is passed only variable names, then `period` and `start.time` will
+also govern the matching procedure.
+

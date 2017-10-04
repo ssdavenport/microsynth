@@ -1,0 +1,88 @@
+---
+title: "Ensuring Model Feasibility"
+author: "Michael Robbins and Steven Davenport"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Ensuring Model Feasibility}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Using microSynth is easy when the models used to calculate weights are feasible.
+But as more variables are used for matching, especially when data is scarce or
+variables are sparse, the risk of an infeasible model increases. Below is a
+quick guide to how to troubleshoot model feasiblity issues.
+
+## Causes of model infeasibility
+
+Model infeasibility becomes increasingly likely when:
+
+* There are few control observations * More variables used for matching *
+Matching variables are sparse (e.g., mostly zero) * Treatment units have extreme
+values for matching variables * Permutation weights are calculated in addition
+to main weights * Jackknife weights are calculated in addition to main weights
+
+## Responses to an infeasible model
+
+As there are multiple causes of model infeasibility, there is an equally broad
+range of responses.
+
+### Specification of matching variables
+
+If a model is found to be infeasible, the problem may trace back to matching
+variable specification. We recommend the following diagnostic steps:
+
+* Review the frequency of matching variables (e.g., with `hist()` or `table()`)
+to check for sparseness. Sparse variables are difficult to match on without
+large sample sizes. * Compare the distribution of variable values in treatment
+units to the un-treated units. * Attempt to reduce the number of matching
+variables, move variables from exact matches (`match.out`/`match.covar`) to
+best-possible matches (`match.out.min`/`match.covar.min`), or aggregate
+time-variant variables before matching.
+
+When attempts to match on a sparse variable cause model infeasiblity, there are
+several solutions:
+
+* Do not attempt an exact match. If the variable is time-invariant, move it from
+`match.covar` to `match.covar.min`; if the variable is time-variant, move it
+from `match.out` to `match.out.min`. * If the variable is time-variant,
+aggregate the variable over multiple time periods before matching. If just one
+or several variables that appear to be sparse or for which the treatment
+contains values that are rare in the un-treated units, then the user can issue
+instructions for each of those variables to be aggregated over different time
+periods. (Those time periods do not have to be at regular intervals, for
+instance if the sparseness only occurs at certain points in the pre-intervention
+data.) Exercise 4 from the \link{Introduction} provides an example of this. If
+the user would like to aggregate all time-variant variables over the same
+regular time periods, then it is somewhat simple to pass `match.out` or
+`match.out.min` a vector of variable names, and specify the aggregation periods
+using `period`.
+
+### Parameters for calculating weights
+
+If varying the specification of matching variables is not satisfactory, the user
+can set the parameters microSynth() uses for the calculation of weights.
+
+* `max.mse` may be raised. This relaxes the constraint governing matches for
+variables passed to `match.out` and `match.covar`. * Advanced users may wish to
+alter `maxit`, `cal.epsilon`, `calfun`, and `bounds`, which correspond to
+parameters from the `survey::calibrate()` and govern the calculation of weights.
+
+### Calling on (computationally-intensive) back-up models
+
+By default microSynth() attempts to calculate weights using simple methods. But
+because these are not always sufficient to produce a feasible model, two
+arguments, `check.feas` and `use.backup`, specify how microsynth should find and
+use less restrictive backup models. The two arguments do not interact and can be
+set independently.
+
+`check.feas = TRUE` will search for a single model that yields satisfactory
+constraints for all purposes: estimating main weights, permutation weights, and
+jackknife residuals. The same model will be used for all purposes.
+
+`use.backup = TRUE` will calculate the main weights without checking for
+feasibility, but if weights appear to be poor (i.e., they do not satisfy the
+max.mse condition), then weights will be re-calculated using another model. This
+way, different backup models may be used for different purposes (i.e., for
+estimating main weights, permutation weights, and jackknife residuals).
