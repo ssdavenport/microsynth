@@ -169,7 +169,7 @@ of crime: felony arrests, misdemeanor arrests, drug arrests, and any criminal
 arrest. Passing these variables to `match.out` instructs microsynth to calculate
 weights that provide exact matches on these variables; assigning `result.var =
 match.out` identifies them as outcome variables for which we would like effects
-estimated; `omnibus.vars` will include them in the omnibus statistic; and 
+estimated; `omnibus.var` will include them in the omnibus statistic; and 
 `plot.var=match.out` indicates they should appear on plots.
 
 Treatment and synthetic control will also be matched on block-level Census 
