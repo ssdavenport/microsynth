@@ -169,7 +169,7 @@ of crime: felony arrests, misdemeanor arrests, drug arrests, and any criminal
 arrest. Passing these variables to `match.out` instructs microsynth to calculate
 weights that provide exact matches on these variables; assigning `result.var =
 match.out` identifies them as outcome variables for which we would like effects
-estimated; `omnibus.vars` will include them in the omnibus statistic; and 
+estimated; `omnibus.var` will include them in the omnibus statistic; and 
 `plot.var=match.out` indicates they should appear on plots.
 
 Treatment and synthetic control will also be matched on block-level Census 
@@ -251,12 +251,16 @@ In this minimal example, we will calculate results in the simplest way possible.
 This includes:
 
 * calculating weights to match treatment to synthetic control on the variables
-specified * calculating a variance estimate based on the linearization method
+specified 
+* calculating a variance estimate based on the linearization method
 only, and based on that, running a one-sided lower significance test
-(`test=lower`) * calculating an omnibus statistic to test joint significance
-across all outcome variables (`result.var = match.out`) * creating a plot and
+(`test=lower`) 
+* calculating an omnibus statistic to test joint significance
+across all outcome variables (`result.var = match.out`) 
+* creating a plot and
 displaying it as output (`plot.file=NULL`); to save to file, specify a .csv or
-.xlsx. * estimating results and saving it to file.
+.xlsx. 
+* estimating results and saving it to file.
 
 As microsynth runs, it will display output relating to the calculation of
 weights, the matching of treatment to synthetic control, and the calculation of
