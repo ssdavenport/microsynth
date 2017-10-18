@@ -51,7 +51,7 @@ outcome variables.
 
 This package is developed to address those limitations, by incorporating
 high-dimensional, micro-level data into the synthetic controls framework.
-Therefore, in addition to what Synth provides, microSynth offers several
+Therefore, in addition to what Synth provides, microsynth offers several
 advantages and new tools:
 
 * With the advantage of a large number of smaller-scale observations, microsynth
@@ -60,7 +60,7 @@ treatment and synthetic control units (on all variables passed to `match.out`
 [for time-variant variables] and `match.covar` [for time-variant variables]).
 This bolsters the conceptual framework behind the synthetic control method.
 
-* To generate an additional measure for significance, microSynth can generate 
+* To generate an additional measure for significance, microsynth can generate 
 hundreds or thousands of placebo treatment units using random permutations of
 the control units (e.g., with `perm = 250` and `jack = TRUE`). This allows
 estimated effects from the actual treatment unit to be compared to effects for
@@ -96,7 +96,7 @@ although the relative dearth of data should be expected to decrease matching
 performance and limit the usefulness of the features discussed above (see
 Example 8).
 
-## An example: Using microSynth to evaluate a Drug Market Intervention
+## An example: Using microsynth to evaluate a Drug Market Intervention
 
 For this example we will use \code{\link{seattledmi}} to evaluate a Drug Market 
 Intervention using the "seattledmi" dataset provided with the microsynth
@@ -121,7 +121,7 @@ pursuant to the dataset and our basic research design.
 The bedrock of the synthetic controls research design (like any 
 difference-in-difference method) involves comparing observations between 
 treatment (i.e., "intervention") areas versus control areas, with observations 
-for each unit over a certain period of time. Therefore microSynth requires we 
+for each unit over a certain period of time. Therefore microsynth requires we 
 identify the `idvar`, `timevar`, and `intvar` columns.
 
 In this case, we are provided with Census block-level observation units (`idvar
@@ -156,7 +156,7 @@ dataset.
 
 #### Setting outcome variables and covariates and related parameters
 
-The last group of `microSynth`'s mandatory parameters relate to declaring 
+The last group of `microsynth`'s mandatory parameters relate to declaring 
 outcome variables and covariates. Both outcomes and covariates will be used to 
 match treatment units to synthetic controls during the pre-intervention period. 
 The key difference between outcomes and covariates is that outcome variables are
@@ -198,7 +198,7 @@ aggregate all variable names in `match.out`/`match.covar` under the same regular
 time duration; or, to set aggregation instructions with more detail,
 `match.out`/`match.covar` may receive a list with detailed parameters.
 
-microSynth() provides several different ways to address this problem. A variable
+microsynth() provides several different ways to address this problem. A variable
 can be treated such that the distance between treatment and synthetic control is
 minimized, even if a distance of zero is infeasible, by listing it under 
 `match.out.min` (for time-variant outcome variables) or `match.covar.min` (for 
@@ -240,7 +240,7 @@ not want to use for the purposes of evaluating the program effect.
 
 #### Other parameters that may be set
 
-microSynth allows for extensive configuration, for instance, relating to the 
+microsynth allows for extensive configuration, for instance, relating to the 
 mechanics of calculating weights, plotting options, and the calculation of 
 variance estimators through permutation tests and jackknife replication groups. 
 These aspects will be discussed in the later examples below.
@@ -354,7 +354,7 @@ sea2 <- microsynth(seattledmi,
                    result.var=match.out, omnibus.var=match.out, 
                    plot.var=match.out, 
                    test="lower", 
-                   perm=2, jack=TRUE, 
+                   perm=250, jack=TRUE, 
                    plot.file=NULL, sep = TRUE, result.file="ExResults2.xlsx")
 ```
 
@@ -404,7 +404,7 @@ sea3 <- microsynth(seattledmi,
                    idvar="ID", timevar="time", intvar="Intervention", 
                    match.out=match.out, match.covar=cov.var, 
                    result.var=match.out, plot.var=match.out, 
-                   perm=2, jack=TRUE, 
+                   perm=250, jack=TRUE, 
                    test="lower", 
                    check.feas=TRUE, use.backup = TRUE, 
                    plot.file=NULL, result.file="ExResults3.xlsx")
@@ -459,7 +459,7 @@ sea4 <- microsynth(seattledmi,
                    match.out=match.out, match.covar=cov.var, 
                    result.var=names(match.out), omnibus.var=names(match.out), 
                    plot.var=names(match.out),
-                   perm=2, jack = 0,
+                   perm=250, jack = 0,
                    test="lower",
                    plot.file="ExPlots4.pdf", result.file="ExResults4.xlsx")
 ```
@@ -496,7 +496,7 @@ sea5 <- microsynth(seattledmi,
                    idvar="ID", timevar="time",intvar="Intervention",
                    match.out=match.out, match.covar=cov.var,
                    result.var=FALSE, plot.var=FALSE,
-                   perm=2, jack=TRUE)
+                   perm=250, jack=TRUE)
 ```
 
 Appropriately, the table summarizing the main weights may be viewed, but results
@@ -524,7 +524,7 @@ sea6 <- microsynth(seattledmi,
 
 ### Example 7:  Results only
 
-If weights have already been calculated, then microSynth() can also be
+If weights have already been calculated, then microsynth() can also be
 configured to only reproduce results. Results are displayed for all outcome
 variables used for exact matches (`result.var = match.out`) but none are plotted
 (`plot.var = FALSE`). Further, results can now be calculated for any single or
@@ -549,15 +549,15 @@ will be saved to a different XLSX tab.
 microsynth.tab(sea7)$Results
 ```
 
-## Alternative Applications for microSynth
+## Alternative Applications for microsynth
 
 ### Example 8: Apply microsynth in the traditional setting of Synth
 
-One of the major differences between Synth and microSynth is that Synth requires
+One of the major differences between Synth and microsynth is that Synth requires
 that the treatment is confined to a single unit of observation, and to
-estimating the effect on a single outcome variable; in contrast, microSynth
+estimating the effect on a single outcome variable; in contrast, microsynth
 anticipates that treatment has been applied to multiple areas and can estimate
-effects with respect to multiple outcomes. But microSynth can also be applied to
+effects with respect to multiple outcomes. But microsynth can also be applied to
 this simpler case.
 
 To demonstrate, first we will create a reduced dataset with 1 treatment block
@@ -582,14 +582,14 @@ sea8 <- microsynth(seattledmi.one,
                    idvar="ID", timevar="time", intvar="Intervention", 
                    match.out=match.out[4], match.covar=cov.var, 
                    result.var=match.out[4], plot.var=match.out[4],
-                   test="lower", perm=2, jack=FALSE, 
+                   test="lower", perm=250, jack=FALSE, 
                    check.feas=TRUE, use.backup=TRUE)
 ```
 
 ### Example 9: Cross-sectional data for traditional propensity score-type
 weights
 
-microSynth() may also be used to calculate propensity score-type weights. We
+microsynth() may also be used to calculate propensity score-type weights. We
 will demonstrate this by transforming our panel data into a cross-sectional
 dataset with data corresponding to the time of the intervention (time = 12).
 
@@ -610,7 +610,7 @@ sea9 <- microsynth(seattledmi.cross,
                    match.out=FALSE, match.covar=cov.var,
                    result.var=match.out, 
                    test="lower",
-                   perm=2, jack=TRUE)
+                   perm=250, jack=TRUE)
 
 microsynth.tab(sea9)$Results
 ```

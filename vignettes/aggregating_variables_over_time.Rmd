@@ -9,14 +9,14 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-This is a brief discussion of how microSynth allows the user to aggregate
+This is a brief discussion of how microsynth allows the user to aggregate
 outcome variables (passed to `match.out` or `match.out.min`) over time, either
 before or after matching, and how that can affect the workings of two other
 arguments: `period` and `start.time`.
 
 ## Declaring outcome variables as a vector or list
 
-microSynth will match treatment and control based on the variables passed to
+microsynth will match treatment and control based on the variables passed to
 `match.out` and `match.out.min`. But there are two different ways to input
 parameters to `match.out`, and they have different implications for how the
 arguments work.
@@ -37,7 +37,7 @@ of Y2 across times time 9 and 10; e) the sum of Y2 across times 4, 5, 6, 7, and
 The choice between the simple and the complex input method is important, and it
 alters how other arguments work.
 
-`period` specifies the granularity of the data used by microSynth. When provided
+`period` specifies the granularity of the data used by microsynth. When provided
 simple input from match.out (i.e., a vector of variable names),  `period`
 indicates that those variables should be aggregated into the duration equal to
 the value of `period`.  E.g., if data are provided monthly and `period=3`, then
