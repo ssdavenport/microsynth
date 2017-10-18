@@ -1,18 +1,18 @@
 #' Synthetic control methods for micro- and meso-level data.
 #'
 #' Implements the synthetic control method for micro-level data as outlined in
-#' Robbins, Saunders, and Kilmer (2017).  \code{microSynth} is a generalization
+#' Robbins, Saunders, and Kilmer (2017).  \code{microsynth} is a generalization
 #' of \code{Synth} (see Abadie and Gardeazabal (2003) and Abadie, Diamond,
 #' Hainmueller (2010, 2011, 2014)) that is designed for data at a more granular
-#' level (e.g., micro-level). \code{microSynth} may also be used to calculate
+#' level (e.g., micro-level). \code{microsynth} may also be used to calculate
 #' propensity score-type weights. For more details see the help vignette:
 #' \code{vignette('microsynth', package = 'microsynth')}
 #'
-#' \code{microSynth} develops a synthetic control group by searching for weights
+#' \code{microsynth} develops a synthetic control group by searching for weights
 #' that exactly match the treatment group to the synthetic control group across
 #' a number of variables while also minimizing the discrepancy between the
 #' synthetic control group and the treatment group across a set second set of
-#' variables.  \code{microSynth} works in three primary steps: 1) calculation of
+#' variables.  \code{microsynth} works in three primary steps: 1) calculation of
 #' weights, 2) plotting of treatment vs. synthetic control for pertinent
 #' outcomes, and 3) calculation of results.
 #' Variables are categorized as outcomes (which are time-variant) and covariates
@@ -29,7 +29,7 @@
 #' that the model specified by \code{match.covar} and \code{match.out} is not
 #' feasible (i.e., weights do not exist that exactly match treatment and
 #' synthetic control subject to the given constraints), a less restrictive
-#' backup model is used. \code{microSynth} has the capability to perform
+#' backup model is used. \code{microsynth} has the capability to perform
 #' statistical inference using Taylor series linearization, a jackknife and
 #' permutation methods.  Several sets of weights are calculated.  A set of main
 #' weights is calculated that is used to determine a point estimate of the
@@ -48,17 +48,17 @@
 #' effect, as well as confidence intervals of the effect and p-values of a
 #' hypothesis test that assesses whether the effect is zero.   Such results are
 #' produced as needed for each of the three methods of statistical inference
-#' noted above.  \code{microSynth} can also apply an omnibus test that examines
+#' noted above.  \code{microsynth} can also apply an omnibus test that examines
 #' the presence of a treatment effect jointly across several outcomes.
 #'
-#' \code{microSynth} requires specification of the following inputs:
+#' \code{microsynth} requires specification of the following inputs:
 #' \code{data}, \code{idvar}, \code{intvar}.  \code{data} is a longitudinal data
 #' frame; \code{idvar} and \code{intvar} are character strings that specific
 #' pertinent columns of \code{data}.  In longitudinal data, \code{timevar}
 #' should be specified.  Furthermore, specification of \code{match.out} and
 #' \code{match.covar} is recommended.
 #'
-#' \code{microSynth} can also be used to calculate propensity score-type weights
+#' \code{microsynth} can also be used to calculate propensity score-type weights
 #' in cross sectional data (in which case \code{timevar} does not need to be
 #' specified) as proposed by Hainmueller (2012).
 #'
@@ -87,7 +87,7 @@
 #'   observation per entry in \code{idvar}).
 #'
 #' @param w A list of the form as returned by a prior application of
-#'   \code{microSynth}.  If \code{w = NULL}, weights are calculated from
+#'   \code{microsynth}.  If \code{w = NULL}, weights are calculated from
 #'   scratch.  Entering a \code{non-NULL} value affords the user the ability to
 #'   use previously calculated  weights.
 #'
@@ -283,7 +283,7 @@
 #' @param bounds Bounds for calibration weighting (fed into the
 #'   \code{survey::calibrate()} from the \code{survey} package).
 #'
-#' @details \code{microSynth} calculates weights using
+#' @details \code{microsynth} calculates weights using
 #'   \code{survey::calibrate()} from the \code{survey} package in circumstances
 #'   where a feasible solution exists for all constraints, whereas
 #'   \code{LowRankQP::LowRankQP()} is used to assess feasibility and to
@@ -294,7 +294,7 @@
 #'   \code{match.covar.min= NULL}, \code{check.feas = FALSE}, and
 #'   \code{use.backup = FALSE}.
 #'
-#' @return \code{microSynth} returns a list with up to three elements: a)
+#' @return \code{microsynth} returns a list with up to three elements: a)
 #'   \code{w}, b) \code{Results}, and c) \code{Plot.Stats}.  The third element
 #'   is returned only if \code{plot.var} is not \code{NULL} or \code{FALSE}.
 #'
@@ -371,8 +371,7 @@
 #' @examples
 #' set.seed(99199) # for reproducibility
 #'
-#' # Load a block-level panel dataset to evaluate a crime intervention.
-#' load('seattledmi')
+#' # Use seattledmi, block-level panel data, to evaluate a crime intervention.
 #'
 #' # Declare time-variant (outcome) and time-invariant variables for matching
 #' cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
