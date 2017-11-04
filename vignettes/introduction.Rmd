@@ -303,7 +303,7 @@ sea1 <- microsynth(seattledmi,
                    result.file="ExResults1.csv", plot.file=NULL, sep = TRUE)
 ```
 
-After the call to microsynth has been made, the \code{microsynth.tab} function
+After the call to microsynth has been made, the \code{summary} function
 can be used to display a summary of the matching between treatment, synthetic
 control, and the population, and also the results. Below we reproduce the
 results that were saved to file in the previous example, with one row for each
@@ -317,7 +317,7 @@ Note that the p-value of the omnibus statistic is smaller than any of the
 individual outcome variables.
 
 ```{r ex1b, eval = TRUE}
-microsynth.tab(sea1)$Results
+summary(sea1)
 ```
 
 ### Example 2: Adding permutations and jackknife
@@ -358,7 +358,7 @@ sea2 <- microsynth(seattledmi,
                    plot.file=NULL, sep = TRUE, result.file="ExResults2.xlsx")
 ```
 
-Calling \code{microsynth.tab} identifies other new changes to the results.
+Calling \code{summary} identifies other new changes to the results.
 Columns are added to display the confidence intervals (`confidence = 0.9`) and
 p-values (`test = "lower"`) from the jackknife and permutation tests. Note that
 `max.time=c(14,16)` in the code above, instructing results to be calculated for
@@ -366,7 +366,7 @@ two different follow-up periods, ending at t=14 and t-16 respectively. One
 results table will be calculated for each.
 
 ```{r, eval = TRUE}
-microsynth.tab(sea2)$Results
+summary(sea2)
 ```
 
 ### Example 3:  Model feasibility while matching on more variables
@@ -413,7 +413,7 @@ sea3 <- microsynth(seattledmi,
 The results file now shows additional rows for the new outcome variables.  
 
 ```{r ex3results, eval = FALSE}
-microsynth.tab(sea3)$Results
+summary(sea3)
 ```
 
 ### Example 4: Provide match.out as a list (time-aggregating matching variables)
@@ -469,7 +469,7 @@ the results table, though the estimates have changed as a consequence of the
 aggregation.
 
 ```{r ex4results, eval = FALSE}
-microsynth.tab(sea4)$Results
+summary(sea4)
 ```
 
 ## Partial calls to microsynth
@@ -503,7 +503,7 @@ Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
 
 ```{r ex5results, eval = FALSE}
-microsynth.tab(sea5)
+summary(sea5)
 ```
 
 ### Example 6:  Plots only
@@ -546,7 +546,7 @@ file, this requires the file be saved as an XLSX rather than a CSV; each table
 will be saved to a different XLSX tab.
 
 ```{r ex7results, eval = FALSE}
-microsynth.tab(sea7)$Results
+summary(sea7)
 ```
 
 ## Alternative Applications for microsynth
@@ -602,7 +602,7 @@ By setting `match.out = FALSE`, no outcome variables will be used to calculate
 weights, only (time-invariant) covariates (`match.covar`). No plot variables
 (`plot.var = NULL`) or outcome-reporting variables (`result.var = NULL`) need be
 reported. Plots are therefore inappropriate, but results (i.e., a summary of
-weights only) can be saved to file or viewed using `microsynth.tab`.
+weights only) can be saved to file or viewed using `summary`.
 
 ```{r ex9results, eval = FALSE, fig.show = "hold", fig.width = 6, fig.height = 7}
 sea9 <- microsynth(seattledmi.cross, 
@@ -612,7 +612,7 @@ sea9 <- microsynth(seattledmi.cross,
                    test="lower",
                    perm=250, jack=TRUE)
 
-microsynth.tab(sea9)$Results
+summary(sea9)
 ```
 
 ## References
