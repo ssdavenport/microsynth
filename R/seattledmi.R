@@ -13,8 +13,6 @@
 #'   unique blocks with 16 (quarterly) observations each. It contains the
 #'   following variables:
 #'
-#' @export
-#'
 #' \describe{
 #'   \item{ID}{unique Census block ID}
 #'
@@ -65,4 +63,5 @@
 #' }
 #' @source Demographic data obtained from the 2010 Census, and administrative
 #'   crime data from the Seattle Police Department.
+
 "seattledmi"
