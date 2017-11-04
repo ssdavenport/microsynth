@@ -13,6 +13,8 @@
 #'   unique blocks with 16 (quarterly) observations each. It contains the
 #'   following variables:
 #'
+#' @export
+#'
 #' \describe{
 #'   \item{ID}{unique Census block ID}
 #'

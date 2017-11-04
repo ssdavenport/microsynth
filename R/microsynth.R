@@ -379,11 +379,11 @@
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 
 #' # Perform matching and estimation, without permutations or jackknife
-#' sea1 <- microsynth(seattledmi, idvar="ID", timevar="time",
-#'        intvar="Intervention", start.time=1, int.time=NULL, max.time=16,
+#' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
+#'        intvar='Intervention', start.time=1, int.time=NULL, max.time=16,
 #'        match.out=match.out, match.covar=cov.var, result.var=match.out,
-#'        omnibus.var=match.out, plot.var=match.out, test="lower",
-#'        result.file="ExResults1.csv", plot.file=NULL, sep = TRUE)
+#'        omnibus.var=match.out, plot.var=match.out, test='lower',
+#'        result.file='ExResults1.csv', plot.file=NULL, sep = TRUE)
 #'
 #' # View results
 #' microsynth.tab(sea1)$Results
@@ -391,11 +391,11 @@
 #' # Repeat matching and estimation, with permutations and jackknife
 #' # Set permutations and jack-knife to very few groups (2) for
 #' # quick demonstration only.
-#' sea2 <- microsynth(seattledmi, idvar="ID", timevar="time",
-#'         intvar="Intervention", start.time=1, int.time=12, max.time=c(14, 16),
+#' sea2 <- microsynth(seattledmi, idvar='ID', timevar='time',
+#'         intvar='Intervention', start.time=1, int.time=12, max.time=c(14, 16),
 #'         match.out=match.out, match.covar=cov.var, result.var=match.out,
-#'         omnibus.var=match.out, plot.var=match.out, test="lower", perm=2,
-#'         jack=TRUE, plot.file=NULL, sep = TRUE, result.file="ExResults2.xlsx")
+#'         omnibus.var=match.out, plot.var=match.out, test='lower', perm=2,
+#'         jack=TRUE, plot.file=NULL, sep = TRUE, result.file='ExResults2.xlsx')
 #'
 #' # View results
 #' microsynth.tab(sea2)$Results
@@ -407,11 +407,11 @@
 #'
 #' # Perform matching, setting check.feas = T and use.backup = T
 #' # to ensure model feasibility
-#' sea3 <- microsynth(seattledmi, idvar="ID", timevar="time",
-#'         intvar="Intervention", match.out=match.out, match.covar=cov.var,
+#' sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
+#'         intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'         result.var=match.out, plot.var=match.out, perm=2, jack=TRUE,
-#'         test="lower", check.feas=TRUE, use.backup = TRUE,
-#'         plot.file=NULL, result.file="ExResults3.xlsx")
+#'         test='lower', check.feas=TRUE, use.backup = TRUE,
+#'         plot.file=NULL, result.file='ExResults3.xlsx')
 #'
 #' # Aggregate outcome variables before matching, to boost model feasibility
 #' match.out <- list( 'i_robbery'=rep(2, 6), 'i_aggassau'=rep(2, 6),
@@ -421,31 +421,31 @@
 #'          'any_crime'=rep(1, 12))
 #'
 #' # After aggregation, use.backup and cheack.feas no longer needed
-#' sea4 <- microsynth(seattledmi, idvar="ID", timevar="time",
-#'          intvar="Intervention", match.out=match.out, match.covar=cov.var,
+#' sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
+#'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
-#'          plot.var=names(match.out), perm=2, jack = 0, test="lower",
-#'          plot.file="ExPlots4.pdf", result.file="ExResults4.xlsx")
+#'          plot.var=names(match.out), perm=2, jack = 0, test='lower',
+#'          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
 #'
 #' # Generate weights only (for four variables)
-#' match.out <- c("i_felony", "i_misdemea", "i_drugs", "any_crime")
-#' sea5 <- microsynth(seattledmi,  idvar="ID", timevar="time",
-#'          intvar="Intervention", match.out=match.out, match.covar=cov.var,
+#' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+#' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
+#'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          result.var=FALSE, plot.var=FALSE, perm=2, jack=TRUE)
 #'
 #' # View weights
 #' microsynth.tab(sea5)
 #'
 #' # Generate plots only using previous weights
-#' sea6 <- microsynth(seattledmi,  idvar="ID", timevar="time",
-#'           intvar="Intervention", result.var=FALSE, plot.var=match.out[1:2],
+#' sea6 <- microsynth(seattledmi,  idvar='ID', timevar='time',
+#'           intvar='Intervention', result.var=FALSE, plot.var=match.out[1:2],
 #'           w=sea5$w)
 #'
 #' # Generate results only
-#' sea7 <- microsynth(seattledmi, idvar="ID", timevar="time",
-#'           intvar="Intervention", max.time=c(14, 16),
-#'           result.var=match.out, plot.var=FALSE, test="lower",
-#'           w=sea5$w, result.file="ExResults7.xlsx")
+#' sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
+#'           intvar='Intervention', max.time=c(14, 16),
+#'           result.var=match.out, plot.var=FALSE, test='lower',
+#'           w=sea5$w, result.file='ExResults7.xlsx')
 #'
 #' # View results (including previously-found weights)
 #' microsynth.tab(sea7)$Results
@@ -460,21 +460,21 @@
 #'            as.numeric(ids.synth)), ]
 #'
 #' # Apply microsynth to the new macro-level data
-#' sea8 <- microsynth(seattledmi.one, idvar="ID", timevar="time",
-#'            intvar="Intervention", match.out=match.out[4],
+#' sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
+#'            intvar='Intervention', match.out=match.out[4],
 #'            match.covar=cov.var, result.var=match.out[4],
-#'            plot.var=match.out[4], test="lower", perm=2, jack=FALSE,
+#'            plot.var=match.out[4], test='lower', perm=2, jack=FALSE,
 #'            check.feas=TRUE, use.backup=TRUE)
 #'
 #' # Use microsynth to calculate propensity score-type weights
 #' # Prepare cross-sectional data at time of intervention
 #' seattledmi.cross <- seattledmi[seattledmi$time==12, ]
-#' seattledmi.cross <- seattledmi.cross[, colnames(seattledmi)!="time"]
+#' seattledmi.cross <- seattledmi.cross[, colnames(seattledmi)!='time']
 #'
 #' # Apply microsynth to find propensity score-type weights
-#' sea9 <- microsynth(seattledmi.cross, idvar="ID", intvar="Intervention",
+#' sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
 #'              match.out=FALSE, match.covar=cov.var, result.var=match.out,
-#'              test="lower", perm=2, jack=TRUE)
+#'              test='lower', perm=2, jack=TRUE)
 #'
 #' # View results
 #' microsynth.tab(sea9)$Results
@@ -482,17 +482,15 @@
 #'
 #' @export
 
-microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, int.time = NULL,
-    max.time = NULL, match.out = TRUE, match.covar = TRUE, match.out.min = NULL, match.covar.min = NULL,
-    result.var = TRUE, omnibus.var = result.var, plot.var = TRUE, period = 1, scale.var = "Intercept",
-    confidence = 0.9, test = "twosided", perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf, check.feas = FALSE,
-    use.backup = FALSE, w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04, calfun = "linear",
-    bounds = c(0, Inf), result.file = NULL, plot.file = NULL, sep = FALSE, legend.spot = "bottomleft") {
-
+microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, int.time = NULL, max.time = NULL, match.out = TRUE, match.covar = TRUE, match.out.min = NULL, 
+    match.covar.min = NULL, result.var = TRUE, omnibus.var = result.var, plot.var = TRUE, period = 1, scale.var = "Intercept", confidence = 0.9, test = "twosided", 
+    perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04, 
+    calfun = "linear", bounds = c(0, Inf), result.file = NULL, plot.file = NULL, sep = FALSE, legend.spot = "bottomleft") {
+    
     ### Later requires: nleqslv LowRankQP kernlab xlsx MASS boot
-
+    
     all.tmp <- proc.time()
-
+    
     if (length(timevar) == 0) {
         if (length(table(data[, idvar])) < NROW(data)) {
             stop("Data are not cross-sectional.  Please specify timevar.")
@@ -502,12 +500,12 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
             int.time <- 1
         }
     }
-
+    
     twosided <- TRUE
     if (test == "lower" | test == "upper") {
         twosided <- FALSE
     }
-
+    
     if (is.logical(match.out)) {
         if (!match.out) {
             reset.match.out <- TRUE
@@ -520,7 +518,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     } else {
         reset.match.out <- FALSE
     }
-
+    
     if (is.logical(match.covar)) {
         if (!match.covar) {
             reset.match.covar <- TRUE
@@ -533,7 +531,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     } else {
         reset.match.covar <- FALSE
     }
-
+    
     if (is.logical(result.var)) {
         if (!result.var) {
             reset.result.var <- TRUE
@@ -546,7 +544,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     } else {
         reset.result.var <- FALSE
     }
-
+    
     if (is.logical(plot.var)) {
         if (!plot.var) {
             reset.plot.var <- TRUE
@@ -559,7 +557,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     } else {
         reset.plot.var <- FALSE
     }
-
+    
     match.out <- remove.vars(match.out, dimnames(data)[[2]], "match.out")
     match.out.min <- remove.vars(match.out.min, dimnames(data)[[2]], "match.out.min")
     match.covar <- remove.vars(match.covar, dimnames(data)[[2]], "match.covar")
@@ -571,13 +569,13 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     if (!is.logical(plot.var)) {
         plot.var <- remove.vars(plot.var, dimnames(data)[[2]], "plot.var")
     }
-
+    
     nv.names <- union(match.covar, match.covar.min)
     v.names <- result.var
     if (length(match.out) > 0) {
         v.names <- union(v.names, names(match.out))
     }
-
+    
     ok.cl <- c("numeric", "integer", "logical")
     classes <- NA
     for (i in 1:NCOL(data)) {
@@ -586,20 +584,18 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     ok.col <- is.element(classes, ok.cl)
     rm.col <- colnames(data)[!ok.col]
     rm.col <- setdiff(rm.col, c(idvar, timevar, intvar))
-
+    
     data <- data[, !is.element(colnames(data), rm.col)]
-
+    
     v.names <- setdiff(v.names, rm.col)
     nv.names <- setdiff(nv.names, rm.col)
-
-    data <- newreshape(data, nv.names = nv.names, v.names = v.names, timevar = timevar, idvar = idvar,
-        intvar = intvar)
+    
+    data <- newreshape(data, nv.names = nv.names, v.names = v.names, timevar = timevar, idvar = idvar, intvar = intvar)
     if (length(result.var) == 0) {
         result.var <- data[[4]]
         if (!reset.result.var) {
             cat("result.var = TRUE.  Resetting: \n")
-            cat("result.var = c(\"", paste(result.var, collapse = "\",\"", sep = ""), "\")\n\n",
-                sep = "")
+            cat("result.var = c(\"", paste(result.var, collapse = "\",\"", sep = ""), "\")\n\n", sep = "")
         }
     }
     if (length(plot.var) == 0) {
@@ -613,19 +609,18 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
         match.covar <- data[[3]]
         if (!reset.match.covar) {
             cat("match.covar = TRUE.  Resetting: \n")
-            cat("match.covar = c(\"", paste(match.covar, collapse = "\",\"", sep = ""), "\")\n\n",
-                sep = "")
+            cat("match.covar = c(\"", paste(match.covar, collapse = "\",\"", sep = ""), "\")\n\n", sep = "")
         }
     }
     Intervention <- data[[2]]
     data <- data[[1]]
-
+    
     times <- as.numeric(colnames(Intervention))
-
+    
     if (length(int.time) == 0) {
         int.time <- FALSE
     }
-
+    
     if (is.logical(int.time)) {
         int.time1 <- int.time
         int.time <- which(colSums(Intervention) != 0)
@@ -643,15 +638,15 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
             cat("Setting int.time = ", int.time, ".\n", sep = "")
         }
     }
-
+    
     if (length(start.time) == 0) {
         start.time <- min(times)
     }
-
+    
     if (length(max.time) == 0) {
         max.time <- max(times)
     }
-
+    
     if (length(match.out) == 0) {
         match.out <- result.var
         if (!reset.match.out) {
@@ -659,7 +654,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
             cat("match.out = c(\"", paste(match.out, collapse = "\",\"", sep = ""), "\")\n\n", sep = "")
         }
     }
-
+    
     if (!is.list(match.out) & length(match.out) > 0) {
         match.out.tmp <- match.out
         match.out <- list()
@@ -668,7 +663,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
         }
         names(match.out) <- match.out.tmp
     }
-
+    
     if (!is.list(match.out.min) & length(match.out.min) > 0) {
         match.out.tmp1 <- match.out.min
         match.out.min <- list()
@@ -677,7 +672,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
         }
         names(match.out.min) <- match.out.tmp1
     }
-
+    
     if (is.logical(omnibus.var)) {
         if (omnibus.var) {
             if (length(match.out) == 1) {
@@ -685,23 +680,21 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
             } else {
                 omnibus.var <- result.var
                 cat("omnibus.var = TRUE.  Resetting: \n")
-                cat("omnibus.var = c(\"", paste(omnibus.var, collapse = "\",\"", sep = ""), "\")\n\n",
-                  sep = "")
+                cat("omnibus.var = c(\"", paste(omnibus.var, collapse = "\",\"", sep = ""), "\")\n\n", sep = "")
             }
         } else {
             omnibus.var <- NULL
         }
     }
-
+    
     int.num <- 1
-
+    
     dum <- max(colSums(Intervention == 1))
     dum <- min(NROW(Intervention) - dum, dum)
     dum1 <- ((max(max.time) - (max(max.time) - int.time)%%period - int.time)/period)
-
+    
     if (dum <= dum1 + 1) {
-        cat("WARNING: There is a low number (", dum, ") of cases in the treatment or intervention group.\n",
-            sep = "")
+        cat("WARNING: There is a low number (", dum, ") of cases in the treatment or intervention group.\n", sep = "")
         if (jack > 0) {
             jack <- 0
             cat("setting jack = 0.\n")
@@ -712,7 +705,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
         }
         cat("Be cautious of results involving linearization or confidence intervals.\n\n")
     }
-
+    
     if (reset.match.covar) {
         match.covar <- NULL
     }
@@ -722,50 +715,43 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     if (reset.plot.var) {
         plot.var <- NULL
     }
-
+    
     if (length(rm.col) > 0) {
         for (i in 1:length(rm.col)) {
             if (is.element(rm.col[i], result.var)) {
-                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from result.var. \n",
-                  sep = "")
+                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from result.var. \n", sep = "")
                 result.var <- setdiff(result.var, rm.col[i])
             }
             if (is.element(rm.col[i], omnibus.var)) {
-                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from omnibus.var. \n",
-                  sep = "")
+                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from omnibus.var. \n", sep = "")
                 omnibus.var <- setdiff(omnibus.var, rm.col[i])
             }
             if (is.element(rm.col[i], match.covar)) {
-                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar. \n",
-                  sep = "")
+                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar. \n", sep = "")
                 match.covar <- setdiff(match.covar, rm.col[i])
             }
             if (is.element(rm.col[i], match.covar.min)) {
-                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar.min. \n",
-                  sep = "")
+                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar.min. \n", sep = "")
                 match.covar.min <- setdiff(match.covar.min, rm.col[i])
             }
             if (is.element(rm.col[i], names(match.out))) {
-                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out. \n",
-                  sep = "")
+                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out. \n", sep = "")
                 rm.li <- which(is.element(names(match.out), rm.col[i]))
                 match.out <- match.out[-rm.li]
             }
             if (is.element(rm.col[i], names(match.out.min))) {
-                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out.min. \n",
-                  sep = "")
+                cat("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out.min. \n", sep = "")
                 rm.li1 <- which(is.element(names(match.out.min), rm.col[i]))
                 match.out.min <- match.out.min[-rm.li1]
             }
         }
     }
-
+    
     if (length(w) == 0) {
         tmp <- proc.time()
         cat("Calculating weights...", "\n", sep = "")
-        w <- get.w(data, match.covar, match.covar.min, match.out, match.out.min, boot = perm, jack = jack,
-            Int = Intervention[, as.character(int.time)], int.var = int.num, trim = NULL, int.time = int.time,
-            cal.epsilon = cal.epsilon, maxit = maxit, bounds = bounds, calfun = calfun, check.feas = check.feas,
+        w <- get.w(data, match.covar, match.covar.min, match.out, match.out.min, boot = perm, jack = jack, Int = Intervention[, as.character(int.time)], 
+            int.var = int.num, trim = NULL, int.time = int.time, cal.epsilon = cal.epsilon, maxit = maxit, bounds = bounds, calfun = calfun, check.feas = check.feas, 
             scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup)
         tmp <- proc.time() - tmp
         cat("Calculation of weights complete: Total time = ", round(tmp[3], 2), "\n", sep = "")
@@ -773,8 +759,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
         cat("Weights have been provided.  Will not calculate weights", "\n", sep = "")
         is.correct.w <- is.list(w)
         if (is.correct.w) {
-            is.correct.w <- is.correct.w & sum(names(w) != c("Weights", "Intervention", "MSE", "Model",
-                "Summary")) == 0
+            is.correct.w <- is.correct.w & sum(names(w) != c("Weights", "Intervention", "MSE", "Model", "Summary")) == 0
         }
         if (is.correct.w) {
             is.correct.w <- is.correct.w & dim(w$Weights)[1] == dim(data)[1]
@@ -790,10 +775,10 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
         cat("Setting jack = ", jack, "\n", sep = "")
         cat("Setting perm = ", perm, "\n", sep = "")
     }
-
+    
     not.jack <- !grepl("Jack", colnames(w$Weights))
     cat("\n")
-
+    
     if (is.logical(plot.var)) {
         if (plot.var) {
             plot.var <- result.var
@@ -803,15 +788,15 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     } else {
         plot.var <- intersect(plot.var, dimnames(data)[[2]])
     }
-
+    
     max.time <- max.time - (max.time - int.time)%%period
-
+    
     if (length(plot.var) > 0 & length(times) == 1) {
         plot.var <- NULL
         cat("There is only one time point in the data.
             Will not generate plots.\n\n")
     }
-
+    
     if (!reset.result.var | !reset.plot.var) {
         stats <- list()
         stats1 <- list()
@@ -833,18 +818,15 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                 is.graph1 <- "Completed graphs"
             }
             cat(is.graph, " for max.time = ", max.time[i], "...", "\n", sep = "")
-            stats[[i]] <- get.stats(data, w$Weights, w$Intervention, w$MSE[1, ], result.var, int.time = int.time,
-                period = period, plot.it = plot.var, max.time = max.time[i], file = plot.file, omnibus.var = omnibus.var,
-                sep = sep, start.time = start.time, legend.spot = legend.spot, cut.mse = cut.mse,
-                twosided = twosided)
+            stats[[i]] <- get.stats(data, w$Weights, w$Intervention, w$MSE[1, ], result.var, int.time = int.time, period = period, plot.it = plot.var, max.time = max.time[i], 
+                file = plot.file, omnibus.var = omnibus.var, sep = sep, start.time = start.time, legend.spot = legend.spot, cut.mse = cut.mse, twosided = twosided)
             if (i == which.max(max.time)) {
                 plot.stats <- stats[[i]][[5]]
             }
             stats[[i]] <- stats[[i]][-5]
             tmp <- proc.time() - tmp
-            cat(is.graph1, " for max.time = ", max.time[i], ".  Time = ", round(tmp[3], 2), "\n\n",
-                sep = "")
-
+            cat(is.graph1, " for max.time = ", max.time[i], ".  Time = ", round(tmp[3], 2), "\n\n", sep = "")
+            
             if (!reset.result.var) {
                 w.tmp <- w$Weights
                 Inter.tmp <- w$Intervention
@@ -857,17 +839,15 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                 }
                 tmp <- proc.time()
                 cat("Calculating survey statistics for max.time = ", max.time[i], "...", "\n", sep = "")
-                stats.tmp <- get.stats1(data, w.tmp, Inter.tmp, mse.tmp, result.var, int.time = int.time,
-                  period = period, max.time = max.time[i], omnibus.var = omnibus.var, cut.mse = cut.mse,
-                  twosided = twosided)
+                stats.tmp <- get.stats1(data, w.tmp, Inter.tmp, mse.tmp, result.var, int.time = int.time, period = period, max.time = max.time[i], omnibus.var = omnibus.var, 
+                  cut.mse = cut.mse, twosided = twosided)
                 stats1[[i]] <- stats.tmp[[1]]
                 stats2[[i]] <- stats.tmp[[2]]
                 delta.out[[i]] <- stats.tmp[[3]]
                 dof[[i]] <- stats.tmp[[4]]
                 tmp <- proc.time() - tmp
-                cat("Completed calculation of survey statistics for max.time = ", max.time[i], ".  Time = ",
-                  round(tmp[3], 2), "\n\n", sep = "")
-
+                cat("Completed calculation of survey statistics for max.time = ", max.time[i], ".  Time = ", round(tmp[3], 2), "\n\n", sep = "")
+                
                 Pct.Chng <- cbind(Pct.Chng = stats[[i]][[2]][1, ])
                 if (is.element("Omnibus", rownames(Pct.Chng))) {
                   Pct.Chng["Omnibus", ] <- NA
@@ -885,12 +865,10 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                 } else {
                   Linear.pVal <- cbind(Linear.pVal = 2 * stats::pnorm(abs(synth.stats1[1, ]), lower.tail = FALSE))
                   if (is.element("Omnibus", rownames(Linear.pVal))) {
-                    Linear.pVal["Omnibus", ] <- stats::pchisq(synth.stats1[1, "Omnibus"], df = synth.dof,
-                      lower.tail = FALSE)
+                    Linear.pVal["Omnibus", ] <- stats::pchisq(synth.stats1[1, "Omnibus"], df = synth.dof, lower.tail = FALSE)
                   }
                 }
-                Linear.CI <- make.ci(synth.stats2[1, ], sqrt(synth.delta.out[1, ]), alpha = 1 -
-                  confidence)
+                Linear.CI <- make.ci(synth.stats2[1, ], sqrt(synth.delta.out[1, ]), alpha = 1 - confidence)
                 colnames(Linear.CI) <- paste("Linear.", colnames(Linear.CI), sep = "")
                 Jack.pVal <- Jack.CI <- Perm.pVal <- Perm.CI <- NULL
                 if (jack > 0) {
@@ -907,8 +885,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                   } else {
                     Jack.pVal <- cbind(Jack.pVal = 2 * stats::pnorm(abs(jack.stats1), lower.tail = FALSE))
                     if (is.element("Omnibus", rownames(Jack.pVal))) {
-                      Jack.pVal["Omnibus", ] <- stats::pchisq(c(jack.stats1)["Omnibus"], df = synth.dof,
-                        lower.tail = FALSE)
+                      Jack.pVal["Omnibus", ] <- stats::pchisq(c(jack.stats1)["Omnibus"], df = synth.dof, lower.tail = FALSE)
                     }
                   }
                   Jack.CI <- make.ci(jack.stats2, sqrt(jack.delta.out), alpha = 1 - confidence)
@@ -923,8 +900,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                   } else if (test == "upper") {
                     Perm.pVal <- cbind(Perm.pVal = 1 - c(perm.stats1))
                   } else {
-                    Perm.pVal <- cbind(Perm.pVal = 2 * apply(cbind(c(perm.stats1), 1 - c(perm.stats1)),
-                      1, min))
+                    Perm.pVal <- cbind(Perm.pVal = 2 * apply(cbind(c(perm.stats1), 1 - c(perm.stats1)), 1, min))
                     if (is.element("Omnibus", rownames(Perm.pVal))) {
                       Perm.pVal["Omnibus", ] <- 1 - c(perm.stats1)["Omnibus"]
                     }
@@ -940,15 +916,13 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                   } else if (test == "upper") {
                     Perm.pVal <- cbind(Perm.pVal = 1 - c(perm.stats[1, ]))
                   } else {
-                    Perm.pVal <- cbind(Perm.pVal = 2 * pmin(c(perm.stats[1, ]), 1 - c(perm.stats[1,
-                      ])))
+                    Perm.pVal <- cbind(Perm.pVal = 2 * pmin(c(perm.stats[1, ]), 1 - c(perm.stats[1, ])))
                     if (is.element("Omnibus", rownames(Perm.pVal))) {
                       Perm.pVal["Omnibus", ] <- 1 - c(perm.stats[1, ])["Omnibus"]
                     }
                   }
                 }
-                results[[i]] <- cbind(Trt, Con, Pct.Chng, Linear.pVal, Linear.CI, Jack.pVal, Jack.CI,
-                  Perm.pVal, Perm.CI)
+                results[[i]] <- cbind(Trt, Con, Pct.Chng, Linear.pVal, Linear.CI, Jack.pVal, Jack.CI, Perm.pVal, Perm.CI)
                 if (NROW(results[[i]]) == 1) {
                   rownames(results[[i]]) <- result.var[1]
                 }
@@ -956,41 +930,41 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
             }
         }
     }
-
+    
     if (reset.plot.var) {
         cat("No plotting variables specified (e.g., plot.var = NULL).\n")
         cat("Plots will not be created.\n")
     }
-
+    
     if (reset.result.var) {
         cat("No outcome variables specified (e.g., result.var = NULL).\n")
         cat("Results will not be tablulated.\n")
     }
-
+    
     if (reset.result.var & reset.plot.var) {
         cat("Returning weights only.\n")
     }
-
+    
     out <- list()
     i <- 1
-
+    
     out[[i]] <- w
     names(out)[i] <- "w"
     i <- i + 1
-
+    
     if (!reset.result.var) {
         out[[i]] <- results
         names(out)[i] <- "Results"
         i <- i + 1
     }
-
+    
     # if(length(plot.stats[[1]]) > 0) {
     if (!reset.plot.var) {
         out[[i]] <- plot.stats
         names(out)[i] <- "Plot.Stats"
         i <- i + 1
     }
-
+    
     ret.stats <- FALSE
     if (ret.stats) {
         out[[i]] <- stats
@@ -1001,16 +975,17 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
         names(out)[i:(i + 3)] <- c("stats", "stats1", "stats2", "delta.out")
         i <- i + 4
     }
-
+    
     if (length(result.file) > 0 & !reset.result.var) {
         out.results(results, int.time, max.time, result.file)
     }
-
+    
     all.tmp <- proc.time() - all.tmp
     cat("microsynth complete: Overall time = ", round(all.tmp[3], 2), "\n\n", sep = "")
-
+    
+    out <- makemicrosynth(out)
     return(out)
-
+    
 }
 
 
@@ -1030,10 +1005,10 @@ my.delta <- function(mu, Sigma) {
 
 make.ci <- function(means, ses, alpha = 0.05) {
     z.score <- stats::qnorm(1 - alpha/2)
-
+    
     lower <- means - ses * z.score
     upper <- means + ses * z.score
-
+    
     out <- cbind(exp(lower) - 1, exp(upper) - 1)
     rownames(out) <- names(means)
     colnames(out) <- c("Lower", "Upper")
@@ -1044,13 +1019,13 @@ make.ci <- function(means, ses, alpha = 0.05) {
 make.ci2 <- function(stats, delta.out, alpha = 0.05) {
     means <- stats[1, ]
     sds <- sqrt(delta.out[1, ])
-
+    
     z.scores <- stats/sqrt(delta.out)
     quants <- apply(z.scores, 2, stats::quantile, probs = c(alpha/2, 1 - alpha/2), na.rm = TRUE)
-
+    
     lower <- means - sds * quants[2, ]
     upper <- means - sds * quants[1, ]
-
+    
     out <- cbind(exp(lower) - 1, exp(upper) - 1)
     rownames(out) <- colnames(stats)
     colnames(out) <- c("Lower", "Upper")
@@ -1058,13 +1033,11 @@ make.ci2 <- function(stats, delta.out, alpha = 0.05) {
 }
 
 
-get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot = 0, jack = 0, Int,
-    int.var = 1, trim = NULL, maxit = 500, cal.epsilon = 1e-04, int.time, bounds = c(-Inf, Inf),
-    calfun = "raking", qpmeth = "LowRankQP", check.feas = FALSE, use.backup = TRUE, scale.var = "Intercept",
-    cut.mse = 1) {
+get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot = 0, jack = 0, Int, int.var = 1, trim = NULL, maxit = 500, cal.epsilon = 1e-04, 
+    int.time, bounds = c(-Inf, Inf), calfun = "raking", qpmeth = "LowRankQP", check.feas = FALSE, use.backup = TRUE, scale.var = "Intercept", cut.mse = 1) {
     n <- dim(bigdat)[1]
     n.int <- sum(Int == int.var)
-
+    
     back.state <- back.state1 <- back.state2 <- back.state3 <- ""
     fin.boots <- FALSE
     if (boot > 0) {
@@ -1083,26 +1056,24 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
             fin.boots <- TRUE
         }
     }
-
+    
     use.model <- 1
-
+    
     if (check.feas & use.backup) {
         tmp <- proc.time()
         cat("Checking feasibility of first model...", "\n", sep = "")
-        is.sol <- is.feasible(bigdat, covar.var, dum, Int = Int, int.var = int.var, int.time = int.time,
-            eps = 1e-04)
+        is.sol <- is.feasible(bigdat, covar.var, dum, Int = Int, int.var = int.var, int.time = int.time, eps = 1e-04)
         tmp <- proc.time() - tmp
-
+        
         if (!is.sol) {
             use.model <- 2
             cat("First model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "")
             dum.tmp <- merge.dums(dum, dum1)
             tmp <- proc.time()
             cat("Checking feasibility of second model...", "\n", sep = "")
-            is.sol <- is.feasible(bigdat, covar.var, dum.tmp[[1]], Int = Int, int.var = int.var,
-                int.time = int.time, eps = 1e-04)
+            is.sol <- is.feasible(bigdat, covar.var, dum.tmp[[1]], Int = Int, int.var = int.var, int.time = int.time, eps = 1e-04)
             tmp <- proc.time() - tmp
-
+            
             if (!is.sol) {
                 use.model <- 3
                 cat("Second model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "")
@@ -1114,26 +1085,23 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
             cat("First model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "")
         }
     }
-
-    newdat <- get.newdat(bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1,
-        int.time = int.time)
+    
+    newdat <- get.newdat(bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1, int.time = int.time)
     newdat1 <- newdat[[2]]
     newdat <- newdat[[1]]
-
+    
     duma <- merge.dums(dum, dum1)
-    newdata <- get.newdat(bigdat, dum = duma[[1]], dum1 = duma[[2]], covar.var = covar.var, covar.var1 = covar.var1,
-        int.time = int.time)
+    newdata <- get.newdat(bigdat, dum = duma[[1]], dum1 = duma[[2]], covar.var = covar.var, covar.var1 = covar.var1, int.time = int.time)
     newdat1a <- newdata[[2]]
     newdata <- newdata[[1]]
-
+    
     dumb <- merge.dums(duma[[1]], duma[[2]])
     covar.var1b <- union(covar.var, covar.var1)
     covar.varb <- NULL
-    newdatb <- get.newdat(bigdat, dum = dumb[[1]], dum1 = dumb[[2]], covar.var = covar.varb, covar.var1 = covar.var1b,
-        int.time = int.time)
+    newdatb <- get.newdat(bigdat, dum = dumb[[1]], dum1 = dumb[[2]], covar.var = covar.varb, covar.var1 = covar.var1b, int.time = int.time)
     newdat1b <- newdatb[[2]]
     newdatb <- newdatb[[1]]
-
+    
     colnam <- "Main"
     if (is.logical(jack)) {
         if (jack) {
@@ -1153,24 +1121,24 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
     if (boot > 0) {
         colnam <- c(colnam, paste("Perm", 1:boot, sep = ""))
     }
-
+    
     wghts <- Inter <- matrix(NA, n, boot + jack + 1)
     mse <- matrix(NA, 6, boot + jack + 1)
     mod <- rep(NA, boot + jack + 1)
     rownames(wghts) <- rownames(Inter) <- dimnames(bigdat)[[1]]
-    rownames(mse) <- c("First model: Primary variables", "First model: Second variables", "Secondary model: Primary variables",
-        "Second model: Secondary variables", "Third model: Primary variables", "Third model: Secondary variables")
+    rownames(mse) <- c("First model: Primary variables", "First model: Second variables", "Secondary model: Primary variables", "Second model: Secondary variables", 
+        "Third model: Primary variables", "Third model: Secondary variables")
     names(mod) <- colnames(wghts) <- colnames(Inter) <- colnames(mse) <- colnam
     inds <- 1:(boot + jack + 1)
     jack.lower <- 2
     jack.upper <- 1 + jack
     boot.lower <- 2 + jack
     boot.upper <- 1 + jack + boot
-
+    
     for (i in inds) {
         use.model.i <- use.model
         tmp <- proc.time()
-
+        
         if (i == 1) {
             samp <- Int == int.var
             use <- rep(TRUE, n)
@@ -1190,16 +1158,15 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
             use <- rep(TRUE, n)
             rep.meth <- "permutation"
         }
-
+        
         Inter[samp & use, i] <- TRUE
         Inter[!samp & use, i] <- FALSE
-
+        
         if (use.model.i == 1) {
             mod[i] <- "First"
-            ws <- get.w.sub(newdat = newdat, newdat1 = newdat1, int.time = int.time, samp = samp,
-                use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, epsilon = cal.epsilon,
-                trim = trim, qpmeth = qpmeth, scale.var = scale.var)
-
+            ws <- get.w.sub(newdat = newdat, newdat1 = newdat1, int.time = int.time, samp = samp, use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, 
+                bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var)
+            
             if (ws$mse > cut.mse | is.na(ws$mse)) {
                 if (use.backup) {
                   cat.back <- ".  Using second model."
@@ -1208,47 +1175,39 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                   cat.back <- cat.back1 <- ".  Consider setting use.backup = TRUE."
                 }
                 if (i > 1) {
-                  back.state1 <- paste("First model was infeasible for ", rep.meth, " group ", g,
-                    cat.back1, "\n", sep = "")
+                  back.state1 <- paste("First model was infeasible for ", rep.meth, " group ", g, cat.back1, "\n", sep = "")
                 } else {
-                  back.state1 <- paste("First model is infeasible for primary weights", cat.back,
-                    "\n", sep = "")
+                  back.state1 <- paste("First model is infeasible for primary weights", cat.back, "\n", sep = "")
                 }
                 if (use.backup) {
                   use.model.i <- 2
                 }
             }
         }
-
+        
         if (use.model.i == 2 & use.backup) {
             mod[i] <- "Second"
-            ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a, int.time = int.time, samp = samp,
-                use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, epsilon = cal.epsilon,
-                trim = trim, qpmeth = qpmeth, scale.var = scale.var)
-
+            ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a, int.time = int.time, samp = samp, use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, 
+                bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var)
+            
             if (ws$mse > cut.mse | is.na(ws$mse)) {
                 if (i > 1) {
-                  back.state2 <- paste("Second model was infeasible for ", rep.meth, " group ",
-                    g, ".  Used third model.", "\n", sep = "")
-                  back.state3 <- paste("First and second model were infeasible for ", rep.meth,
-                    " group ", g, ".  Used third model.", "\n", sep = "")
+                  back.state2 <- paste("Second model was infeasible for ", rep.meth, " group ", g, ".  Used third model.", "\n", sep = "")
+                  back.state3 <- paste("First and second model were infeasible for ", rep.meth, " group ", g, ".  Used third model.", "\n", sep = "")
                 } else {
-                  back.state2 <- paste("Second model is infeasible for primary weights.  Will use third model.",
-                    "\n", sep = "")
-                  back.state3 <- paste("First and second model are infeasible for primary weights.  Will use third model.",
-                    "\n", sep = "")
+                  back.state2 <- paste("Second model is infeasible for primary weights.  Will use third model.", "\n", sep = "")
+                  back.state3 <- paste("First and second model are infeasible for primary weights.  Will use third model.", "\n", sep = "")
                 }
                 use.model.i <- 3
             }
         }
-
+        
         if (use.model.i == 3 & use.backup) {
             mod[i] <- "Third"
-            ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b, int.time = int.time, samp = samp,
-                use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, epsilon = cal.epsilon,
-                trim = trim, qpmeth = qpmeth, scale.var = scale.var)
+            ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b, int.time = int.time, samp = samp, use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, 
+                bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var)
         }
-
+        
         if (back.state1 != "" & back.state2 != "") {
             back.state.final <- back.state3
         } else if (back.state1 != "" & back.state2 == "") {
@@ -1260,11 +1219,11 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         }
         back.state <- paste(back.state, back.state.final, sep = "")
         back.state1 <- back.state2 <- back.state3 <- ""
-
+        
         mses <- get.mse(newdat, newdat1, samp, use, ws$wghts, ws$wghts.init, ws$scale.by)
         msesa <- get.mse(newdata, newdat1a, samp, use, ws$wghts, ws$wghts.init, ws$scale.by)
         msesb <- get.mse(newdatb, newdat1b, samp, use, ws$wghts, ws$wghts.init, ws$scale.by)
-
+        
         mse[1, i] <- mses$mse
         mse[2, i] <- mses$mse1
         mse[3, i] <- msesa$mse
@@ -1272,14 +1231,13 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         mse[5, i] <- msesb$mse
         mse[6, i] <- msesb$mse1
         wghts[, i] <- ws$wghts
-
+        
         tmp <- proc.time() - tmp
         if (i == 1) {
             cat(back.state)
             back.state <- ""
             use.model <- use.model.i
-            cat("Created main weights for synthetic control: Time = ", round(tmp[3], 2), "\n\n",
-                sep = "")
+            cat("Created main weights for synthetic control: Time = ", round(tmp[3], 2), "\n\n", sep = "")
             cat("Matching summary for main weights:\n")
             if (use.model.i == 1) {
                 printstuff <- mses$printstuff
@@ -1320,8 +1278,7 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                 cat(back.state)
                 back.state <- ""
                 tmp.jack <- proc.time() - tmp.jack
-                cat("Completed weights for all jackknife replication groups: Time = ", round(tmp.jack[3],
-                  2), "\n\n", sep = "")
+                cat("Completed weights for all jackknife replication groups: Time = ", round(tmp.jack[3], 2), "\n\n", sep = "")
                 if (boot > 0) {
                   cat("Calculating weights for permutation groups...\n")
                   tmp.boot <- proc.time()
@@ -1344,48 +1301,45 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                   cat("\n")
                 }
                 tmp.boot <- proc.time() - tmp.boot
-                cat("Completed weights for all permutation groups: Time = ", round(tmp.boot[3],
-                  2), "\n\n", sep = "")
+                cat("Completed weights for all permutation groups: Time = ", round(tmp.boot[3], 2), "\n\n", sep = "")
             }
         }
     }
-
+    
     out <- list(Weights = wghts, Intervention = Inter, MSE = mse, Model = mod, Summary = printstuff)
     return(out)
 }
 
 
-get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, dum1 = NULL, covar.var = NULL,
-    covar.var1 = NULL, int.time, samp, use, n = NROW(newdat), maxit = 500, calfun = "raking", bounds = c(-Inf,
-        Inf), epsilon = 1e-04, trim = NULL, qpmeth = "LowRankQP", scale.var = "Intercept") {
+get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL, int.time, samp, use, n = NROW(newdat), 
+    maxit = 500, calfun = "raking", bounds = c(-Inf, Inf), epsilon = 1e-04, trim = NULL, qpmeth = "LowRankQP", scale.var = "Intercept") {
     tmp <- proc.time()
-
+    
     if (length(newdat) == 0) {
-        newdat <- get.newdat(bigdat = bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1,
-            int.time = int.time)
+        newdat <- get.newdat(bigdat = bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1, int.time = int.time)
         newdat1 <- newdat[[2]]
         newdat <- newdat[[1]]
     }
-
+    
     mult <- sum(samp)/sum(use & samp)
     # mult <- 1
-
+    
     if (length(newdat1) > 0) {
         newdat1 <- as.matrix(newdat1)
     }
-
+    
     intdat <- newdat[samp & use, , drop = FALSE]
     scale.by <- sum(intdat[, scale.var])
     condat <- newdat[!samp & use, , drop = FALSE]
-
+    
     alldat <- newdat[, , drop = FALSE]
     scale.by <- scale.by/sum(alldat[, scale.var])
-
+    
     targets <- colSums(intdat)
     targets <- mult * targets
     # targets <- colSums(newdat[samp, , drop = FALSE])
     init <- rep(mult * NROW(intdat)/NROW(condat), NROW(condat))
-
+    
     if (length(newdat1) > 0) {
         intdat1 <- newdat1[samp & use, , drop = FALSE]
         condat1 <- newdat1[!samp & use, , drop = FALSE]
@@ -1394,49 +1348,47 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
         targets1 <- mult * targets1
         # targets1 <- colSums(newdat1[samp, , drop = FALSE])
     }
-
+    
     usevars <- colnames(condat)
-
+    
     rem <- find.sing(t(as.matrix(condat)) %*% as.matrix(condat))
     keep <- !is.element(1:NCOL(condat), rem)
-
+    
     form <- paste("~", paste(usevars[keep], collapse = "+", sep = ""), "-1", sep = "")
     form <- stats::formula(form)
-
+    
     ws.init <- ws <- init
-
+    
     if (NCOL(newdat) > 1) {
         tryCatch({
             caldesign <- survey::svydesign(ids = ~0, data = condat[, keep], weights = init)
-            cali2 <- survey::calibrate(design = caldesign, maxit = maxit, formula = form, population = targets[keep],
-                data = condat[, keep], calfun = calfun, bounds = bounds, force = TRUE, epsilon = epsilon)
+            cali2 <- survey::calibrate(design = caldesign, maxit = maxit, formula = form, population = targets[keep], data = condat[, keep], calfun = calfun, 
+                bounds = bounds, force = TRUE, epsilon = epsilon)
             ws.init <- ws <- stats::weights(cali2)
         }, error = function(e) {
             cat("ERROR :", conditionMessage(e), "\n")
         })
     }
-
+    
     if (length(newdat1) > 0) {
         tmp1 <- proc.time() - tmp
         tmp2 <- proc.time()
-
+        
         condat2 <- condat1
         targets2 <- targets1
-
-        ws <- my.qp(b.init = ws.init, X = t(condat2), a = targets2, Y = t(condat[, keep, drop = FALSE]),
-            c = targets[keep], qpmeth = qpmeth)
+        
+        ws <- my.qp(b.init = ws.init, X = t(condat2), a = targets2, Y = t(condat[, keep, drop = FALSE]), c = targets[keep], qpmeth = qpmeth)
         tmp2 <- proc.time() - tmp2
     }
-
+    
     if (length(trim) > 0) {
         if (length(trim) == 1) {
             trim = c(trim, 1 - trim)
         }
-        cali2 <- survey::trimWeights(cali2, upper = stats::quantile(ws, max(trim)), lower = stats::quantile(ws,
-            min(trim)))
+        cali2 <- survey::trimWeights(cali2, upper = stats::quantile(ws, max(trim)), lower = stats::quantile(ws, min(trim)))
         ws <- stats::weights(cali2)
     }
-
+    
     mse1 <- mean((colSums(ws * condat[, keep, drop = FALSE]) - targets[keep])^2)
     wghts1 <- rep(NA, n)
     wghts1[!samp & use] <- ws
@@ -1444,19 +1396,19 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
     wghts.init1 <- rep(NA, n)
     wghts.init1[!samp & use] <- ws.init
     wghts.init1[samp & use] <- mult
-
+    
     out <- list(wghts = wghts1, wghts.init = wghts.init1, mse = mse1, scale.by = scale.by)
-
+    
     return(out)
 }
 
 
 get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL, int.time) {
     n <- dim(bigdat)[1]
-
+    
     result.var <- names(dum)
     newdat <- list()
-
+    
     if (length(result.var) > 0) {
         for (j in 1:length(result.var)) {
             dum.tmp <- dum[[j]]
@@ -1470,7 +1422,7 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
                   low.i <- low
                   high.i <- high
                 }
-
+                
                 if (i == 1) {
                   newdat[[j]] <- integer(0)
                 }
@@ -1478,39 +1430,38 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
                 if (low == high) {
                   colnames(newdat[[j]])[NCOL(newdat[[j]])] <- paste(result.var[j], ".", low, sep = "")
                 } else {
-                  colnames(newdat[[j]])[NCOL(newdat[[j]])] <- paste(result.var[j], ".", low, ".",
-                    high, sep = "")
+                  colnames(newdat[[j]])[NCOL(newdat[[j]])] <- paste(result.var[j], ".", low, ".", high, sep = "")
                 }
                 high <- low - 1
             }
         }
     }
-
+    
     covar.dat <- NULL
     if (length(covar.var) > 0) {
         covar.dat <- bigdat[, covar.var, 1]
         covar.dat <- as.matrix(covar.dat)
         colnames(covar.dat) <- covar.var
     }
-
+    
     if (length(newdat) == 0) {
         newdat <- NULL
     } else {
         newdat <- data.frame(newdat, check.names = FALSE)
     }
-
+    
     if (length(covar.dat) > 0 & length(newdat) > 0) {
         newdat <- data.frame(covar.dat, newdat, check.names = FALSE)
     } else if (length(covar.dat) > 0 & length(newdat) == 0) {
         newdat <- data.frame(covar.dat, check.names = FALSE)
     }
-
+    
     if (length(newdat) > 0) {
         newdat <- data.frame(Intercept = rep(1, n), newdat, check.names = FALSE)
     } else {
         newdat <- data.frame(Intercept = rep(1, n))
     }
-
+    
     newdat1 <- list()
     if (length(dum1) > 0) {
         result.var1 <- names(dum1)
@@ -1526,104 +1477,98 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
                   low.i <- low
                   high.i <- high
                 }
-
+                
                 if (i == 1) {
                   newdat1[[j]] <- integer(0)
                 }
                 newdat1[[j]] <- cbind(newdat1[[j]], rowSums(as.matrix(bigdat[, result.var1[j], low:high])))
                 if (low == high) {
-                  colnames(newdat1[[j]])[NCOL(newdat1[[j]])] <- paste(result.var1[j], ".", low,
-                    sep = "")
+                  colnames(newdat1[[j]])[NCOL(newdat1[[j]])] <- paste(result.var1[j], ".", low, sep = "")
                 } else {
-                  colnames(newdat1[[j]])[NCOL(newdat1[[j]])] <- paste(result.var1[j], ".", low,
-                    ".", high, sep = "")
+                  colnames(newdat1[[j]])[NCOL(newdat1[[j]])] <- paste(result.var1[j], ".", low, ".", high, sep = "")
                 }
                 high <- low - 1
             }
         }
     }
-
+    
     covar.dat1 <- NULL
     if (length(covar.var1) > 0) {
         covar.dat1 <- bigdat[, covar.var1, 1]
         covar.dat1 <- as.matrix(covar.dat1)
         colnames(covar.dat1) <- covar.var1
     }
-
+    
     if (length(newdat1) == 0) {
         newdat1 <- NULL
     } else {
         newdat1 <- data.frame(newdat1, check.names = FALSE)
     }
-
+    
     if (length(covar.dat1) > 0 & length(newdat1) > 0) {
         newdat1 <- data.frame(covar.dat1, newdat1, check.names = FALSE)
     } else if (length(covar.dat1) > 0 & length(newdat1) == 0) {
         newdat1 <- data.frame(covar.dat1, check.names = FALSE)
     }
-
+    
     if (length(newdat1) > 0) {
         newdat1 <- data.frame(newdat1, check.names = FALSE)
     } else {
         newdat1 <- NULL
     }
-
+    
     return(list(newdat = newdat, newdat1 = newdat1))
-
+    
 }
 
 
-get.stats <- function(bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]], int.time, period = 1,
-    plot.it = result.var, max.time = 80, plot.first = 100, file = NULL, sep = TRUE, start.time = 25,
-    legend.spot = "bottomleft", omnibus.var = result.var, cut.mse = 1, scale.var = "Intercept",
-    twosided = FALSE) {
+get.stats <- function(bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]], int.time, period = 1, plot.it = result.var, max.time = 80, plot.first = 100, 
+    file = NULL, sep = TRUE, start.time = 25, legend.spot = "bottomleft", omnibus.var = result.var, cut.mse = 1, scale.var = "Intercept", twosided = FALSE) {
     use.omnibus <- length(omnibus.var) > 0
-
+    
     all.var <- union(result.var, plot.it)
     all.var <- union(all.var, omnibus.var)
     stat5 <- stat4 <- stat2 <- stat1 <- mu <- matrix(NA, NCOL(w), length(result.var) + sum(use.omnibus))
     rownames(stat5) <- rownames(stat4) <- rownames(stat2) <- rownames(stat1) <- rownames(mu) <- colnames(w)
     if (use.omnibus) {
-        colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var,
-            "Omnibus")
+        colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var, "Omnibus")
     } else {
         colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var)
     }
-
+    
     bigdat1 <- make.quarter3(bigdat, period = period, int.time = int.time)
-
+    
     keep <- mse < cut.mse & !is.na(mse)
     keep[1] <- TRUE
     synth <- list()
-
+    
     inter <- inter[, !grepl("Jack", colnames(w)), drop = FALSE]
     mse <- mse[!grepl("Jack", colnames(w))]
     keep <- keep[!grepl("Jack", colnames(w))]
     w <- w[, !grepl("Jack", colnames(w)), drop = FALSE]
-
+    
     for (i in 1:NCOL(w)) {
         Inter <- inter[, i]
         use.con <- !is.na(Inter) & Inter == FALSE
         use.tre <- !is.na(Inter) & Inter == TRUE
-
+        
         w.tmp <- w[use.con, i]
-
+        
         condat1 <- bigdat1[use.con, all.var, , drop = FALSE]
         intdat1 <- bigdat1[use.tre, all.var, , drop = FALSE]
         test2 <- apply(w.tmp * condat1, c(2, 3), sum)
         test1 <- apply(intdat1, c(2, 3), sum)
-
+        
         if (i == 1) {
             if (scale.var == "Intercept") {
                 scale.by <- sum(use.tre)/sum(use.tre | use.con)
             } else {
-                scale.by <- sum(bigdat1[use.tre, scale.var, 1])/sum(bigdat1[use.tre | use.con, scale.var,
-                  1])
+                scale.by <- sum(bigdat1[use.tre, scale.var, 1])/sum(bigdat1[use.tre | use.con, scale.var, 1])
             }
             alldat1 <- bigdat1[use.tre | use.con, all.var, , drop = FALSE]
             test3 <- apply(alldat1, c(2, 3), sum)
         }
-
+        
         if (i == 1) {
             xnams <- as.numeric(colnames(test1))
             tuse <- xnams <= max.time & xnams >= start.time
@@ -1640,18 +1585,17 @@ get.stats <- function(bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
                 no.jack <- which(!grepl("Jack", colnames(w)))
                 plot.first <- min(plot.first, NCOL(w) - 1)
                 keep1 <- keep[no.jack]
-                # if (sum(!is.element(plot.it, result.var)) > 0) { cat('WARNING: plot.it has elements not in
-                # result.var', sep = '') } plot.it <- intersect(plot.it, result.var)
+                # if (sum(!is.element(plot.it, result.var)) > 0) { cat('WARNING: plot.it has elements not in result.var', sep = '') } plot.it <- intersect(plot.it,
+                # result.var)
                 plotdat.d <- array(NA, c(length(plot.it), length(no.jack), length(xnams)))
                 dimnames(plotdat.d) <- list(plot.it, colnames(w)[no.jack], xnams)
                 plotdat.a <- plotdat.t <- plotdat.c <- array(NA, c(length(plot.it), length(xnams)))
-                dimnames(plotdat.a) <- dimnames(plotdat.t) <- dimnames(plotdat.c) <- list(plot.it,
-                  xnams)
+                dimnames(plotdat.a) <- dimnames(plotdat.t) <- dimnames(plotdat.c) <- list(plot.it, xnams)
             } else {
                 plotdat.t <- plotdat.c <- plotdat.a <- plotdat.d <- NULL
             }
         }
-
+        
         if (use.omnibus) {
             use.cols <- 1:(NCOL(stat1) - 1)
         } else {
@@ -1675,7 +1619,7 @@ get.stats <- function(bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
                 i1 <- i1 + 1
             }
         }
-
+        
         if (use.omnibus) {
             if (!twosided) {
                 stat1[i, NCOL(stat1)] <- sum(stat1[i, omnibus.var])
@@ -1686,7 +1630,7 @@ get.stats <- function(bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
             }
         }
     }
-
+    
     if (length(plot.it) > 0) {
         plotdat.d <- plotdat.d[, keep1, , drop = FALSE]
         mu <- mu[no.jack, , drop = FALSE]
@@ -1711,13 +1655,12 @@ get.stats <- function(bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
                 tmp <- plotdat.d[plot.it[j], i, ]
                 if (i == 1) {
                   if (sep & length(file) > 0) {
-                    grDevices::pdf(file = paste(file, "_", main1, "_TC.pdf", sep = ""), width = 5,
-                      height = 5)
+                    grDevices::pdf(file = paste(file, "_", main1, "_TC.pdf", sep = ""), width = 5, height = 5)
                   }
                   tmp1 <- plotdat.t[plot.it[j], ]
                   tmp2 <- plotdat.c[plot.it[j], ]
                   tmp3 <- scale.by * plotdat.a[plot.it[j], ]
-
+                  
                   lty <- c(1, 2, 4)
                   col <- c(2, 1, 3)
                   lwd <- c(2, 2, 2)
@@ -1725,33 +1668,27 @@ get.stats <- function(bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
                   ylim <- c(min(ylim, tmp3), max(ylim, tmp3))
                   ylim[2] <- 1.2 * ylim[2]
                   xlim <- c(min(xnams[tuse]), max(xnams[tuse]))
-                  graphics::plot(xnams[tuse], tmp1[tuse], type = "l", lty = lty[1], col = col[1],
-                    lwd = lwd[1], xlim = xlim, xlab = "", ylab = ylab1, main = main, ylim = ylim)
+                  graphics::plot(xnams[tuse], tmp1[tuse], type = "l", lty = lty[1], col = col[1], lwd = lwd[1], xlim = xlim, xlab = "", ylab = ylab1, main = main, 
+                    ylim = ylim)
                   graphics::abline(v = int.time, lty = 2, col = 2)
-                  graphics::lines(xnams[tuse], tmp2[tuse], type = "l", lty = lty[2], col = col[2],
-                    lwd = lwd[2])
-                  graphics::lines(xnams[tuse], tmp3[tuse], type = "l", lty = lty[3], col = col[3],
-                    lwd = lwd[3])
+                  graphics::lines(xnams[tuse], tmp2[tuse], type = "l", lty = lty[2], col = col[2], lwd = lwd[2])
+                  graphics::lines(xnams[tuse], tmp3[tuse], type = "l", lty = lty[3], col = col[3], lwd = lwd[3])
                   leg <- c("Treatment", "Synthetic Control", "All blocks (scaled)")
-                  graphics::legend(legend.spot, legend = leg, col = col, lty = lty, lwd = lwd, cex = 0.8,
-                    bty = "n")
+                  graphics::legend(legend.spot, legend = leg, col = col, lty = lty, lwd = lwd, cex = 0.8, bty = "n")
                   if (sep & length(file) > 0) {
                     grDevices::dev.off()
                   }
-
+                  
                   if (is.element(i, use.mu)) {
                     if (sep & length(file) > 0) {
-                      grDevices::pdf(file = paste(file, "_", main1, "_Diff.pdf", sep = ""), width = 5,
-                        height = 5)
+                      grDevices::pdf(file = paste(file, "_", main1, "_Diff.pdf", sep = ""), width = 5, height = 5)
                     }
                     ylim1 <- c(min(tmp), max(tmp))
                     bigtmp <- plotdat.d[plot.it[j], use.mu, ]
-                    ylim2 <- 2 * c(stats::quantile(bigtmp, 0.05, na.rm = TRUE), stats::quantile(bigtmp,
-                      0.95, na.rm = TRUE))
+                    ylim2 <- 2 * c(stats::quantile(bigtmp, 0.05, na.rm = TRUE), stats::quantile(bigtmp, 0.95, na.rm = TRUE))
                     ylim <- c(min(ylim1[1], ylim2[1], na.rm = TRUE), max(ylim1[2], ylim2[2], na.rm = TRUE))
                     xlim <- c(min(xnams[tuse]), max(xnams[tuse]))
-                    graphics::plot(xnams[tuse & use], tmp[tuse & use], type = "l", ylim = ylim,
-                      xlim = xlim, col = 2, lty = 2, main = main, xlab = "", ylab = ylab2)
+                    graphics::plot(xnams[tuse & use], tmp[tuse & use], type = "l", ylim = ylim, xlim = xlim, col = 2, lty = 2, main = main, xlab = "", ylab = ylab2)
                   } else {
                     if (!sep & length(file) > 0) {
                       graphics::plot(1, 1, main = plot.it[j])
@@ -1780,19 +1717,18 @@ get.stats <- function(bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
             grDevices::dev.off()
         }
     }
-
-    stats <- list(stat1[keep, , drop = FALSE], stat2[keep, , drop = FALSE], stat4[keep, , drop = FALSE],
-        stat5[keep, , drop = FALSE], list(Treatment = plotdat.t, Control = plotdat.c, All = plotdat.a,
-            Difference = plotdat.d))
+    
+    stats <- list(stat1[keep, , drop = FALSE], stat2[keep, , drop = FALSE], stat4[keep, , drop = FALSE], stat5[keep, , drop = FALSE], list(Treatment = plotdat.t, 
+        Control = plotdat.c, All = plotdat.a, Difference = plotdat.d))
     return(stats)
 }
 
 
-get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max.time = 80, mfrow = c(1,
-    3), plot.first = 100, omnibus.var = NULL, cut.mse = 1, G = 25, twosided = FALSE) {
+get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max.time = 80, mfrow = c(1, 3), plot.first = 100, omnibus.var = NULL, cut.mse = 1, 
+    G = 25, twosided = FALSE) {
     use.omnibus <- length(omnibus.var) > 0
     dof <- NA
-
+    
     jack <- sum(grepl("Jack", colnames(w)))
     use.jack <- as.numeric(jack > 0)
     mse <- mse[!grepl("Jack", colnames(w))]
@@ -1800,33 +1736,33 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
     w <- w[, !grepl("Jack", colnames(w)), drop = FALSE]
     inter.jack <- inter[, grepl("Jack", colnames(inter))]
     inter <- inter[, !grepl("Jack", colnames(inter)), drop = FALSE]
-
+    
     if (length(G) == 0) {
         G <- min(table(inter[, 1]))
     }
-
+    
     keep <- mse < cut.mse & !is.na(mse)
     keep[1] <- TRUE
-
+    
     if (sum(!keep) > 0) {
         w <- w[, keep]
         inter <- inter[, keep]
         mse <- mse[keep]
     }
-
+    
     boot <- sum(grepl("Perm", colnames(w)))
     boot.nams <- colnames(w)[grepl("Perm", colnames(w))]
-
+    
     if (use.jack == 1) {
         all.nams <- c(colnames(w)[1], "Jackknife", boot.nams)
     } else {
         all.nams <- colnames(w)
     }
-
+    
     tot.col <- 1 + use.jack + boot
     boot.lower <- 2 + use.jack
     boot.upper <- 1 + use.jack + boot
-
+    
     delta.out <- stat2 <- stat1 <- matrix(NA, tot.col, length(all.var) + sum(use.omnibus))
     rownames(delta.out) <- rownames(stat2) <- rownames(stat1) <- all.nams
     if (use.omnibus) {
@@ -1834,7 +1770,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
     } else {
         colnames(delta.out) <- colnames(stat2) <- colnames(stat1) <- c(all.var)
     }
-
+    
     for (i in 1:tot.col) {
         G.tmp <- G
         if (i == 1) {
@@ -1849,10 +1785,9 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
         w.tmp <- w[use, i.tmp]
         is.tre <- !is.na(Inter) & Inter == TRUE
         is.tre <- is.tre[use]
-
+        
         if (i == 1) {
-            test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, period = period,
-                int.time = int.time)
+            test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, period = period, int.time = int.time)
             if (max.time > int.time) {
                 use.test <- test[, 1] > int.time & test[, 1] <= max.time
             } else if (max.time == int.time) {
@@ -1887,7 +1822,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
             treat <- rep(as.numeric(is.tre), newcol)
             treat <- treat[use.test]
         }
-
+        
         for (j in 1:length(all.var)) {
             test.tmp <- data.frame(y = test[, all.var[j]], treat = as.numeric(treat), time = factor(time))
             time.tmp <- 1
@@ -1895,8 +1830,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
                 design <- survey::svydesign(ids = ~0, data = test.tmp, weights = w.tmp)
             } else {
                 sup.out <- suppressWarnings({
-                  design <- survey::svrepdesign(data = test.tmp, repweights = w.jack.tmp, weights = w.tmp,
-                    combined.weights = TRUE, type = "JK1", mse = TRUE)
+                  design <- survey::svrepdesign(data = test.tmp, repweights = w.jack.tmp, weights = w.tmp, combined.weights = TRUE, type = "JK1", mse = TRUE)
                 })
             }
             usevars <- colnames(test.tmp)
@@ -1950,8 +1884,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
                 }
                 omnibus.var <- omnibus.var[keep]
             }
-            test.tmp <- data.frame(test[, omnibus.var, drop = FALSE], treat = as.numeric(treat),
-                time = factor(time))
+            test.tmp <- data.frame(test[, omnibus.var, drop = FALSE], treat = as.numeric(treat), time = factor(time))
             form2 <- paste(omnibus.var, sep = "", collapse = ",")
             form2 <- paste("cbind(", form2, ")", sep = "")
             form1 <- paste(form2, form1, sep = "")
@@ -1966,8 +1899,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
             rownames(Sigma) <- colnames(Sigma) <- omnibus.var
             if (!is.jack) {
                 for (g in 1:G.tmp) {
-                  allmod <- stats::lm(form1, data = test.tmp, weights = w.tmp, subset = which(reps !=
-                    g))
+                  allmod <- stats::lm(form1, data = test.tmp, weights = w.tmp, subset = which(reps != g))
                   coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
                 }
             } else {
@@ -2004,8 +1936,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
         }
         tmp <- proc.time() - tmp
         if (i == 1) {
-            cat("Completed survey statistics for main weights: Time = ", round(tmp[3], 2), "\n",
-                sep = "")
+            cat("Completed survey statistics for main weights: Time = ", round(tmp[3], 2), "\n", sep = "")
             if (jack == 0 & boot > 0) {
                 cat("Calculating survey statistics for permutation groups...\n")
                 tmp.boot <- proc.time()
@@ -2039,12 +1970,10 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
                   cat("\n")
                 }
                 tmp.boot <- proc.time() - tmp.boot
-                cat("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3],
-                  2), "\n", sep = "")
+                cat("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 2), "\n", sep = "")
             }
             if (is.inf) {
-                cat("WARNING: Infinite standard errors yielded by permutation group ", i, ".\n",
-                  sep = "")
+                cat("WARNING: Infinite standard errors yielded by permutation group ", i, ".\n", sep = "")
             }
         }
     }
@@ -2056,25 +1985,25 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
 my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1000) {
     q <- NCOL(X)
     n <- NROW(Y)
-
+    
     a1 <- iso.nam(a, sep = ".")
     c1 <- iso.nam(c, sep = ".")
-
+    
     a1[a1 == 0] <- 1
     c1[c1 == 0] <- 1
-
+    
     a1 <- sqrt(a1)
     c1 <- sqrt(c1)
-
+    
     X <- X/a1
     Y <- Y/c1
     a <- a/a1
     c <- c/c1
-
+    
     if (qpmeth == "nleqslv") {
         requireNamespace("nleqslv", quietly = TRUE)
         XtX <- t(X) %*% X
-
+        
         M <- 1/M
         jacobian <- function(all) {
             b <- all[1:q]
@@ -2086,7 +2015,7 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
             out <- rbind(cbind(upperleft, upperright), cbind(lowerleft, lowerright))
             return((out))
         }
-
+        
         f1 <- function(all) {
             b <- all[1:q]
             lambda <- all[(q + 1):(q + n)]
@@ -2095,45 +2024,41 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
             return(c(out1, out2))
         }
         b.init[b.init < 1e-06] <- 1e-06
-        lambda.init <- solve(Y %*% t(Y)) %*% Y %*% ((M * log(b.init)) + t(X) %*% (X %*% b.init -
-            a))
+        lambda.init <- solve(Y %*% t(Y)) %*% Y %*% ((M * log(b.init)) + t(X) %*% (X %*% b.init - a))
         all.init <- c(b.init, lambda.init)
-
-        all.root <- nleqslv::nleqslv(all.init, fn = f1, jac = NULL, method = c("Broyden"), global = c("gline"),
-            xscalm = c("fixed"), control = list(maxit = maxit, xtol = 1e-11, ftol = 1e-11, btol = 1e-06,
-                cndtol = 1e-13))
-
+        
+        all.root <- nleqslv::nleqslv(all.init, fn = f1, jac = NULL, method = c("Broyden"), global = c("gline"), xscalm = c("fixed"), control = list(maxit = maxit, 
+            xtol = 1e-11, ftol = 1e-11, btol = 1e-06, cndtol = 1e-13))
+        
         cat("Number of Jacobian evaluations = ", all.root$njcnt, ". \n", sep = "")
         cat("Number of function evaluations = ", all.root$nfcnt, ". \n", sep = "")
         cat("Number of iterations = ", all.root$iter, ". \n", sep = "")
         all.root <- all.root$x
-
+        
         b <- all.root[1:q]
         b[b < 0] <- 0
     } else if (qpmeth == "LowRankQP") {
         requireNamespace("LowRankQP", quietly = TRUE)
-
+        
         rem <- find.sing(Y %*% t(Y))
         leave <- setdiff(1:NROW(Y), rem)
-        sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = t(X), dvec = -t(X) %*%
-            a, Amat = Y[leave, , drop = FALSE], bvec = c[leave], uvec = rep(M, q), method = "SMW",
-            verbose = FALSE, niter = maxit))
+        sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = t(X), dvec = -t(X) %*% a, Amat = Y[leave, , drop = FALSE], bvec = c[leave], 
+            uvec = rep(M, q), method = "SMW", verbose = FALSE, niter = maxit))
         b <- all.root$alpha
     } else if (qpmeth == "ipop") {
         requireNamespace("kernlab", quietly = TRUE)
-
-        all.root <- kernlab::ipop(c = -t(X) %*% a, H = t(X) %*% X, b = c, A = Y, l = rep(0, q),
-            r = rep(0, n), u = rep(M, q))
+        
+        all.root <- kernlab::ipop(c = -t(X) %*% a, H = t(X) %*% X, b = c, A = Y, l = rep(0, q), r = rep(0, n), u = rep(M, q))
         b <- all.root$alpha
     } else {
         stop("qpmeth not recognized.")
     }
-
+    
     X <- X * a1
     Y <- Y * c1
     a <- a * a1
     c <- c * c1
-
+    
     return(b)
 }
 
@@ -2148,7 +2073,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
     keep.nams <- c(idvar, timevar, intvar, nv.names, v.names)
     keep.nams <- names(table(keep.nams))
     data <- data[, keep.nams]
-
+    
     if (length(times) > 1) {
         newdat <- stats::reshape(data, timevar = timevar, idvar = idvar, v.names = v.names1, direction = "wide")
     } else if (length(times) == 1) {
@@ -2158,28 +2083,28 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
         colnames(newdat)[append.cols] <- paste(colnames(newdat)[append.cols], ".", times, sep = "")
     }
     intcols <- substr(colnames(newdat), 1, nchar(intvar)) == intvar
-    intcols <- intcols & (substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 1) == "" |
-        substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 1) == ".")
+    intcols <- intcols & (substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 1) == "" | substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 
+        1) == ".")
     intcols <- colnames(newdat)[intcols]
     int <- newdat[, intcols, drop = FALSE]
     colnames(int) <- gsub(paste(intvar, ".", sep = ""), "", colnames(int))
     intcols1 <- as.numeric(colnames(int))
     int <- int[, order(intcols1, decreasing = FALSE), drop = FALSE]
     rownames(int) <- newdat[, idvar]
-
+    
     v.names <- setdiff(v.names, intvar)
     nv.names <- setdiff(nv.names, intvar)
-
+    
     newdat <- newdat[, setdiff(colnames(newdat), intcols)]
-
+    
     out <- array(NA, c(NROW(newdat), length(nv.names) + length(v.names), NCOL(int)))
     dimnames(out) <- list(newdat[, idvar], c(nv.names, v.names), colnames(int))
-
+    
     for (i in 1:dim(out)[2]) {
         nam.tmp <- dimnames(out)[[2]][i]
         here <- substr(colnames(newdat), 1, nchar(nam.tmp)) == nam.tmp
-        here <- here & (substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == "." |
-            substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == "")
+        here <- here & (substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == "." | substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 
+            1) == "")
         tmp <- newdat[, here, drop = FALSE]
         if (sum(here) > 1) {
             colnames(tmp) <- gsub(paste(dimnames(out)[[2]][i], ".", sep = ""), "", colnames(tmp))
@@ -2188,7 +2113,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
         }
         out[, i, ] <- as.matrix(tmp)
     }
-
+    
     nv.names <- NULL
     if (dim(out)[3] > 1) {
         for (i in 1:dim(out)[2]) {
@@ -2201,9 +2126,9 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
     } else {
         nv.names <- dimnames(out)[[2]]
     }
-
+    
     v.names <- setdiff(dimnames(out)[[2]], nv.names)
-
+    
     return(list(bigdat = out, Intervention = int, nv.names = nv.names, v.names = v.names))
 }
 
@@ -2217,7 +2142,7 @@ make.quarter2 <- function(dat, tre, w, period = 1, int.time) {
     newcol <- (q - remain)%/%period
     times <- period * (1:newcol) + remain
     times <- times + add.back - 1
-
+    
     out <- matrix(NA, n * length(times), p + 3)
     colnames(out) <- c("Time", "Treatment", "w", dimnames(dat)[[2]])
     start <- remain + 1
@@ -2231,7 +2156,7 @@ make.quarter2 <- function(dat, tre, w, period = 1, int.time) {
         out[here, 4:NCOL(out)] <- apply(tmp, c(1, 2), sum)
         start <- stop + 1
     }
-
+    
     return(out)
 }
 
@@ -2241,12 +2166,12 @@ make.quarter3 <- function(dat, period = 1, int.time) {
     p <- dim(dat)[2]
     q <- dim(dat)[3]
     add.back <- min(as.numeric(dimnames(dat)[[3]]))
-
+    
     remain <- int.time%%period
     newcol <- (q - remain)%/%period
     times <- period * (1:newcol) + remain
     times <- times + add.back - 1
-
+    
     out <- array(NA, c(n, p, newcol))
     dimnames(out) <- list(dimnames(dat)[[1]], dimnames(dat)[[2]], times)
     start <- remain + 1
@@ -2265,7 +2190,7 @@ get.pval <- function(stats, p = NCOL(stats[[1]]), k = length(stats), ret.na = FA
     out <- matrix(NA, k, p)
     colnames(out) <- nams
     rownames(out) <- paste("Stat", 1:k, sep = "")
-
+    
     dum <- list()
     for (i in 1:k) {
         synth <- stats[[i]][1, ]
@@ -2288,7 +2213,7 @@ iso.nam <- function(a, sep = "-") {
     locs <- regexpr(sep, nams, fixed = TRUE)
     outs <- nams
     outs[locs > 1] <- substr(outs[locs > 1], 1, locs[locs > 1] - 1)
-
+    
     out <- rep(NA, length(outs))
     for (i in names(table(outs))) {
         out[outs == i] <- mean(a[outs == i])
@@ -2299,12 +2224,11 @@ iso.nam <- function(a, sep = "-") {
 
 out.results <- function(results, int.time, max.time = names(results), file = NULL) {
     use.xlsx <- length(max.time) > 1
-
+    
     if (substr(file, nchar(file) - 3, nchar(file)) == ".csv") {
         file <- substr(file, 1, nchar(file) - 4)
         if (use.xlsx) {
-            cat("WARNING: Cannot return .csv file since length(max.time) > 1.  Returning .xlsx file instead.\n",
-                sep = "")
+            cat("WARNING: Cannot return .csv file since length(max.time) > 1.  Returning .xlsx file instead.\n", sep = "")
         }
     } else if (substr(file, nchar(file) - 3, nchar(file)) == ".xls") {
         file <- substr(file, 1, nchar(file) - 4)
@@ -2313,12 +2237,12 @@ out.results <- function(results, int.time, max.time = names(results), file = NUL
         file <- substr(file, 1, nchar(file) - 5)
         use.xlsx <- TRUE
     }
-
+    
     if (use.xlsx) {
         xlsx.loaded <- is.element("xlsx", loadedNamespaces())
         file <- paste(file, ".xlsx", sep = "")
         if (!requireNamespace("xlsx", quietly = TRUE)) {
-            stop("The xlsx package is needed when saving output with multiple post-intervention times, or when the file name specifies a .xlsx extension. Please install xlsx, or if you'd like to write to .csv, only select a single post-intervention time and append the filename appropriately.",
+            stop("The xlsx package is needed when saving output with multiple post-intervention times, or when the file name specifies a .xlsx extension. Please install xlsx, or if you'd like to write to .csv, only select a single post-intervention time and append the filename appropriately.", 
                 call. = FALSE)
         }
         if (!xlsx.loaded) {
@@ -2329,17 +2253,16 @@ out.results <- function(results, int.time, max.time = names(results), file = NUL
         cspValColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0000"))
         csOtherColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.00"))
         csPercColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0%"))
-
+        
         for (i in 1:length(max.time)) {
             out <- results[[i]]
             keep <- rowMeans(is.na(out)) < 1
             out <- out[keep, , drop = FALSE]
-
-            is.pct <- grepl("pct", tolower(colnames(out))) | grepl("lower", tolower(colnames(out))) |
-                grepl("upper", tolower(colnames(out)))
+            
+            is.pct <- grepl("pct", tolower(colnames(out))) | grepl("lower", tolower(colnames(out))) | grepl("upper", tolower(colnames(out)))
             is.pval <- grepl("pval", tolower(colnames(out)))
             is.oth <- !is.pct & !is.pval
-
+            
             pct.list <- rep(list(csPercColumn), sum(is.pct))
             names(pct.list) <- as.character(which(is.pct))
             pval.list <- rep(list(cspValColumn), sum(is.pval))
@@ -2354,54 +2277,53 @@ out.results <- function(results, int.time, max.time = names(results), file = NUL
             }
             p <- NCOL(out)
             n <- NROW(out)
-
+            
             nam <- paste(max.time[i] - int.time, " Months Post Intervention", sep = "")
             sheet <- xlsx::createSheet(wb, sheetName = nam)
             xlsx::setColumnWidth(sheet, colIndex = 1:(p + 1), colWidth = 13)
             xlsx::addDataFrame(out, sheet, colStyle = c(pct.list, pval.list, oth.list))
-
+            
             bord1 <- xlsx::Border(color = "black", position = "BOTTOM", pen = "BORDER_THIN")
-            cb <- xlsx::CellBlock(sheet, startRow = 1, startColumn = 1, noRows = (n + 1), noColumns = (p +
-                1), create = FALSE)
+            cb <- xlsx::CellBlock(sheet, startRow = 1, startColumn = 1, noRows = (n + 1), noColumns = (p + 1), create = FALSE)
             xlsx::CB.setBorder(cb, border = bord1, rowIndex = 1, colIndex = 1:(p + 1))
-
+            
             font <- xlsx::Font(wb, isBold = TRUE)
             xlsx::CB.setFont(cb, font = font, rowIndex = 1, colIndex = 2:(p + 1))
-
+            
         }
-
+        
         xlsx::saveWorkbook(wb, file = file)
         rm(wb)
     } else {
         file <- paste(file, ".csv", sep = "")
         utils::write.csv(results[[1]], file, na = "")
     }
-
+    
 }
 
 
 merge.dums <- function(dum, dum1) {
     nam1 <- names(dum)
     nam2 <- names(dum1)
-
+    
     if (length(nam1) > 0) {
         nam <- union(nam1, nam2)
-
+        
         dum.out <- list()
         dum.out[[length(nam)]] <- NA
         dum.new <- list()
         dum.new[[length(nam1)]] <- NA
         names(dum.new) <- nam1
-
+        
         dum[[length(nam) + 1]] <- NA
         dum1[[length(nam) + 1]] <- NA
-
+        
         max.l.dum <- 0
-
+        
         for (i in 1:length(nam)) {
             here1 <- which(nam1 == nam[i])
             here2 <- which(nam2 == nam[i])
-
+            
             if (length(here1) == 0 & length(here2) == 0) {
                 dum.out[[i]] <- NULL
             } else if (length(here1) > 0 & length(here2) == 0) {
@@ -2413,25 +2335,25 @@ merge.dums <- function(dum, dum1) {
             } else {
                 max.l.dum <- max(max.l.dum, length(dum[[here1]]))
                 dum.new[[here1]] <- sum(dum[[here1]])
-
+                
                 dum1c <- cumsum(dum[[here1]])
                 dum2c <- cumsum(dum1[[here2]])
-
+                
                 dumc <- union(dum1c, dum2c)
                 dumc <- dumc[order(dumc, decreasing = FALSE)]
-
+                
                 if (length(dumc) > 1) {
                   dumc <- c(dumc[1], dumc[2:length(dumc)] - dumc[1:(length(dumc) - 1)])
                 }
-
+                
                 dum.out[[i]] <- dumc
             }
         }
-
+        
         if (max.l.dum <= 1) {
             dum.new <- list()
         }
-
+        
         names(dum.out) <- nam
     } else {
         dum.new <- dum
@@ -2443,9 +2365,9 @@ merge.dums <- function(dum, dum1) {
 
 is.feasible <- function(bigdat, covar.var, dum, Int, int.var = 1, int.time, eps = 0.001) {
     n <- dim(bigdat)[1]
-
+    
     newdat <- get.newdat(bigdat, dum = dum, covar.var = covar.var, int.time = int.time)[[1]]
-
+    
     intdat <- newdat[Int == int.var, ]
     condat <- newdat[Int != int.var, ]
     targets <- colSums(intdat)
@@ -2456,7 +2378,7 @@ is.feasible <- function(bigdat, covar.var, dum, Int, int.var = 1, int.time, eps 
 
 find.sing <- function(X) {
     Z <- rref(X)
-
+    
     rem <- NULL
     cont <- TRUE
     while (cont) {
@@ -2481,13 +2403,13 @@ check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
     b <- b[leave]
     A3 <- cbind(A, diag(NROW(A)), (-1) * diag(NROW(A)))
     a <- c(rep(0, NCOL(A)), rep(1, 2 * NROW(A)))
-
+    
     if (meth == "LowRankQP") {
         requireNamespace("LowRankQP", quietly = TRUE)
         Vmat <- matrix(0, NCOL(A3), 1)
         uvec <- rep(M, NCOL(A3))
-        sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = Vmat, dvec = a,
-            Amat = A3, bvec = b, uvec = uvec, method = "SMW", verbose = FALSE, niter = maxit))
+        sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = Vmat, dvec = a, Amat = A3, bvec = b, uvec = uvec, method = "SMW", verbose = FALSE, 
+            niter = maxit))
         sol <- all.root$alpha
     }
     if (meth == "simplex") {
@@ -2508,30 +2430,30 @@ check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
 
 
 assign.groups <- function(strata = NULL, n = length(strata), G = min(table(strata))) {
-
+    
     states <- names(table(strata))
-
+    
     Gs <- sample(1:G, G)
     Gs1 <- Gs
-
+    
     rep.G <- rep(NA, n)
-
+    
     for (i in 1:length(states)) {
         here <- which(strata == states[i])
-
+        
         n <- length(here)
         samp <- sample(1:n, n)
-
+        
         J <- floor(n/G)
-
+        
         rep.G1 <- rep(NA, n)
-
+        
         for (g in 1:G) {
             here1 <- samp[1:J]
             samp <- samp[-(1:J)]
             rep.G1[here1] <- g
         }
-
+        
         if (length(is.na(rep.G1)) > 0) {
             here2 <- which(is.na(rep.G1))
             if (length(here2) > length(Gs1)) {
@@ -2540,18 +2462,18 @@ assign.groups <- function(strata = NULL, n = length(strata), G = min(table(strat
             rep.G1[here2] <- Gs1[1:length(here2)]
             Gs1 <- Gs1[-(1:length(here2))]
         }
-
+        
         rep.G[here] <- rep.G1
     }
-
+    
     return(rep.G)
 }
 
 
 get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
-
+    
     mult <- sum(samp)/sum(use & samp)
-
+    
     intdat <- newdat[samp & use, , drop = FALSE]
     condat <- newdat[!samp & use, , drop = FALSE]
     alldat <- newdat[, , drop = FALSE]
@@ -2559,7 +2481,7 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
     targets <- mult * targets
     ws <- ws[!samp & use]
     mse <- mean((colSums(ws * condat) - targets)^2)
-
+    
     mse1 <- NA
     if (length(newdat1) != 0) {
         intdat1 <- newdat1[samp & use, , drop = FALSE]
@@ -2570,32 +2492,29 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
         ws.init <- ws.init[!samp & use]
         mse1 <- mean((colSums(ws * condat1) - targets1)^2)
     }
-
+    
     if (length(newdat1) == 0) {
-        printstuff <- cbind(Targets = targets, Weighted.Control = colSums((ws) * (condat)), All.scaled = (scale.by) *
-            colSums(alldat))
+        printstuff <- cbind(Targets = targets, Weighted.Control = colSums((ws) * (condat)), All.scaled = (scale.by) * colSums(alldat))
     } else {
-        # printstuff <- cbind(Targets = c(targets, targets1), Initial.Weighted.Control = colSums(ws.init
-        # * cbind(condat, condat1)), Final.Weighted.Control = colSums(ws * cbind(condat, condat1)),
-        # All.scaled = scale.by * colSums(cbind(alldat, alldat1)))
-        printstuff <- cbind(Targets = c(targets, targets1), Final.Weighted.Control = colSums(ws *
-            cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat, alldat1)))
+        # printstuff <- cbind(Targets = c(targets, targets1), Initial.Weighted.Control = colSums(ws.init * cbind(condat, condat1)), Final.Weighted.Control =
+        # colSums(ws * cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat, alldat1)))
+        printstuff <- cbind(Targets = c(targets, targets1), Final.Weighted.Control = colSums(ws * cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat, 
+            alldat1)))
     }
-
+    
     return(list(mse = mse, mse1 = mse1, printstuff = printstuff))
 }
 
 
 rref <- function(A, tol = sqrt(.Machine$double.eps), verbose = FALSE, fractions = FALSE) {
-    ## A: coefficient matrix tol: tolerance for checking for 0 pivot verbose: if TRUE, print
-    ## intermediate steps fractions: try to express nonintegers as rational numbers Written by John
-    ## Fox Modified by Geoffrey Brent 2014-12-17 to fix a bug
+    ## A: coefficient matrix tol: tolerance for checking for 0 pivot verbose: if TRUE, print intermediate steps fractions: try to express nonintegers as
+    ## rational numbers Written by John Fox Modified by Geoffrey Brent 2014-12-17 to fix a bug
     if (fractions) {
         mass <- requireNamespace("MASS", quietly = TRUE)
-        if (!mass)
+        if (!mass) 
             stop("fractions=TRUE needs MASS package")
     }
-    if ((!is.matrix(A)) || (!is.numeric(A)))
+    if ((!is.matrix(A)) || (!is.numeric(A))) 
         stop("argument must be a numeric matrix")
     n <- nrow(A)
     m <- ncol(A)
@@ -2608,10 +2527,10 @@ rref <- function(A, tol = sqrt(.Machine$double.eps), verbose = FALSE, fractions 
         # find maximum pivot in current column at or below current row
         which <- which.max(abs(col))
         pivot <- col[which]
-        if (abs(pivot) <= tol)
+        if (abs(pivot) <= tol) 
             x.position <- x.position + 1  # check for 0 pivot
  else {
-            if (which > y.position)
+            if (which > y.position) 
                 {
                   A[c(y.position, which), ] <- A[c(which, y.position), ]
                 }  # exchange rows
@@ -2619,16 +2538,16 @@ rref <- function(A, tol = sqrt(.Machine$double.eps), verbose = FALSE, fractions 
             row <- A[y.position, ]
             A <- A - outer(A[, x.position], row)  # sweep
             A[y.position, ] <- row  # restore current row
-            if (verbose)
-                if (fractions)
+            if (verbose) 
+                if (fractions) 
                   print(fractions(A)) else print(round(A, round(abs(log(tol, 10)))))
             x.position <- x.position + 1
             y.position <- y.position + 1
         }
     }
-    for (i in 1:n) if (max(abs(A[i, 1:m])) <= tol)
+    for (i in 1:n) if (max(abs(A[i, 1:m])) <= tol) 
         A[c(i, n), ] <- A[c(n, i), ]  # 0 rows to bottom
-    if (fractions)
+    if (fractions) 
         fractions(A) else round(A, round(abs(log(tol, 10))))
 }
 
@@ -2639,16 +2558,15 @@ remove.vars <- function(vars, nams, objnam = "result.var") {
     } else {
         vars1 <- vars
     }
-
+    
     rm.vars <- setdiff(vars1, nams)
-
+    
     if (length(rm.vars) > 0) {
         rm.here <- which(is.element(vars1, rm.vars))
         vars <- vars[-rm.here]
-        cat("WARNING: The following variables will be removed from ", objnam, " since they are not in the dataset: \n",
-            sep = "")
+        cat("WARNING: The following variables will be removed from ", objnam, " since they are not in the dataset: \n", sep = "")
         cat(paste(rm.vars, collapse = ", ", sep = ""), "\n\n", sep = "")
     }
-
+    
     return(vars)
 }
