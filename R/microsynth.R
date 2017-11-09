@@ -380,8 +380,7 @@
 #' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'        intvar='Intervention', start.time=1, int.time=NULL, max.time=16,
 #'        match.out=match.out, match.covar=cov.var, result.var=match.out,
-#'        omnibus.var=match.out, plot.var=match.out, test='lower',
-#'        result.file='ExResults1.csv', plot.file=NULL, sep = TRUE)
+#'        omnibus.var=match.out, plot.var=match.out, test='lower')
 #'
 #' # View results
 #' summary(sea1)
