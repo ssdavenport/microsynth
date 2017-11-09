@@ -1527,208 +1527,244 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
 }
 
 
-get.stats <- function(bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]], int.time, period = 1, plot.it = result.var, max.time = 80,
-    plot.first = 100, file = NULL, sep = TRUE, start.time = 25, legend.spot = "bottomleft", omnibus.var = result.var, cut.mse = 1,
-    scale.var = "Intercept", twosided = FALSE) {
-    use.omnibus <- length(omnibus.var) > 0
-
-    all.var <- union(result.var, plot.it)
-    all.var <- union(all.var, omnibus.var)
-    stat5 <- stat4 <- stat2 <- stat1 <- mu <- matrix(NA, NCOL(w), length(result.var) + sum(use.omnibus))
-    rownames(stat5) <- rownames(stat4) <- rownames(stat2) <- rownames(stat1) <- rownames(mu) <- colnames(w)
+get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
+                       int.time, period = 1, plot.it = result.var, max.time = 80,
+                       plot.first = 100, file = NULL, sep = TRUE, start.time = 25,
+                       legend.spot = "bottomleft", omnibus.var = result.var, cut.mse = 1,
+                       scale.var = "Intercept", twosided = FALSE)
+{
+  use.omnibus <- length(omnibus.var) > 0
+  all.var <- union(result.var, plot.it)
+  all.var <- union(all.var, omnibus.var)
+  stat5 <- stat4 <- stat2 <- stat1 <- mu <- matrix(NA, NCOL(w),
+                                                   length(result.var) + sum(use.omnibus))
+  rownames(stat5) <- rownames(stat4) <- rownames(stat2) <- rownames(stat1) <- rownames(mu) <- colnames(w)
+  if (use.omnibus) {
+    colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var,
+                                                                                                  "Omnibus")
+  }
+  else {
+    colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var)
+  }
+  bigdat1 <- make.quarter3(bigdat, period = period, int.time = int.time)
+  keep <- mse < cut.mse & !is.na(mse)
+  keep[1] <- TRUE
+  synth <- list()
+  inter <- inter[, !grepl("Jack", colnames(w)), drop = FALSE]
+  mse <- mse[!grepl("Jack", colnames(w))]
+  keep <- keep[!grepl("Jack", colnames(w))]
+  w <- w[, !grepl("Jack", colnames(w)), drop = FALSE]
+  for (i in 1:NCOL(w)) {
+    Inter <- inter[, i]
+    use.con <- !is.na(Inter) & Inter == FALSE
+    use.tre <- !is.na(Inter) & Inter == TRUE
+    w.tmp <- w[use.con, i]
+    condat1 <- bigdat1[use.con, all.var, , drop = FALSE]
+    intdat1 <- bigdat1[use.tre, all.var, , drop = FALSE]
+    test2 <- apply(w.tmp * condat1, c(2, 3), sum)
+    test1 <- apply(intdat1, c(2, 3), sum)
+    if (i == 1) {
+      if (scale.var == "Intercept") {
+        scale.by <- sum(use.tre)/sum(use.tre | use.con)
+      }
+      else {
+        scale.by <- sum(bigdat1[use.tre, scale.var, 1])/sum(bigdat1[use.tre |
+                                                                      use.con, scale.var, 1])
+      }
+      alldat1 <- bigdat1[use.tre | use.con, all.var, ,
+                         drop = FALSE]
+      test3 <- apply(alldat1, c(2, 3), sum)
+    }
+    if (i == 1) {
+      xnams <- as.numeric(colnames(test1))
+      tuse <- xnams <= max.time & xnams >= start.time
+      use <- xnams <= int.time
+      nuse <- xnams >= int.time
+      if (max.time > int.time) {
+        fuse <- !use & xnams <= max.time
+      }
+      else if (max.time == int.time) {
+        fuse <- xnams >= int.time & xnams <= max.time
+      }
+      else {
+        stop("max.time is less than int.time")
+      }
+      if (length(plot.it) > 0) {
+        no.jack <- which(!grepl("Jack", colnames(w)))
+        plot.first <- min(plot.first, NCOL(w) - 1)
+        keep1 <- keep[no.jack]
+        plotdat.d <- array(NA, c(length(plot.it), length(no.jack),
+                                 length(xnams)))
+        dimnames(plotdat.d) <- list(plot.it, colnames(w)[no.jack],
+                                    xnams)
+        plotdat.a <- plotdat.t <- plotdat.c <- array(NA,
+                                                     c(length(plot.it), length(xnams)))
+        dimnames(plotdat.a) <- dimnames(plotdat.t) <- dimnames(plotdat.c) <- list(plot.it,
+                                                                                  xnams)
+      }
+      else {
+        plotdat.t <- plotdat.c <- plotdat.a <- plotdat.d <- NULL
+      }
+    }
     if (use.omnibus) {
-        colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var, "Omnibus")
-    } else {
-        colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var)
+      use.cols <- 1:(NCOL(stat1) - 1)
     }
-
-    bigdat1 <- make.quarter3(bigdat, period = period, int.time = int.time)
-
-    keep <- mse < cut.mse & !is.na(mse)
-    keep[1] <- TRUE
-    synth <- list()
-
-    inter <- inter[, !grepl("Jack", colnames(w)), drop = FALSE]
-    mse <- mse[!grepl("Jack", colnames(w))]
-    keep <- keep[!grepl("Jack", colnames(w))]
-    w <- w[, !grepl("Jack", colnames(w)), drop = FALSE]
-
-    for (i in 1:NCOL(w)) {
-        Inter <- inter[, i]
-        use.con <- !is.na(Inter) & Inter == FALSE
-        use.tre <- !is.na(Inter) & Inter == TRUE
-
-        w.tmp <- w[use.con, i]
-
-        condat1 <- bigdat1[use.con, all.var, , drop = FALSE]
-        intdat1 <- bigdat1[use.tre, all.var, , drop = FALSE]
-        test2 <- apply(w.tmp * condat1, c(2, 3), sum)
-        test1 <- apply(intdat1, c(2, 3), sum)
-
-        if (i == 1) {
-            if (scale.var == "Intercept") {
-                scale.by <- sum(use.tre)/sum(use.tre | use.con)
-            } else {
-                scale.by <- sum(bigdat1[use.tre, scale.var, 1])/sum(bigdat1[use.tre | use.con, scale.var, 1])
-            }
-            alldat1 <- bigdat1[use.tre | use.con, all.var, , drop = FALSE]
-            test3 <- apply(alldat1, c(2, 3), sum)
-        }
-
-        if (i == 1) {
-            xnams <- as.numeric(colnames(test1))
-            tuse <- xnams <= max.time & xnams >= start.time
-            use <- xnams <= int.time
-            nuse <- xnams >= int.time
-            if (max.time > int.time) {
-                fuse <- !use & xnams <= max.time
-            } else if (max.time == int.time) {
-                fuse <- xnams >= int.time & xnams <= max.time
-            } else {
-                stop("max.time is less than int.time")
-            }
-            if (length(plot.it) > 0) {
-                no.jack <- which(!grepl("Jack", colnames(w)))
-                plot.first <- min(plot.first, NCOL(w) - 1)
-                keep1 <- keep[no.jack]
-                # if (sum(!is.element(plot.it, result.var)) > 0) { cat('WARNING: plot.it has elements not in result.var', sep = '') } plot.it <-
-                # intersect(plot.it, result.var)
-                plotdat.d <- array(NA, c(length(plot.it), length(no.jack), length(xnams)))
-                dimnames(plotdat.d) <- list(plot.it, colnames(w)[no.jack], xnams)
-                plotdat.a <- plotdat.t <- plotdat.c <- array(NA, c(length(plot.it), length(xnams)))
-                dimnames(plotdat.a) <- dimnames(plotdat.t) <- dimnames(plotdat.c) <- list(plot.it, xnams)
-            } else {
-                plotdat.t <- plotdat.c <- plotdat.a <- plotdat.d <- NULL
-            }
-        }
-
-        if (use.omnibus) {
-            use.cols <- 1:(NCOL(stat1) - 1)
-        } else {
-            use.cols <- 1:NCOL(stat1)
-        }
-        mu[i, use.cols] <- sum(fuse) * rowMeans(test1[result.var, tuse, drop = FALSE])
-        stat4[i, use.cols] <- rowSums(test1[result.var, fuse, drop = FALSE])
-        stat5[i, use.cols] <- rowSums(test2[result.var, fuse, drop = FALSE])
-        stat1[i, use.cols] <- stat4[i, use.cols, drop = FALSE] - stat5[i, use.cols, drop = FALSE]
-        stat2[i, use.cols] <- stat1[i, use.cols, drop = FALSE]/rowSums(test2[result.var, fuse, drop = FALSE])
-        if (length(plot.it) > 0) {
-            if (i == 1) {
-                plotdat.t[plot.it, ] <- test1[plot.it, ]
-                plotdat.c[plot.it, ] <- test2[plot.it, ]
-                plotdat.a[plot.it, ] <- test3[plot.it, ]
-                i1 <- i
-            }
-            if (is.element(i, no.jack)) {
-                # plotdat.d[plot.it,i1,] <- test[plot.it,]
-                plotdat.d[plot.it, i1, ] <- test1[plot.it, ] - test2[plot.it, ]
-                i1 <- i1 + 1
-            }
-        }
-
-        if (use.omnibus) {
-            if (!twosided) {
-                stat1[i, NCOL(stat1)] <- sum(stat1[i, omnibus.var])
-                stat2[i, NCOL(stat2)] <- sum(stat1[i, omnibus.var])/sum(mu[i, omnibus.var])
-            } else {
-                stat1[i, NCOL(stat1)] <- sum((stat1[i, omnibus.var])^2)
-                stat2[i, NCOL(stat2)] <- sum((stat1[i, omnibus.var]/mu[i, omnibus.var])^2)
-            }
-        }
+    else {
+      use.cols <- 1:NCOL(stat1)
     }
-
+    mu[i, use.cols] <- sum(fuse) * rowMeans(test1[result.var,
+                                                  tuse, drop = FALSE])
+    stat4[i, use.cols] <- rowSums(test1[result.var, fuse,
+                                        drop = FALSE])
+    stat5[i, use.cols] <- rowSums(test2[result.var, fuse,
+                                        drop = FALSE])
+    stat1[i, use.cols] <- stat4[i, use.cols, drop = FALSE] -
+      stat5[i, use.cols, drop = FALSE]
+    stat2[i, use.cols] <- stat1[i, use.cols, drop = FALSE]/rowSums(test2[result.var,
+                                                                         fuse, drop = FALSE])
     if (length(plot.it) > 0) {
-        plotdat.d <- plotdat.d[, keep1, , drop = FALSE]
-        mu <- mu[no.jack, , drop = FALSE]
-        mu <- mu[keep1, , drop = FALSE]
-        if (length(file) == 0) {
-            graphics::par(mfrow = c(3, 2))
-        } else {
-            if (substr(file, nchar(file) - 3, nchar(file)) == ".pdf") {
-                file <- substr(file, 1, nchar(file) - 4)
-            }
-            if (!sep) {
-                file <- paste(file, ".pdf", sep = "")
-                grDevices::pdf(file = file, width = 8, height = 10.5)
-                graphics::par(mfrow = c(3, 2))
-            }
-        }
-        for (j in 1:length(plot.it)) {
-            ylab1 <- main1 <- main <- plot.it[j]
-            ylab2 <- "Treatment - Control"
-            use.mu <- which(mu[, plot.it[j]] > 0)
-            for (i in 1:dim(plotdat.d)[2]) {
-                tmp <- plotdat.d[plot.it[j], i, ]
-                if (i == 1) {
-                  if (sep & length(file) > 0) {
-                    grDevices::pdf(file = paste(file, "_", main1, "_TC.pdf", sep = ""), width = 5, height = 5)
-                  }
-                  tmp1 <- plotdat.t[plot.it[j], ]
-                  tmp2 <- plotdat.c[plot.it[j], ]
-                  tmp3 <- scale.by * plotdat.a[plot.it[j], ]
-
-                  lty <- c(1, 2, 4)
-                  col <- c(2, 1, 3)
-                  lwd <- c(2, 2, 2)
-                  ylim <- c(min(tmp1, tmp2), max(tmp1, tmp2))
-                  ylim <- c(min(ylim, tmp3), max(ylim, tmp3))
-                  ylim[2] <- 1.2 * ylim[2]
-                  xlim <- c(min(xnams[tuse]), max(xnams[tuse]))
-                  graphics::plot(xnams[tuse], tmp1[tuse], type = "l", lty = lty[1], col = col[1], lwd = lwd[1], xlim = xlim, xlab = "",
-                    ylab = ylab1, main = main, ylim = ylim)
-                  graphics::abline(v = int.time, lty = 2, col = 2)
-                  graphics::lines(xnams[tuse], tmp2[tuse], type = "l", lty = lty[2], col = col[2], lwd = lwd[2])
-                  graphics::lines(xnams[tuse], tmp3[tuse], type = "l", lty = lty[3], col = col[3], lwd = lwd[3])
-                  leg <- c("Treatment", "Synthetic Control", "All blocks (scaled)")
-                  graphics::legend(legend.spot, legend = leg, col = col, lty = lty, lwd = lwd, cex = 0.8, bty = "n")
-                  if (sep & length(file) > 0) {
-                    grDevices::dev.off()
-                  }
-
-                  if (is.element(i, use.mu)) {
-                    if (sep & length(file) > 0) {
-                      grDevices::pdf(file = paste(file, "_", main1, "_Diff.pdf", sep = ""), width = 5, height = 5)
-                    }
-                    ylim1 <- c(min(tmp), max(tmp))
-                    bigtmp <- plotdat.d[plot.it[j], use.mu, ]
-                    ylim2 <- 2 * c(stats::quantile(bigtmp, 0.05, na.rm = TRUE), stats::quantile(bigtmp, 0.95, na.rm = TRUE))
-                    ylim <- c(min(ylim1[1], ylim2[1], na.rm = TRUE), max(ylim1[2], ylim2[2], na.rm = TRUE))
-                    xlim <- c(min(xnams[tuse]), max(xnams[tuse]))
-                    graphics::plot(xnams[tuse & use], tmp[tuse & use], type = "l", ylim = ylim, xlim = xlim, col = 2, lty = 2, main = main,
-                      xlab = "", ylab = ylab2)
-                  } else {
-                    if (!sep & length(file) > 0) {
-                      graphics::plot(1, 1, main = plot.it[j])
-                    }
-                  }
-                } else {
-                  if (i <= min((dim(plotdat.d)[2]), plot.first)) {
-                    if (is.element(i, use.mu) & is.element(1, use.mu)) {
-                      graphics::lines(xnams[tuse], tmp[tuse], col = "azure3")
-                    }
-                  }
-                }
-                if (i == dim(plotdat.d)[2] & is.element(1, use.mu)) {
-                  tmp <- plotdat.d[plot.it[j], 1, ]
-                  graphics::lines(xnams[tuse & use], tmp[tuse & use], lty = 1, col = 1, lwd = 2)
-                  graphics::lines(xnams[tuse & nuse], tmp[tuse & nuse], col = 2, lwd = 2)
-                  graphics::abline(v = int.time, col = 2, lwd = 1, lty = 2)
-                  graphics::abline(h = 0, lwd = 1, lty = 2)
-                  if (sep & length(file) > 0) {
-                    grDevices::dev.off()
-                  }
-                }
-            }
-        }
-        if (!sep & length(file) > 0) {
-            grDevices::dev.off()
-        }
+      if (i == 1) {
+        plotdat.t[plot.it, ] <- test1[plot.it, ]
+        plotdat.c[plot.it, ] <- test2[plot.it, ]
+        plotdat.a[plot.it, ] <- test3[plot.it, ]
+        i1 <- i
+      }
+      if (is.element(i, no.jack)) {
+        plotdat.d[plot.it, i1, ] <- test1[plot.it, ] -
+          test2[plot.it, ]
+        i1 <- i1 + 1
+      }
     }
-
-    stats <- list(stat1[keep, , drop = FALSE], stat2[keep, , drop = FALSE], stat4[keep, , drop = FALSE], stat5[keep, , drop = FALSE],
-        list(Treatment = plotdat.t, Control = plotdat.c, All = plotdat.a, Difference = plotdat.d))
-    return(stats)
+    if (use.omnibus) {
+      if (!twosided) {
+        stat1[i, NCOL(stat1)] <- sum(stat1[i, omnibus.var])
+        stat2[i, NCOL(stat2)] <- sum(stat1[i, omnibus.var])/sum(mu[i,
+                                                                   omnibus.var])
+      }
+      else {
+        stat1[i, NCOL(stat1)] <- sum((stat1[i, omnibus.var])^2)
+        stat2[i, NCOL(stat2)] <- sum((stat1[i, omnibus.var]/mu[i,
+                                                               omnibus.var])^2)
+      }
+    }
+  }
+  if (length(plot.it) > 0) {
+    plotdat.d <- plotdat.d[, keep1, , drop = FALSE]
+    mu <- mu[no.jack, , drop = FALSE]
+    mu <- mu[keep1, , drop = FALSE]
+    if (length(file) == 0) {
+      graphics::par(mfrow = c(1, 2), ask = FALSE)
+    }
+    else {
+      if (substr(file, nchar(file) - 3, nchar(file)) ==
+          ".pdf") {
+        file <- substr(file, 1, nchar(file) - 4)
+      }
+      if (!sep) {
+        file <- paste(file, ".pdf", sep = "")
+        grDevices::pdf(file = file, width = 8, height = 10.5)
+        graphics::par(mfrow = c(3, 2), ask = FALSE)
+      }
+    }
+    for (j in 1:length(plot.it)) {
+      ylab1 <- main1 <- main <- plot.it[j]
+      ylab2 <- "Treatment - Control"
+      use.mu <- which(mu[, plot.it[j]] > 0)
+      for (i in 1:dim(plotdat.d)[2]) {
+        tmp <- plotdat.d[plot.it[j], i, ]
+        if (i == 1) {
+          if (sep & length(file) > 0) {
+            grDevices::pdf(file = paste(file, "_", main1,
+                                        "_TC.pdf", sep = ""), width = 5, height = 5)
+          }
+          tmp1 <- plotdat.t[plot.it[j], ]
+          tmp2 <- plotdat.c[plot.it[j], ]
+          tmp3 <- scale.by * plotdat.a[plot.it[j], ]
+          lty <- c(1, 2, 4)
+          col <- c(2, 1, 3)
+          lwd <- c(2, 2, 2)
+          ylim <- c(min(tmp1, tmp2), max(tmp1, tmp2))
+          ylim <- c(min(ylim, tmp3), max(ylim, tmp3))
+          ylim[2] <- 1.2 * ylim[2]
+          xlim <- c(min(xnams[tuse]), max(xnams[tuse]))
+          graphics::plot(xnams[tuse], tmp1[tuse], type = "l",
+                         lty = lty[1], col = col[1], lwd = lwd[1],
+                         xlim = xlim, xlab = "", ylab = ylab1, main = main,
+                         ylim = ylim)
+          graphics::abline(v = int.time, lty = 2, col = 2)
+          graphics::lines(xnams[tuse], tmp2[tuse], type = "l",
+                          lty = lty[2], col = col[2], lwd = lwd[2])
+          graphics::lines(xnams[tuse], tmp3[tuse], type = "l",
+                          lty = lty[3], col = col[3], lwd = lwd[3])
+          leg <- c("Treatment", "Synthetic Control",
+                   "All blocks (scaled)")
+          graphics::legend(legend.spot, legend = leg,
+                           col = col, lty = lty, lwd = lwd, cex = 0.8,
+                           bty = "n")
+          if (sep & length(file) > 0) {
+            grDevices::dev.off()
+          }
+          if (is.element(i, use.mu)) {
+            if (sep & length(file) > 0) {
+              grDevices::pdf(file = paste(file, "_",
+                                          main1, "_Diff.pdf", sep = ""), width = 5,
+                             height = 5)
+            }
+            ylim1 <- c(min(tmp), max(tmp))
+            bigtmp <- plotdat.d[plot.it[j], use.mu, ]
+            ylim2 <- 2 * c(stats::quantile(bigtmp, 0.05,
+                                           na.rm = TRUE), stats::quantile(bigtmp,
+                                                                          0.95, na.rm = TRUE))
+            ylim <- c(min(ylim1[1], ylim2[1], na.rm = TRUE),
+                      max(ylim1[2], ylim2[2], na.rm = TRUE))
+            xlim <- c(min(xnams[tuse]), max(xnams[tuse]))
+            graphics::plot(xnams[tuse & use], tmp[tuse &
+                                                    use], type = "l", ylim = ylim, xlim = xlim,
+                           col = 2, lty = 2, main = main, xlab = "",
+                           ylab = ylab2)
+          }
+          else {
+            if (!sep & length(file) > 0) {
+              graphics::plot(1, 1, main = plot.it[j])
+            }
+          }
+        }
+        else {
+          if (i <= min((dim(plotdat.d)[2]), plot.first)) {
+            if (is.element(i, use.mu) & is.element(1,
+                                                   use.mu)) {
+              graphics::lines(xnams[tuse], tmp[tuse],
+                              col = "azure3")
+            }
+          }
+        }
+        if (i == dim(plotdat.d)[2] & is.element(1, use.mu)) {
+          tmp <- plotdat.d[plot.it[j], 1, ]
+          graphics::lines(xnams[tuse & use], tmp[tuse &
+                                                   use], lty = 1, col = 1, lwd = 2)
+          graphics::lines(xnams[tuse & nuse], tmp[tuse &
+                                                    nuse], col = 2, lwd = 2)
+          graphics::abline(v = int.time, col = 2, lwd = 1,
+                           lty = 2)
+          graphics::abline(h = 0, lwd = 1, lty = 2)
+          if (sep & length(file) > 0) {
+            grDevices::dev.off()
+          }
+        }
+      }
+    }
+    if (!sep & length(file) > 0) {
+      grDevices::dev.off()
+    }
+  }
+  stats <- list(stat1[keep, , drop = FALSE],
+                stat2[keep, , drop = FALSE],
+                stat4[keep, , drop = FALSE],
+                stat5[keep, , drop = FALSE],
+                list(Treatment = plotdat.t, Control = plotdat.c, All = plotdat.a, Difference = plotdat.d))
+  return(stats)
 }
+
 
 
 get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max.time = 80, mfrow = c(1, 3), plot.first = 100, omnibus.var = NULL,

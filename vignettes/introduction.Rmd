@@ -399,7 +399,7 @@ trust the default values for specifying the variables for the omnibus statistic
 (`omnibus.var=result.var`) by default. This way we specify the minimum
 number of non-default arguments.
 
-```{r ex3, eval = FALSE, fig.show = "hold", fig.width = 6, fig.height = 7} 
+```{r ex3, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7} 
 sea3 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    match.out=match.out, match.covar=cov.var, 
@@ -412,7 +412,7 @@ sea3 <- microsynth(seattledmi,
 
 The results file now shows additional rows for the new outcome variables.  
 
-```{r ex3results, eval = FALSE}
+```{r ex3results, eval = TRUE}
 summary(sea3)
 ```
 
@@ -443,7 +443,7 @@ The aggregated variables now appear in the main weights summary table, e.g.,
 "i_robbery.11.12", representing the sum of reported robberies in time periods 11
 and 12.
 
-```{r ex4, eval = FALSE, fig.show = "hold", fig.width = 6, fig.height = 7} 
+```{r ex4, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7} 
 match.out <- list( 'i_robbery'=rep(2, 6), 
                    'i_aggassau'=rep(2, 6), 
                    'i_burglary'=rep(1, 12), 
@@ -468,7 +468,7 @@ The aggregation of the outcome variables over time is not directly reflected in
 the results table, though the estimates have changed as a consequence of the
 aggregation.
 
-```{r ex4results, eval = FALSE}
+```{r ex4results, eval = TRUE}
 summary(sea4)
 ```
 
@@ -489,7 +489,7 @@ Note that settings for permutation groups (`perm`) and jackknife replication
 groups (`jack`) are considered when calculating weights, and then will not be
 referred to again in calls that only produce plots or display results.
 
-```{r ex5, eval = FALSE, results='hide'}
+```{r ex5, eval = TRUE, results='hide'}
 match.out <- c("i_felony", "i_misdemea", "i_drugs", "any_crime")
 
 sea5 <- microsynth(seattledmi, 
@@ -502,7 +502,7 @@ sea5 <- microsynth(seattledmi,
 Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
 
-```{r ex5results, eval = FALSE}
+```{r ex5results, eval = TRUE}
 summary(sea5)
 ```
 
@@ -515,7 +515,7 @@ are not repeating the matching procedure, many arguments can be left
 unspecified. Further, plots can be limited to a subset of time-variant variables
 (`plot.var=match.out[1:2]`).
 
-```{r ex6, eval = FALSE, fig.show = "hold", fig.width = 6, fig.height = 7}
+```{r ex6, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7}
 sea6 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
                    result.var=FALSE, plot.var=match.out[1:2],
@@ -531,7 +531,7 @@ variables used for exact matches (`result.var = match.out`) but none are plotted
 group of follow-up periods (`max.time=c(14,16)`) without having to re-calculate
 weights.
 
-```{r ex7, eval = FALSE}
+```{r ex7, eval = TRUE}
 sea7 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
                    max.time=c(14, 16),
@@ -545,7 +545,7 @@ For each follow-up period, a separate results table is provided. If saving to
 file, this requires the file be saved as an XLSX rather than a CSV; each table
 will be saved to a different XLSX tab.
 
-```{r ex7results, eval = FALSE}
+```{r ex7results, eval = TRUE}
 summary(sea7)
 ```
 
@@ -563,7 +563,7 @@ this simpler case.
 To demonstrate, first we will create a reduced dataset with 1 treatment block
 and 100 control blocks.
 
-```{r ex8prep, eval = FALSE}
+```{r ex8prep, eval = TRUE}
 set.seed(66872)
 ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
 ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
@@ -577,7 +577,7 @@ Due to the small size of the reduced dataset, model feasibility may be an issue
 (so we set `use.backup = TRUE` and `check.feas = TRUE`) and variance estimators
 will be less reliable.
 
-```{r ex8, eval = FALSE, fig.show = "hold", fig.width = 6, fig.height = 7}
+```{r ex8, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7}
 sea8 <- microsynth(seattledmi.one, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    match.out=match.out[4], match.covar=cov.var, 
@@ -593,7 +593,7 @@ microsynth() may also be used to calculate propensity score-type weights. We
 will demonstrate this by transforming our panel data into a cross-sectional
 dataset with data corresponding to the time of the intervention (time = 12).
 
-```{r ex9, eval = FALSE}
+```{r ex9, eval = TRUE}
 seattledmi.cross <- seattledmi[seattledmi$time==12, ]
 seattledmi.cross <- seattledmi.cross[, colnames(seattledmi)!="time"]
 ```
@@ -604,7 +604,7 @@ weights, only (time-invariant) covariates (`match.covar`). No plot variables
 reported. Plots are therefore inappropriate, but results (i.e., a summary of
 weights only) can be saved to file or viewed using `summary`.
 
-```{r ex9results, eval = FALSE, fig.show = "hold", fig.width = 6, fig.height = 7}
+```{r ex9results, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7}
 sea9 <- microsynth(seattledmi.cross, 
                    idvar="ID", intvar="Intervention",
                    match.out=FALSE, match.covar=cov.var,
