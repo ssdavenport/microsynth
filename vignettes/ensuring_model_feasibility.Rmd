@@ -18,10 +18,12 @@ quick guide to how to troubleshoot model feasiblity issues.
 
 Model infeasibility becomes increasingly likely when:
 
-* There are few control observations * More variables used for matching *
-Matching variables are sparse (e.g., mostly zero) * Treatment units have extreme
-values for matching variables * Permutation weights are calculated in addition
-to main weights * Jackknife weights are calculated in addition to main weights
+* There are few control observations 
+* More variables used for matching 
+* Matching variables are sparse (e.g., mostly zero) 
+* Treatment units have extreme values for matching variables 
+* Permutation weights are calculated in addition to main weights 
+* Jackknife weights are calculated in addition to main weights
 
 ## Responses to an infeasible model
 
@@ -35,8 +37,10 @@ variable specification. We recommend the following diagnostic steps:
 
 * Review the frequency of matching variables (e.g., with `hist()` or `table()`)
 to check for sparseness. Sparse variables are difficult to match on without
-large sample sizes. * Compare the distribution of variable values in treatment
-units to the un-treated units. * Attempt to reduce the number of matching
+large sample sizes. 
+* Compare the distribution of variable values in treatment
+units to the un-treated units. 
+* Attempt to reduce the number of matching
 variables, move variables from exact matches (`match.out`/`match.covar`) to
 best-possible matches (`match.out.min`/`match.covar.min`), or aggregate
 time-variant variables before matching.
@@ -46,7 +50,8 @@ several solutions:
 
 * Do not attempt an exact match. If the variable is time-invariant, move it from
 `match.covar` to `match.covar.min`; if the variable is time-variant, move it
-from `match.out` to `match.out.min`. * If the variable is time-variant,
+from `match.out` to `match.out.min`. 
+* If the variable is time-variant,
 aggregate the variable over multiple time periods before matching. If just one
 or several variables that appear to be sparse or for which the treatment
 contains values that are rare in the un-treated units, then the user can issue
@@ -65,7 +70,8 @@ If varying the specification of matching variables is not satisfactory, the user
 can set the parameters microSynth() uses for the calculation of weights.
 
 * `max.mse` may be raised. This relaxes the constraint governing matches for
-variables passed to `match.out` and `match.covar`. * Advanced users may wish to
+variables passed to `match.out` and `match.covar`. 
+* Advanced users may wish to
 alter `maxit`, `cal.epsilon`, `calfun`, and `bounds`, which correspond to
 parameters from the `survey::calibrate()` and govern the calculation of weights.
 
