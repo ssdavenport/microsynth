@@ -9,8 +9,10 @@ vignette: >
   %\VignetteEncoding{UTF-8} 
 ---
 
-```{r load, echo=F} 
+```{r load, echo=F}
 library(microsynth)
+library(knitr)
+knitr::opts_chunk$set(message = FALSE, fig.height=3.6, fig.width=10)
 ```
 
 ## Introduction to Synthetic Controls
