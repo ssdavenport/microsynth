@@ -9,8 +9,10 @@ vignette: >
   %\VignetteEncoding{UTF-8} 
 ---
 
-```{r load, echo=F} 
+```{r load, echo=F}
 library(microsynth)
+library(knitr)
+knitr::opts_chunk$set(message = FALSE, fig.height=3.6, fig.width=10, fig.show = "hold")
 ```
 
 ## Introduction to Synthetic Controls
@@ -293,7 +295,7 @@ exactly, will be used to report results, will feature in the omnibus p-value,
 and will appear in the plots. `match.covar` indicates that the specified 
 covariates will also be matched on exactly.
 
-```{r ex1, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7} 
+```{r ex1, eval = TRUE} 
 sea1 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    start.time=1, int.time=NULL, max.time=16, 
@@ -346,7 +348,7 @@ placebo treatments (gray lines) will be shown along with the estimated effect of
 the real treatment. This displays the estimated treatment effect in the context
 of the estimator's sampling distribution.
 
-```{r ex2, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7} 
+```{r ex2, eval = TRUE} 
 sea2 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    start.time=1, int.time=12, max.time=c(14, 16),
@@ -399,7 +401,7 @@ trust the default values for specifying the variables for the omnibus statistic
 (`omnibus.var=result.var`) by default. This way we specify the minimum
 number of non-default arguments.
 
-```{r ex3, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7} 
+```{r ex3, eval = TRUE} 
 sea3 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    match.out=match.out, match.covar=cov.var, 
@@ -443,7 +445,7 @@ The aggregated variables now appear in the main weights summary table, e.g.,
 "i_robbery.11.12", representing the sum of reported robberies in time periods 11
 and 12.
 
-```{r ex4, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7} 
+```{r ex4, eval = TRUE} 
 match.out <- list( 'i_robbery'=rep(2, 6), 
                    'i_aggassau'=rep(2, 6), 
                    'i_burglary'=rep(1, 12), 
@@ -515,7 +517,7 @@ are not repeating the matching procedure, many arguments can be left
 unspecified. Further, plots can be limited to a subset of time-variant variables
 (`plot.var=match.out[1:2]`).
 
-```{r ex6, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7}
+```{r ex6, eval = TRUE}
 sea6 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
                    result.var=FALSE, plot.var=match.out[1:2],
@@ -577,7 +579,7 @@ Due to the small size of the reduced dataset, model feasibility may be an issue
 (so we set `use.backup = TRUE` and `check.feas = TRUE`) and variance estimators
 will be less reliable.
 
-```{r ex8, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7}
+```{r ex8, eval = TRUE}
 sea8 <- microsynth(seattledmi.one, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    match.out=match.out[4], match.covar=cov.var, 
@@ -604,7 +606,7 @@ weights, only (time-invariant) covariates (`match.covar`). No plot variables
 reported. Plots are therefore inappropriate, but results (i.e., a summary of
 weights only) can be saved to file or viewed using `summary`.
 
-```{r ex9results, eval = TRUE, fig.show = "hold", fig.width = 6, fig.height = 7}
+```{r ex9results, eval = TRUE}
 sea9 <- microsynth(seattledmi.cross, 
                    idvar="ID", intvar="Intervention",
                    match.out=FALSE, match.covar=cov.var,
