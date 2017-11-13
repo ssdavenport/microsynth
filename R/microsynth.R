@@ -592,22 +592,25 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     if (length(result.var) == 0) {
         result.var <- data[[4]]
         if (!reset.result.var) {
-            message("result.var = TRUE.  Resetting: \n")
-            message("result.var = c(\"", paste(result.var, collapse = "\",\"", sep = ""), "\")\n\n", sep = "")
+            message("result.var = TRUE.  Resetting: \n", appendLF=FALSE)
+            message("result.var = c(\"", paste(result.var, collapse = "\",\"", sep = ""), "\")\n\n",
+                    sep = "", appendLF=FALSE)
         }
     }
     if (length(plot.var) == 0) {
         plot.var <- data[[4]]
         if (!reset.plot.var) {
-            message("plot.var = TRUE.  Resetting: \n")
-            message("plot.var = c(\"", paste(plot.var, collapse = "\",\"", sep = ""), "\")\n\n", sep = "")
+            message("plot.var = TRUE.  Resetting: \n", appendLF=FALSE)
+            message("plot.var = c(\"", paste(plot.var, collapse = "\",\"", sep = ""), "\")\n\n",
+                    sep = "", appendLF=FALSE)
         }
     }
     if (length(match.covar) == 0) {
         match.covar <- data[[3]]
         if (!reset.match.covar) {
-            message("match.covar = TRUE.  Resetting: \n")
-            message("match.covar = c(\"", paste(match.covar, collapse = "\",\"", sep = ""), "\")\n\n", sep = "")
+            message("match.covar = TRUE.  Resetting: \n", appendLF=FALSE)
+            message("match.covar = c(\"", paste(match.covar, collapse = "\",\"", sep = ""), "\")\n\n",
+                    sep = "", appendLF=FALSE)
         }
     }
     Intervention <- data[[2]]
@@ -633,7 +636,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
             if (int.time == 0) {
                 stop("There are no pre-intervention time points.")
             }
-            message("Setting int.time = ", int.time, ".\n", sep = "")
+            message("Setting int.time = ", int.time, ".\n", sep = "", appendLF=FALSE)
         }
     }
 
@@ -648,8 +651,9 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     if (length(match.out) == 0) {
         match.out <- result.var
         if (!reset.match.out) {
-            message("match.out = TRUE.  Resetting: \n")
-            message("match.out = c(\"", paste(match.out, collapse = "\",\"", sep = ""), "\")\n\n", sep = "")
+            message("match.out = TRUE.  Resetting: \n", appendLF=FALSE)
+            message("match.out = c(\"", paste(match.out, collapse = "\",\"", sep = ""), "\")\n\n",
+                    sep = "", appendLF=FALSE)
         }
     }
 
@@ -677,8 +681,9 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                 omnibus.var <- NULL
             } else {
                 omnibus.var <- result.var
-                message("omnibus.var = TRUE.  Resetting: \n")
-                message("omnibus.var = c(\"", paste(omnibus.var, collapse = "\",\"", sep = ""), "\")\n\n", sep = "")
+                message("omnibus.var = TRUE.  Resetting: \n", appendLF=FALSE)
+                message("omnibus.var = c(\"", paste(omnibus.var, collapse = "\",\"", sep = ""), "\")\n\n",
+                        sep = "", appendLF=FALSE)
             }
         } else {
             omnibus.var <- NULL
@@ -692,16 +697,17 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     dum1 <- ((max(max.time) - (max(max.time) - int.time)%%period - int.time)/period)
 
     if (dum <= dum1 + 1) {
-        message("WARNING: There is a low number (", dum, ") of cases in the treatment or intervention group.\n", sep = "")
+        message("WARNING: There is a low number (", dum, ") of cases in the treatment or intervention group.\n",
+                sep = "", appendLF=FALSE)
         if (jack > 0) {
             jack <- 0
-            message("setting jack = 0.\n")
+            message("setting jack = 0.\n", appendLF=FALSE)
         }
         if (use.survey) {
             use.survey <- FALSE
-            message("Setting use.survey = FALSE.\n")
+            message("Setting use.survey = FALSE.\n", appendLF=FALSE)
         }
-        message("Be cautious of results involving linearization or confidence intervals.\n\n")
+        message("Be cautious of results involving linearization or confidence intervals.\n\n", appendLF=FALSE)
     }
 
     if (reset.match.covar) {
@@ -717,28 +723,34 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     if (length(rm.col) > 0) {
         for (i in 1:length(rm.col)) {
             if (is.element(rm.col[i], result.var)) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from result.var. \n", sep = "")
+                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from result.var. \n",
+                        sep = "", appendLF=FALSE)
                 result.var <- setdiff(result.var, rm.col[i])
             }
             if (is.element(rm.col[i], omnibus.var)) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from omnibus.var. \n", sep = "")
+                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from omnibus.var. \n",
+                        sep = "", appendLF=FALSE)
                 omnibus.var <- setdiff(omnibus.var, rm.col[i])
             }
             if (is.element(rm.col[i], match.covar)) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar. \n", sep = "")
+                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar. \n",
+                        sep = "", appendLF=FALSE)
                 match.covar <- setdiff(match.covar, rm.col[i])
             }
             if (is.element(rm.col[i], match.covar.min)) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar.min. \n", sep = "")
+                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar.min. \n",
+                        sep = "", appendLF=FALSE)
                 match.covar.min <- setdiff(match.covar.min, rm.col[i])
             }
             if (is.element(rm.col[i], names(match.out))) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out. \n", sep = "")
+                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out. \n",
+                        sep = "", appendLF=FALSE)
                 rm.li <- which(is.element(names(match.out), rm.col[i]))
                 match.out <- match.out[-rm.li]
             }
             if (is.element(rm.col[i], names(match.out.min))) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out.min. \n", sep = "")
+                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out.min. \n",
+                        sep = "", appendLF=FALSE)
                 rm.li1 <- which(is.element(names(match.out.min), rm.col[i]))
                 match.out.min <- match.out.min[-rm.li1]
             }
@@ -747,14 +759,14 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
 
     if (length(w) == 0) {
         tmp <- proc.time()
-        message("Calculating weights...")
+        message("Calculating weights...", appendLF=FALSE)
         w <- get.w(data, match.covar, match.covar.min, match.out, match.out.min, boot = perm, jack = jack, Int = Intervention[, as.character(int.time)],
             int.var = int.num, trim = NULL, int.time = int.time, cal.epsilon = cal.epsilon, maxit = maxit, bounds = bounds, calfun = calfun,
             check.feas = check.feas, scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup)
         tmp <- proc.time() - tmp
-        message("Calculation of weights complete: Total time = ", round(tmp[3], 2), sep = "")
+        message("Calculation of weights complete: Total time = ", round(tmp[3], 2), sep = "", appendLF=FALSE)
     } else {
-        message("Weights have been provided.  Will not calculate weights")
+        message("Weights have been provided.  Will not calculate weights", appendLF=FALSE)
         is.correct.w <- is.list(w)
         if (is.correct.w) {
             is.correct.w <- is.correct.w & sum(names(w) != c("Weights", "Intervention", "MSE", "Model", "Summary")) == 0
@@ -770,8 +782,8 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
         }
         perm <- sum(grepl("Perm", colnames(w$Weights)))
         jack <- sum(grepl("Jack", colnames(w$Weights)))
-        message("Setting jack = ", jack, sep = "")
-        message("Setting perm = ", perm, sep = "")
+        message("Setting jack = ", jack, sep = "", appendLF=FALSE)
+        message("Setting perm = ", perm, sep = "", appendLF=FALSE)
     }
 
     not.jack <- !grepl("Jack", colnames(w$Weights))
@@ -791,7 +803,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     if (length(plot.var) > 0 & length(times) == 1) {
         plot.var <- NULL
         message("There is only one time point in the data.
-            Will not generate plots.\n\n")
+            Will not generate plots.\n\n", appendLF=FALSE)
     }
 
     if (!reset.result.var | !reset.plot.var) {
@@ -814,7 +826,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                 is.graph <- "Making graphs"
                 is.graph1 <- "Completed graphs"
             }
-            message(is.graph, " for max.time = ", max.time[i], "...", "\n", sep = "")
+            message(is.graph, " for max.time = ", max.time[i], "...", "\n", sep = "", appendLF=FALSE)
             stats[[i]] <- get.stats(data, w$Weights, w$Intervention, w$MSE[1, ], result.var, int.time = int.time, period = period,
                 plot.it = plot.var, max.time = max.time[i], file = plot.file, omnibus.var = omnibus.var, sep = sep, start.time = start.time,
                 legend.spot = legend.spot, cut.mse = cut.mse, twosided = twosided)
@@ -823,7 +835,8 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
             }
             stats[[i]] <- stats[[i]][-5]
             tmp <- proc.time() - tmp
-            message(is.graph1, " for max.time = ", max.time[i], ".  Time = ", round(tmp[3], 2), "\n\n", sep = "")
+            message(is.graph1, " for max.time = ", max.time[i], ".  Time = ", round(tmp[3], 2), "\n\n",
+                    sep = "", appendLF=FALSE)
 
             if (!reset.result.var) {
                 w.tmp <- w$Weights
@@ -836,7 +849,8 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                   mse.tmp <- mse.tmp[keep.surv]
                 }
                 tmp <- proc.time()
-                message("Calculating survey statistics for max.time = ", max.time[i], "...", "\n", sep = "")
+                message("Calculating survey statistics for max.time = ", max.time[i], "...", "\n",
+                        sep = "", appendLF=FALSE)
                 stats.tmp <- get.stats1(data, w.tmp, Inter.tmp, mse.tmp, result.var, int.time = int.time, period = period, max.time = max.time[i],
                   omnibus.var = omnibus.var, cut.mse = cut.mse, twosided = twosided)
                 stats1[[i]] <- stats.tmp[[1]]
@@ -844,8 +858,8 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
                 delta.out[[i]] <- stats.tmp[[3]]
                 dof[[i]] <- stats.tmp[[4]]
                 tmp <- proc.time() - tmp
-                message("Completed calculation of survey statistics for max.time = ", max.time[i], ".  Time = ", round(tmp[3], 2), "\n\n",
-                  sep = "")
+                message("Completed calculation of survey statistics for max.time = ", max.time[i], ".  Time = ",
+                        round(tmp[3], 2), "\n\n", sep = "", appendLF=FALSE)
 
                 Pct.Chng <- cbind(Pct.Chng = stats[[i]][[2]][1, ])
                 if (is.element("Omnibus", rownames(Pct.Chng))) {
@@ -931,17 +945,17 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     }
 
     if (reset.plot.var) {
-        message("No plotting variables specified (e.g., plot.var = NULL).\n")
-        message("Plots will not be created.\n")
+        message("No plotting variables specified (e.g., plot.var = NULL).\n", appendLF=FALSE)
+        message("Plots will not be created.\n", appendLF=FALSE)
     }
 
     if (reset.result.var) {
-        message("No outcome variables specified (e.g., result.var = NULL).\n")
-        message("Results will not be tablulated.\n")
+        message("No outcome variables specified (e.g., result.var = NULL).\n", appendLF=FALSE)
+        message("Results will not be tablulated.\n", appendLF=FALSE)
     }
 
     if (reset.result.var & reset.plot.var) {
-        message("Returning weights only.\n")
+        message("Returning weights only.\n", appendLF=FALSE)
     }
 
     out <- list()
@@ -980,7 +994,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, i
     }
 
     all.tmp <- proc.time() - all.tmp
-    message("microsynth complete: Overall time = ", round(all.tmp[3], 2), "\n\n", sep = "")
+    message("microsynth complete: Overall time = ", round(all.tmp[3], 2), "\n\n", sep = "", appendLF=FALSE)
 
     out <- makemicrosynth(out)
     return(out)
@@ -1044,7 +1058,7 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         n.choose <- choose(n, n.int)
         if (boot > n.choose - 1) {
             boot <- n.choose - 1
-            message("Resetting perm = ", boot, "\n", sep = "")
+            message("Resetting perm = ", boot, "\n", sep = "", appendLF=FALSE)
         }
         if (n.choose - 1 <= max(1e+06, boot)) {
             boots <- utils::combn(1:n, n.int)
@@ -1061,28 +1075,28 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
 
     if (check.feas & use.backup) {
         tmp <- proc.time()
-        message("Checking feasibility of first model...", "\n", sep = "")
+        message("Checking feasibility of first model...", "\n", sep = "", appendLF=FALSE)
         is.sol <- is.feasible(bigdat, covar.var, dum, Int = Int, int.var = int.var, int.time = int.time, eps = 1e-04)
         tmp <- proc.time() - tmp
 
         if (!is.sol) {
             use.model <- 2
-            message("First model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "")
+            message("First model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF=FALSE)
             dum.tmp <- merge.dums(dum, dum1)
             tmp <- proc.time()
-            message("Checking feasibility of second model...", "\n", sep = "")
+            message("Checking feasibility of second model...", "\n", sep = "", appendLF=FALSE)
             is.sol <- is.feasible(bigdat, covar.var, dum.tmp[[1]], Int = Int, int.var = int.var, int.time = int.time, eps = 1e-04)
             tmp <- proc.time() - tmp
 
             if (!is.sol) {
                 use.model <- 3
-                message("Second model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "")
-                message("Will use third model.", "\n", sep = "")
+                message("Second model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF=FALSE)
+                message("Will use third model.", "\n", sep = "", appendLF=FALSE)
             } else {
-                message("Second model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "")
+                message("Second model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF=FALSE)
             }
         } else {
-            message("First model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "")
+            message("First model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF=FALSE)
         }
     }
 
@@ -1112,7 +1126,7 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
     }
     if (jack > min(table(Int == int.var))) {
         jack <- min(table(Int == int.var))
-        message("Resetting jack = ", jack, "\n", sep = "")
+        message("Resetting jack = ", jack, "\n", sep = "", appendLF=FALSE)
     }
     if (jack > 0) {
         rep.G <- assign.groups(Int == int.var, G = jack)
@@ -1236,70 +1250,72 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
 
         tmp <- proc.time() - tmp
         if (i == 1) {
-            if(back.state!='') message(back.state)
+            if(back.state!='') message(back.state, appendLF=FALSE)
             back.state <- ""
             use.model <- use.model.i
-            message("Created main weights for synthetic control: Time = ", round(tmp[3], 2), "\n\n", sep = "")
-            message("Matching summary for main weights:\n")
+            message("Created main weights for synthetic control: Time = ", round(tmp[3], 2), "\n\n",
+                    sep = "", appendLF=FALSE)
+            message("Matching summary for main weights:\n", appendLF=FALSE)
             if (use.model.i == 1) {
                 printstuff <- mses$printstuff
-                message(paste0(capture.output(round(printstuff, 4)), collapse="\n"))
+                message(paste0(capture.output(round(printstuff, 4)), collapse="\n"), appendLF=FALSE)
             } else if (use.model.i == 2) {
                 printstuff <- msesa$printstuff
-                message(paste0(capture.output(round(printstuff, 4)), collapse='\n'))
+                message(paste0(capture.output(round(printstuff, 4)), collapse='\n'), appendLF=FALSE)
             } else if (use.model.i == 3) {
                 printstuff <- msesb$printstuff
-                message(paste0(capture.output(round(printstuff, 4)), collapse="/n"))
+                message(paste0(capture.output(round(printstuff, 4)), collapse="/n"), appendLF=FALSE)
             }
             if (jack > 0) {
-                message("Calculating weights for jackknife replication groups...\n")
+                message("Calculating weights for jackknife replication groups...\n", appendLF=FALSE)
                 tmp.jack <- proc.time()
             } else if (boot > 0) {
-                message("Calculating weights for permutation groups...\n")
+                message("Calculating weights for permutation groups...\n", appendLF=FALSE)
                 tmp.boot <- proc.time()
             }
         } else if (i >= jack.lower & i <= jack.upper) {
             if (i == jack.lower) {
-                message("Completed weights for jackknife group:\n", i - 1, sep = "")
+                message("Completed weights for jackknife group:\n", i - 1, sep = "", appendLF=FALSE)
             } else if ((i - 1)%%20 != 1 & i != jack.upper) {
-                message(", ", i - 1, sep = "")
+                message(", ", i - 1, sep = "", appendLF=FALSE)
             } else if ((i - 1)%%20 == 1 & i != jack.upper) {
-                message(", \n", i - 1, sep = "")
+                message(", \n", i - 1, sep = "", appendLF=FALSE)
             } else if ((i - 1)%%20 != 1 & i == jack.upper) {
-                message(", ", i - 1, "\n", sep = "")
+                message(", ", i - 1, "\n", sep = "", appendLF=FALSE)
             } else {
-                message(", \n", i - 1, "\n", sep = "")
+                message(", \n", i - 1, "\n", sep = "", appendLF=FALSE)
             }
             if (i == jack.upper) {
                 if (i == jack.lower) {
                 }
-                if(back.state!='') message(back.state)
+                if(back.state!='') message(back.state, appendLF=FALSE)
                 back.state <- ""
                 tmp.jack <- proc.time() - tmp.jack
-                message("Completed weights for all jackknife replication groups: Time = ", round(tmp.jack[3], 2), "\n\n", sep = "")
+                message("Completed weights for all jackknife replication groups: Time = ", round(tmp.jack[3], 2), "\n\n", sep = "", appendLF=FALSE)
                 if (boot > 0) {
-                  message("Calculating weights for permutation groups...\n")
+                  message("Calculating weights for permutation groups...\n", appendLF=FALSE)
                   tmp.boot <- proc.time()
                 }
             }
         } else if (i >= boot.lower & i <= boot.upper) {
             if (i == boot.lower) {
-                message("Completed weights for permutation group:\n", i - jack - 1, sep = "")
+                message("Completed weights for permutation group:\n", i - jack - 1, sep = "", appendLF=FALSE)
             } else if ((i - jack - 1)%%20 != 1 & i != boot.upper) {
-                message(", ", i - jack - 1, sep = "")
+                message(", ", i - jack - 1, sep = "", appendLF=FALSE)
             } else if ((i - jack - 1)%%20 == 1 & i != boot.upper) {
-                message(", \n", i - jack - 1, sep = "")
+                message(", \n", i - jack - 1, sep = "", appendLF=FALSE)
             } else if ((i - jack - 1)%%20 != 1 & i == boot.upper) {
-                message(", ", i - jack - 1, "\n", sep = "")
+                message(", ", i - jack - 1, "\n", sep = "", appendLF=FALSE)
             } else {
-                message(", \n", i - jack - 1, "\n", sep = "")
+                message(", \n", i - jack - 1, "\n", sep = "", appendLF=FALSE)
             }
             if (i == boot.upper) {
                 if (i == boot.lower) {
-                  message("\n")
+                  message("\n", appendLF=FALSE)
                 }
                 tmp.boot <- proc.time() - tmp.boot
-                message("Completed weights for all permutation groups: Time = ", round(tmp.boot[3], 2), "\n\n", sep = "")
+                message("Completed weights for all permutation groups: Time = ", round(tmp.boot[3], 2), "\n\n",
+                        sep = "", appendLF=FALSE)
             }
         }
     }
@@ -1365,7 +1381,7 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
                 keep], calfun = calfun, bounds = bounds, force = TRUE, epsilon = epsilon)
             ws.init <- ws <- stats::weights(cali2)
         }, error = function(e) {
-            message("ERROR :", conditionMessage(e), "\n")
+            message("ERROR :", conditionMessage(e), "\n", appendLF=FALSE)
         })
     }
 
@@ -1916,9 +1932,9 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
                 dum.tmp <- stat1[i, omnibus.var]
                 keep <- !is.na(dum.tmp)
                 if (sum(!keep) > 0) {
-                  message("\nThe following variables yield survey statistics with value NA. \nThese will be removed from the omnibus statistic: \n")
+                  message("\nThe following variables yield survey statistics with value NA. \nThese will be removed from the omnibus statistic: \n", appendLF=FALSE)
                   message(paste0(capture.output(omnibus.var[!keep]), collapse='\n'))
-                  message("\n")
+                  message("\n", appendLF=FALSE)
                 }
                 omnibus.var <- omnibus.var[keep]
             }
@@ -1974,44 +1990,49 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
         }
         tmp <- proc.time() - tmp
         if (i == 1) {
-            message("Completed survey statistics for main weights: Time = ", round(tmp[3], 2), "\n", sep = "")
+            message("Completed survey statistics for main weights: Time = ", round(tmp[3], 2), "\n",
+                    sep = "", appendLF=FALSE)
             if (jack == 0 & boot > 0) {
-                message("Calculating survey statistics for permutation groups...\n")
+                message("Calculating survey statistics for permutation groups...\n", appendLF=FALSE)
                 tmp.boot <- proc.time()
             }
             if (is.inf) {
-                message("WARNING: Infinite standard errors yielded by main weights.\n")
+                message("WARNING: Infinite standard errors yielded by main weights.\n", appendLF=FALSE)
             }
         } else if (is.jack) {
-            message("Completed survey statistics for jackknife: Time = ", round(tmp[3], 2), "\n", sep = "")
+            message("Completed survey statistics for jackknife: Time = ", round(tmp[3], 2), "\n",
+                    sep = "", appendLF=FALSE)
             if (boot > 0) {
-                message("Calculating survey statistics for permutation groups...\n")
+                message("Calculating survey statistics for permutation groups...\n", appendLF=FALSE)
                 tmp.boot <- proc.time()
             }
             if (is.inf) {
-                message("WARNING: Infinite standard errors yielded by jackknife weights.\n")
+                message("WARNING: Infinite standard errors yielded by jackknife weights.\n", appendLF=FALSE)
             }
         } else {
             if (i == boot.lower) {
-                message("Completed survey statistics for permutation group:\n", i - use.jack - 1, sep = "")
+                message("Completed survey statistics for permutation group:\n", i - use.jack - 1,
+                        sep = "", appendLF=FALSE)
             } else if ((i - use.jack - 1)%%20 != 1 & i != boot.upper) {
-                message(", ", i - use.jack - 1, sep = "")
+                message(", ", i - use.jack - 1, sep = "", appendLF=FALSE)
             } else if ((i - use.jack - 1)%%20 == 1 & i != boot.upper) {
-                message(", \n", i - use.jack - 1, sep = "")
+                message(", \n", i - use.jack - 1, sep = "", appendLF=FALSE)
             } else if ((i - use.jack - 1)%%20 != 1 & i == boot.upper) {
-                message(", ", i - use.jack - 1, "\n", sep = "")
+                message(", ", i - use.jack - 1, "\n", sep = "", appendLF=FALSE)
             } else {
-                message(", \n", i - use.jack - 1, "\n", sep = "")
+                message(", \n", i - use.jack - 1, "\n", sep = "", appendLF=FALSE)
             }
             if (i == boot.upper) {
                 if (i == boot.lower) {
-                  message("\n")
+                  message("\n", appendLF=FALSE)
                 }
                 tmp.boot <- proc.time() - tmp.boot
-                message("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 2), "\n", sep = "")
+                message("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 2), "\n",
+                        sep = "", appendLF=FALSE)
             }
             if (is.inf) {
-                message("WARNING: Infinite standard errors yielded by permutation group ", i, ".\n", sep = "")
+                message("WARNING: Infinite standard errors yielded by permutation group ", i, ".\n",
+                        sep = "", appendLF=FALSE)
             }
         }
     }
@@ -2068,9 +2089,9 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
         all.root <- nleqslv::nleqslv(all.init, fn = f1, jac = NULL, method = c("Broyden"), global = c("gline"), xscalm = c("fixed"),
             control = list(maxit = maxit, xtol = 1e-11, ftol = 1e-11, btol = 1e-06, cndtol = 1e-13))
 
-        message("Number of Jacobian evaluations = ", all.root$njcnt, ". \n", sep = "")
-        message("Number of function evaluations = ", all.root$nfcnt, ". \n", sep = "")
-        message("Number of iterations = ", all.root$iter, ". \n", sep = "")
+        message("Number of Jacobian evaluations = ", all.root$njcnt, ". \n", sep = "", appendLF=FALSE)
+        message("Number of function evaluations = ", all.root$nfcnt, ". \n", sep = "", appendLF=FALSE)
+        message("Number of iterations = ", all.root$iter, ". \n", sep = "", appendLF=FALSE)
         all.root <- all.root$x
 
         b <- all.root[1:q]
@@ -2266,7 +2287,8 @@ out.results <- function(results, int.time, max.time = names(results), file = NUL
     if (substr(file, nchar(file) - 3, nchar(file)) == ".csv") {
         file <- substr(file, 1, nchar(file) - 4)
         if (use.xlsx) {
-            message("WARNING: Cannot return .csv file since length(max.time) > 1.  Returning .xlsx file instead.\n", sep = "")
+            message("WARNING: Cannot return .csv file since length(max.time) > 1.  Returning .xlsx file instead.\n",
+                    sep = "", appendLF=FALSE)
         }
     } else if (substr(file, nchar(file) - 3, nchar(file)) == ".xls") {
         file <- substr(file, 1, nchar(file) - 4)
@@ -2577,8 +2599,11 @@ rref <- function(A, tol = sqrt(.Machine$double.eps), verbose = FALSE, fractions 
             A <- A - outer(A[, x.position], row)  # sweep
             A[y.position, ] <- row  # restore current row
             if (verbose)
-                if (fractions)
-                  message(paste0(capture.output(fractions(A)), collapse="\n")) else message(paste0(capture.output(round(A, round(abs(log(tol, 10))))), collapse="\n"))
+                if (fractions) {
+                  message(paste0(capture.output(fractions(A)), collapse="\n"), appendLF=FALSE)
+                  } else {
+                    message(paste0(capture.output(round(A, round(abs(log(tol, 10))))), collapse="\n"), appendLF=FALSE)
+                  }
             x.position <- x.position + 1
             y.position <- y.position + 1
         }
@@ -2602,8 +2627,11 @@ remove.vars <- function(vars, nams, objnam = "result.var") {
     if (length(rm.vars) > 0) {
         rm.here <- which(is.element(vars1, rm.vars))
         vars <- vars[-rm.here]
-        message("WARNING: The following variables will be removed from ", objnam, " since they are not in the dataset: \n", sep = "")
-        message(paste(rm.vars, collapse = ", ", sep = ""), "\n\n", sep = "")
+        message("WARNING: The following variables will be removed from ", objnam,
+                " since they are not in the dataset: \n",
+                sep = "", appendLF=FALSE)
+        message(paste(rm.vars, collapse = ", ", sep = ""), "\n\n",
+                sep = "", appendLF=FALSE)
     }
 
     return(vars)
