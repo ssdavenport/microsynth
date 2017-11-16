@@ -391,7 +391,7 @@
 #' sea2 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'         intvar='Intervention', start.time=1, int.time=12, max.time=c(14, 16),
 #'         match.out=match.out, match.covar=cov.var, result.var=match.out,
-#'         omnibus.var=match.out, plot.var=match.out, test='lower', perm=2,
+#'         omnibus.var=match.out, plot.var=match.out, test='lower', perm=250,
 #'         jack=TRUE, plot.file=NULL, sep = TRUE, result.file='ExResults2.xlsx')
 #'
 #' # View results
@@ -406,7 +406,7 @@
 #' # to ensure model feasibility
 #' sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'         intvar='Intervention', match.out=match.out, match.covar=cov.var,
-#'         result.var=match.out, plot.var=match.out, perm=2, jack=TRUE,
+#'         result.var=match.out, plot.var=match.out, perm=250, jack=TRUE,
 #'         test='lower', check.feas=TRUE, use.backup = TRUE,
 #'         plot.file=NULL, result.file='ExResults3.xlsx')
 #'
@@ -421,14 +421,14 @@
 #' sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
-#'          plot.var=names(match.out), perm=2, jack = 0, test='lower',
+#'          plot.var=names(match.out), perm=250, jack = 0, test='lower',
 #'          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
 #'
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
-#'          result.var=FALSE, plot.var=FALSE, perm=2, jack=TRUE)
+#'          result.var=FALSE, plot.var=FALSE, perm=250, jack=TRUE)
 #'
 #' # View weights
 #' summary(sea5)
@@ -460,7 +460,7 @@
 #' sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
 #'            intvar='Intervention', match.out=match.out[4],
 #'            match.covar=cov.var, result.var=match.out[4],
-#'            plot.var=match.out[4], test='lower', perm=2, jack=FALSE,
+#'            plot.var=match.out[4], test='lower', perm=250, jack=FALSE,
 #'            check.feas=TRUE, use.backup=TRUE)
 #'
 #' # Use microsynth to calculate propensity score-type weights
@@ -471,7 +471,7 @@
 #' # Apply microsynth to find propensity score-type weights
 #' sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
 #'              match.out=FALSE, match.covar=cov.var, result.var=match.out,
-#'              test='lower', perm=2, jack=TRUE)
+#'              test='lower', perm=250, jack=TRUE)
 #'
 #' # View results
 #' summary(sea9)
@@ -479,526 +479,572 @@
 #'
 #' @export
 
-microsynth <- function(data, idvar, intvar, timevar = NULL, start.time = NULL, int.time = NULL, max.time = NULL, match.out = TRUE,
-    match.covar = TRUE, match.out.min = NULL, match.covar.min = NULL, result.var = TRUE, omnibus.var = result.var, plot.var = TRUE,
-    period = 1, scale.var = "Intercept", confidence = 0.9, test = "twosided", perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf,
-    check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04, calfun = "linear", bounds = c(0,
-        Inf), result.file = NULL, plot.file = NULL, sep = FALSE, legend.spot = "bottomleft") {
-
-    ### Later requires: nleqslv LowRankQP kernlab xlsx MASS boot
-
-    all.tmp <- proc.time()
-
-    if (length(timevar) == 0) {
-        if (length(table(data[, idvar])) < NROW(data)) {
-            stop("Data are not cross-sectional.  Please specify timevar.")
-        } else {
-            data$Time <- 1
-            timevar <- "Time"
-            int.time <- 1
-        }
+microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
+                        int.time = NULL, max.time = NULL, match.out = TRUE, match.covar = TRUE,
+                        match.out.min = NULL, match.covar.min = NULL, result.var = TRUE,
+                        omnibus.var = result.var, plot.var = TRUE, period = 1, scale.var = "Intercept",
+                        confidence = 0.9, test = "twosided", perm = 0, jack = 0,
+                        use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, use.backup = FALSE,
+                        w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04,
+                        calfun = "linear", bounds = c(0, Inf), result.file = NULL,
+                        plot.file = NULL, sep = FALSE, legend.spot = "bottomleft")
+{
+  all.tmp <- proc.time()
+  if (length(timevar) == 0) {
+    if (length(table(data[, idvar])) < NROW(data)) {
+      stop("Data are not cross-sectional.  Please specify timevar.")
     }
-
-    twosided <- TRUE
-    if (test == "lower" | test == "upper") {
-        twosided <- FALSE
+    else {
+      data$Time <- 1
+      timevar <- "Time"
+      int.time <- 1
     }
-
-    if (is.logical(match.out)) {
-        if (!match.out) {
-            reset.match.out <- TRUE
-        } else {
-            reset.match.out <- FALSE
-        }
-        match.out <- NULL
-    } else if (length(match.out) == 0) {
-        reset.match.out <- TRUE
-    } else {
-        reset.match.out <- FALSE
+  }
+  twosided <- TRUE
+  if (test == "lower" | test == "upper") {
+    twosided <- FALSE
+  }
+  if (is.logical(match.out)) {
+    if (!match.out) {
+      reset.match.out <- TRUE
     }
-
-    if (is.logical(match.covar)) {
-        if (!match.covar) {
-            reset.match.covar <- TRUE
-        } else {
-            reset.match.covar <- FALSE
-        }
-        match.covar <- NULL
-    } else if (length(match.covar) == 0) {
-        reset.match.covar <- TRUE
-    } else {
-        reset.match.covar <- FALSE
+    else {
+      reset.match.out <- FALSE
     }
-
-    if (is.logical(result.var)) {
-        if (!result.var) {
-            reset.result.var <- TRUE
-        } else {
-            reset.result.var <- FALSE
-        }
-        result.var <- NULL
-    } else if (length(result.var) == 0) {
-        reset.result.var <- TRUE
-    } else {
-        reset.result.var <- FALSE
+    match.out <- NULL
+  }
+  else if (length(match.out) == 0) {
+    reset.match.out <- TRUE
+  }
+  else {
+    reset.match.out <- FALSE
+  }
+  if (is.logical(match.covar)) {
+    if (!match.covar) {
+      reset.match.covar <- TRUE
     }
-
-    if (is.logical(plot.var)) {
-        if (!plot.var) {
-            reset.plot.var <- TRUE
-        } else {
-            reset.plot.var <- FALSE
-        }
-        plot.var <- NULL
-    } else if (length(plot.var) == 0) {
-        reset.plot.var <- TRUE
-    } else {
-        reset.plot.var <- FALSE
+    else {
+      reset.match.covar <- FALSE
     }
-
-    match.out <- remove.vars(match.out, dimnames(data)[[2]], "match.out")
-    match.out.min <- remove.vars(match.out.min, dimnames(data)[[2]], "match.out.min")
-    match.covar <- remove.vars(match.covar, dimnames(data)[[2]], "match.covar")
-    match.covar.min <- remove.vars(match.covar.min, dimnames(data)[[2]], "match.covar.min")
-    result.var <- remove.vars(result.var, dimnames(data)[[2]], "out.covar")
-    if (!is.logical(omnibus.var)) {
-        omnibus.var <- remove.vars(omnibus.var, dimnames(data)[[2]], "omnibus.var")
+    match.covar <- NULL
+  }
+  else if (length(match.covar) == 0) {
+    reset.match.covar <- TRUE
+  }
+  else {
+    reset.match.covar <- FALSE
+  }
+  if (is.logical(result.var)) {
+    if (!result.var) {
+      reset.result.var <- TRUE
     }
-    if (!is.logical(plot.var)) {
-        plot.var <- remove.vars(plot.var, dimnames(data)[[2]], "plot.var")
+    else {
+      reset.result.var <- FALSE
     }
-
-    nv.names <- union(match.covar, match.covar.min)
-    v.names <- result.var
-    if (length(match.out) > 0) {
-        v.names <- union(v.names, names(match.out))
+    result.var <- NULL
+  }
+  else if (length(result.var) == 0) {
+    reset.result.var <- TRUE
+  }
+  else {
+    reset.result.var <- FALSE
+  }
+  if (is.logical(plot.var)) {
+    if (!plot.var) {
+      reset.plot.var <- TRUE
     }
-
-    ok.cl <- c("numeric", "integer", "logical")
-    classes <- NA
-    for (i in 1:NCOL(data)) {
-        classes[i] <- class(data[, i])
+    else {
+      reset.plot.var <- FALSE
     }
-    ok.col <- is.element(classes, ok.cl)
-    rm.col <- colnames(data)[!ok.col]
-    rm.col <- setdiff(rm.col, c(idvar, timevar, intvar))
-
-    data <- data[, !is.element(colnames(data), rm.col)]
-
-    v.names <- setdiff(v.names, rm.col)
-    nv.names <- setdiff(nv.names, rm.col)
-
-    data <- newreshape(data, nv.names = nv.names, v.names = v.names, timevar = timevar, idvar = idvar, intvar = intvar)
-    if (length(result.var) == 0) {
-        result.var <- data[[4]]
-        if (!reset.result.var) {
-            message("result.var = TRUE.  Resetting: \n", appendLF=FALSE)
-            message("result.var = c(\"", paste(result.var, collapse = "\",\"", sep = ""), "\")\n\n",
-                    sep = "", appendLF=FALSE)
-        }
-    }
-    if (length(plot.var) == 0) {
-        plot.var <- data[[4]]
-        if (!reset.plot.var) {
-            message("plot.var = TRUE.  Resetting: \n", appendLF=FALSE)
-            message("plot.var = c(\"", paste(plot.var, collapse = "\",\"", sep = ""), "\")\n\n",
-                    sep = "", appendLF=FALSE)
-        }
-    }
-    if (length(match.covar) == 0) {
-        match.covar <- data[[3]]
-        if (!reset.match.covar) {
-            message("match.covar = TRUE.  Resetting: \n", appendLF=FALSE)
-            message("match.covar = c(\"", paste(match.covar, collapse = "\",\"", sep = ""), "\")\n\n",
-                    sep = "", appendLF=FALSE)
-        }
-    }
-    Intervention <- data[[2]]
-    data <- data[[1]]
-
-    times <- as.numeric(colnames(Intervention))
-
-    if (length(int.time) == 0) {
-        int.time <- FALSE
-    }
-
-    if (is.logical(int.time)) {
-        int.time1 <- int.time
-        int.time <- which(colSums(Intervention) != 0)
-        if (length(int.time) == 0) {
-            stop("There are no intervention cases.\n")
-        } else {
-            if (int.time1) {
-                int.time <- min(times[int.time]) - 1
-            } else {
-                int.time <- min(times[int.time])
-            }
-            if (int.time == 0) {
-                stop("There are no pre-intervention time points.")
-            }
-            message("Setting int.time = ", int.time, ".\n", sep = "", appendLF=FALSE)
-        }
-    }
-
-    if (length(start.time) == 0) {
-        start.time <- min(times)
-    }
-
-    if (length(max.time) == 0) {
-        max.time <- max(times)
-    }
-
-    if (length(match.out) == 0) {
-        match.out <- result.var
-        if (!reset.match.out) {
-            message("match.out = TRUE.  Resetting: \n", appendLF=FALSE)
-            message("match.out = c(\"", paste(match.out, collapse = "\",\"", sep = ""), "\")\n\n",
-                    sep = "", appendLF=FALSE)
-        }
-    }
-
-    if (!is.list(match.out) & length(match.out) > 0) {
-        match.out.tmp <- match.out
-        match.out <- list()
-        for (i in 1:length(match.out.tmp)) {
-            match.out[[i]] <- rep(period, (int.time - start.time + 1)%/%period)
-        }
-        names(match.out) <- match.out.tmp
-    }
-
-    if (!is.list(match.out.min) & length(match.out.min) > 0) {
-        match.out.tmp1 <- match.out.min
-        match.out.min <- list()
-        for (i in 1:length(match.out.tmp1)) {
-            match.out.min[[i]] <- rep(period, (int.time - start.time + 1)%/%period)
-        }
-        names(match.out.min) <- match.out.tmp1
-    }
-
-    if (is.logical(omnibus.var)) {
-        if (omnibus.var) {
-            if (length(match.out) == 1) {
-                omnibus.var <- NULL
-            } else {
-                omnibus.var <- result.var
-                message("omnibus.var = TRUE.  Resetting: \n", appendLF=FALSE)
-                message("omnibus.var = c(\"", paste(omnibus.var, collapse = "\",\"", sep = ""), "\")\n\n",
-                        sep = "", appendLF=FALSE)
-            }
-        } else {
-            omnibus.var <- NULL
-        }
-    }
-
-    int.num <- 1
-
-    dum <- max(colSums(Intervention == 1))
-    dum <- min(NROW(Intervention) - dum, dum)
-    dum1 <- ((max(max.time) - (max(max.time) - int.time)%%period - int.time)/period)
-
-    if (dum <= dum1 + 1) {
-        message("WARNING: There is a low number (", dum, ") of cases in the treatment or intervention group.\n",
-                sep = "", appendLF=FALSE)
-        if (jack > 0) {
-            jack <- 0
-            message("setting jack = 0.\n", appendLF=FALSE)
-        }
-        if (use.survey) {
-            use.survey <- FALSE
-            message("Setting use.survey = FALSE.\n", appendLF=FALSE)
-        }
-        message("Be cautious of results involving linearization or confidence intervals.\n\n", appendLF=FALSE)
-    }
-
-    if (reset.match.covar) {
-        match.covar <- NULL
-    }
-    if (reset.match.out) {
-        match.out <- NULL
-    }
-    if (reset.plot.var) {
-        plot.var <- NULL
-    }
-
-    if (length(rm.col) > 0) {
-        for (i in 1:length(rm.col)) {
-            if (is.element(rm.col[i], result.var)) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from result.var. \n",
-                        sep = "", appendLF=FALSE)
-                result.var <- setdiff(result.var, rm.col[i])
-            }
-            if (is.element(rm.col[i], omnibus.var)) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from omnibus.var. \n",
-                        sep = "", appendLF=FALSE)
-                omnibus.var <- setdiff(omnibus.var, rm.col[i])
-            }
-            if (is.element(rm.col[i], match.covar)) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar. \n",
-                        sep = "", appendLF=FALSE)
-                match.covar <- setdiff(match.covar, rm.col[i])
-            }
-            if (is.element(rm.col[i], match.covar.min)) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar.min. \n",
-                        sep = "", appendLF=FALSE)
-                match.covar.min <- setdiff(match.covar.min, rm.col[i])
-            }
-            if (is.element(rm.col[i], names(match.out))) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out. \n",
-                        sep = "", appendLF=FALSE)
-                rm.li <- which(is.element(names(match.out), rm.col[i]))
-                match.out <- match.out[-rm.li]
-            }
-            if (is.element(rm.col[i], names(match.out.min))) {
-                message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out.min. \n",
-                        sep = "", appendLF=FALSE)
-                rm.li1 <- which(is.element(names(match.out.min), rm.col[i]))
-                match.out.min <- match.out.min[-rm.li1]
-            }
-        }
-    }
-
-    if (length(w) == 0) {
-        tmp <- proc.time()
-        message("Calculating weights...", appendLF=FALSE)
-        w <- get.w(data, match.covar, match.covar.min, match.out, match.out.min, boot = perm, jack = jack, Int = Intervention[, as.character(int.time)],
-            int.var = int.num, trim = NULL, int.time = int.time, cal.epsilon = cal.epsilon, maxit = maxit, bounds = bounds, calfun = calfun,
-            check.feas = check.feas, scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup)
-        tmp <- proc.time() - tmp
-        message("Calculation of weights complete: Total time = ", round(tmp[3], 2), sep = "", appendLF=FALSE)
-    } else {
-        message("Weights have been provided.  Will not calculate weights", appendLF=FALSE)
-        is.correct.w <- is.list(w)
-        if (is.correct.w) {
-            is.correct.w <- is.correct.w & sum(names(w) != c("Weights", "Intervention", "MSE", "Model", "Summary")) == 0
-        }
-        if (is.correct.w) {
-            is.correct.w <- is.correct.w & dim(w$Weights)[1] == dim(data)[1]
-        }
-        if (is.correct.w) {
-            is.correct.w <- is.correct.w & dim(w$Intervention)[1] == dim(data)[1]
-        }
-        if (!is.correct.w) {
-            stop("w is not formatted correctly.")
-        }
-        perm <- sum(grepl("Perm", colnames(w$Weights)))
-        jack <- sum(grepl("Jack", colnames(w$Weights)))
-        message("Setting jack = ", jack, sep = "", appendLF=FALSE)
-        message("Setting perm = ", perm, sep = "", appendLF=FALSE)
-    }
-
-    not.jack <- !grepl("Jack", colnames(w$Weights))
-
-    if (is.logical(plot.var)) {
-        if (plot.var) {
-            plot.var <- result.var
-        } else {
-            plot.var <- NULL
-        }
-    } else {
-        plot.var <- intersect(plot.var, dimnames(data)[[2]])
-    }
-
-    max.time <- max.time - (max.time - int.time)%%period
-
-    if (length(plot.var) > 0 & length(times) == 1) {
-        plot.var <- NULL
-        message("There is only one time point in the data.
-            Will not generate plots.\n\n", appendLF=FALSE)
-    }
-
-    if (!reset.result.var | !reset.plot.var) {
-        stats <- list()
-        stats1 <- list()
-        stats2 <- list()
-        delta.out <- list()
-        dof <- list()
-        results <- list()
-        for (i in 1:length(max.time)) {
-            tmp <- proc.time()
-            is.graph <- is.graph1 <- ""
-            if (!reset.plot.var & !reset.result.var) {
-                is.graph <- "Making graphs and calculating basic statistics"
-                is.graph1 <- "Completed graphs and calculation of basic statistics"
-            } else if (reset.plot.var & !reset.result.var) {
-                is.graph <- "Calculating basic statistics"
-                is.graph1 <- "Completed calculation of basic statistics"
-            } else if (!reset.plot.var & reset.result.var) {
-                is.graph <- "Making graphs"
-                is.graph1 <- "Completed graphs"
-            }
-            message(is.graph, " for max.time = ", max.time[i], "...", "\n", sep = "", appendLF=FALSE)
-            stats[[i]] <- get.stats(data, w$Weights, w$Intervention, w$MSE[1, ], result.var, int.time = int.time, period = period,
-                plot.it = plot.var, max.time = max.time[i], file = plot.file, omnibus.var = omnibus.var, sep = sep, start.time = start.time,
-                legend.spot = legend.spot, cut.mse = cut.mse, twosided = twosided)
-            if (i == which.max(max.time)) {
-                plot.stats <- stats[[i]][[5]]
-            }
-            stats[[i]] <- stats[[i]][-5]
-            tmp <- proc.time() - tmp
-            message(is.graph1, " for max.time = ", max.time[i], ".  Time = ", round(tmp[3], 2), "\n\n",
-                    sep = "", appendLF=FALSE)
-
-            if (!reset.result.var) {
-                w.tmp <- w$Weights
-                Inter.tmp <- w$Intervention
-                mse.tmp <- w$MSE[1, ]
-                if (!use.survey) {
-                  keep.surv <- !grepl("Perm", colnames(w.tmp))
-                  w.tmp <- w.tmp[, keep.surv, drop = FALSE]
-                  Inter.tmp <- Inter.tmp[, keep.surv, drop = FALSE]
-                  mse.tmp <- mse.tmp[keep.surv]
-                }
-                tmp <- proc.time()
-                message("Calculating survey statistics for max.time = ", max.time[i], "...", "\n",
-                        sep = "", appendLF=FALSE)
-                stats.tmp <- get.stats1(data, w.tmp, Inter.tmp, mse.tmp, result.var, int.time = int.time, period = period, max.time = max.time[i],
-                  omnibus.var = omnibus.var, cut.mse = cut.mse, twosided = twosided)
-                stats1[[i]] <- stats.tmp[[1]]
-                stats2[[i]] <- stats.tmp[[2]]
-                delta.out[[i]] <- stats.tmp[[3]]
-                dof[[i]] <- stats.tmp[[4]]
-                tmp <- proc.time() - tmp
-                message("Completed calculation of survey statistics for max.time = ", max.time[i], ".  Time = ",
-                        round(tmp[3], 2), "\n\n", sep = "", appendLF=FALSE)
-
-                Pct.Chng <- cbind(Pct.Chng = stats[[i]][[2]][1, ])
-                if (is.element("Omnibus", rownames(Pct.Chng))) {
-                  Pct.Chng["Omnibus", ] <- NA
-                }
-                Trt <- cbind(Trt = stats[[i]][[3]][1, ])
-                Con <- cbind(Con = stats[[i]][[4]][1, ])
-                synth.stats1 <- stats1[[i]]
-                synth.stats2 <- stats2[[i]]
-                synth.delta.out <- delta.out[[i]]
-                synth.dof <- dof[[i]]
-                if (test == "lower") {
-                  Linear.pVal <- cbind(Linear.pVal = stats::pnorm(synth.stats1[1, ], lower.tail = TRUE))
-                } else if (test == "upper") {
-                  Linear.pVal <- cbind(Linear.pVal = stats::pnorm(synth.stats1[1, ], lower.tail = FALSE))
-                } else {
-                  Linear.pVal <- cbind(Linear.pVal = 2 * stats::pnorm(abs(synth.stats1[1, ]), lower.tail = FALSE))
-                  if (is.element("Omnibus", rownames(Linear.pVal))) {
-                    Linear.pVal["Omnibus", ] <- stats::pchisq(synth.stats1[1, "Omnibus"], df = synth.dof, lower.tail = FALSE)
-                  }
-                }
-                Linear.CI <- make.ci(synth.stats2[1, ], sqrt(synth.delta.out[1, ]), alpha = 1 - confidence)
-                colnames(Linear.CI) <- paste("Linear.", colnames(Linear.CI), sep = "")
-                Jack.pVal <- Jack.CI <- Perm.pVal <- Perm.CI <- NULL
-                if (jack > 0) {
-                  jack.stats1 <- synth.stats1[2, ]
-                  jack.stats2 <- synth.stats2[2, ]
-                  jack.delta.out <- synth.delta.out[2, ]
-                  synth.stats1 <- synth.stats1[-2, , drop = FALSE]
-                  synth.stats2 <- synth.stats2[-2, , drop = FALSE]
-                  synth.delta.out <- synth.delta.out[-2, , drop = FALSE]
-                  if (test == "lower") {
-                    Jack.pVal <- cbind(Jack.pVal = stats::pnorm(jack.stats1, lower.tail = TRUE))
-                  } else if (test == "upper") {
-                    Jack.pVal <- cbind(Jack.pVal = stats::pnorm(jack.stats1, lower.tail = FALSE))
-                  } else {
-                    Jack.pVal <- cbind(Jack.pVal = 2 * stats::pnorm(abs(jack.stats1), lower.tail = FALSE))
-                    if (is.element("Omnibus", rownames(Jack.pVal))) {
-                      Jack.pVal["Omnibus", ] <- stats::pchisq(c(jack.stats1)["Omnibus"], df = synth.dof, lower.tail = FALSE)
-                    }
-                  }
-                  Jack.CI <- make.ci(jack.stats2, sqrt(jack.delta.out), alpha = 1 - confidence)
-                  colnames(Jack.CI) <- paste("Jack.", colnames(Jack.CI), sep = "")
-                }
-                if (perm > 0 & use.survey) {
-                  perm.stats1 <- get.pval(list(synth.stats1), ret.na = TRUE)
-                  dum <- perm.stats1[[2]]
-                  perm.stats1 <- perm.stats1[[1]]
-                  if (test == "lower") {
-                    Perm.pVal <- cbind(Perm.pVal = c(perm.stats1))
-                  } else if (test == "upper") {
-                    Perm.pVal <- cbind(Perm.pVal = 1 - c(perm.stats1))
-                  } else {
-                    Perm.pVal <- cbind(Perm.pVal = 2 * apply(cbind(c(perm.stats1), 1 - c(perm.stats1)), 1, min))
-                    if (is.element("Omnibus", rownames(Perm.pVal))) {
-                      Perm.pVal["Omnibus", ] <- 1 - c(perm.stats1)["Omnibus"]
-                    }
-                  }
-                  Perm.CI <- make.ci2(synth.stats2, synth.delta.out, alpha = 1 - confidence)
-                  colnames(Perm.CI) <- paste("Perm.", colnames(Perm.CI), sep = "")
-                } else if (perm > 0) {
-                  perm.stats = get.pval(stats[[i]], ret.na = TRUE)
-                  dum <- perm.stats[[2]]
-                  perm.stats <- (perm.stats[[1]])[c(1), , drop = FALSE]
-                  if (test == "lower") {
-                    Perm.pVal <- cbind(Perm.pVal = c(perm.stats[1, ]))
-                  } else if (test == "upper") {
-                    Perm.pVal <- cbind(Perm.pVal = 1 - c(perm.stats[1, ]))
-                  } else {
-                    Perm.pVal <- cbind(Perm.pVal = 2 * pmin(c(perm.stats[1, ]), 1 - c(perm.stats[1, ])))
-                    if (is.element("Omnibus", rownames(Perm.pVal))) {
-                      Perm.pVal["Omnibus", ] <- 1 - c(perm.stats[1, ])["Omnibus"]
-                    }
-                  }
-                }
-                results[[i]] <- cbind(Trt, Con, Pct.Chng, Linear.pVal, Linear.CI, Jack.pVal, Jack.CI, Perm.pVal, Perm.CI)
-                if (NROW(results[[i]]) == 1) {
-                  rownames(results[[i]]) <- result.var[1]
-                }
-                names(results)[i] <- max.time[i]
-            }
-        }
-    }
-
-    if (reset.plot.var) {
-        message("No plotting variables specified (e.g., plot.var = NULL).\n", appendLF=FALSE)
-        message("Plots will not be created.\n", appendLF=FALSE)
-    }
-
-    if (reset.result.var) {
-        message("No outcome variables specified (e.g., result.var = NULL).\n", appendLF=FALSE)
-        message("Results will not be tablulated.\n", appendLF=FALSE)
-    }
-
-    if (reset.result.var & reset.plot.var) {
-        message("Returning weights only.\n", appendLF=FALSE)
-    }
-
-    out <- list()
-    i <- 1
-
-    out[[i]] <- w
-    names(out)[i] <- "w"
-    i <- i + 1
-
+    plot.var <- NULL
+  }
+  else if (length(plot.var) == 0) {
+    reset.plot.var <- TRUE
+  }
+  else {
+    reset.plot.var <- FALSE
+  }
+  match.out <- remove.vars(match.out, dimnames(data)[[2]],
+                           "match.out")
+  match.out.min <- remove.vars(match.out.min, dimnames(data)[[2]],
+                               "match.out.min")
+  match.covar <- remove.vars(match.covar, dimnames(data)[[2]],
+                             "match.covar")
+  match.covar.min <- remove.vars(match.covar.min, dimnames(data)[[2]],
+                                 "match.covar.min")
+  result.var <- remove.vars(result.var, dimnames(data)[[2]],
+                            "out.covar")
+  if (!is.logical(omnibus.var)) {
+    omnibus.var <- remove.vars(omnibus.var, dimnames(data)[[2]],
+                               "omnibus.var")
+  }
+  if (!is.logical(plot.var)) {
+    plot.var <- remove.vars(plot.var, dimnames(data)[[2]],
+                            "plot.var")
+  }
+  nv.names <- union(match.covar, match.covar.min)
+  v.names <- result.var
+  if (length(match.out) > 0) {
+    v.names <- union(v.names, names(match.out))
+  }
+  ok.cl <- c("numeric", "integer", "logical")
+  classes <- NA
+  for (i in 1:NCOL(data)) {
+    classes[i] <- class(data[, i])
+  }
+  ok.col <- is.element(classes, ok.cl)
+  rm.col <- colnames(data)[!ok.col]
+  rm.col <- setdiff(rm.col, c(idvar, timevar, intvar))
+  data <- data[, !is.element(colnames(data), rm.col)]
+  v.names <- setdiff(v.names, rm.col)
+  nv.names <- setdiff(nv.names, rm.col)
+  data <- newreshape(data, nv.names = nv.names, v.names = v.names,
+                     timevar = timevar, idvar = idvar, intvar = intvar)
+  if (length(result.var) == 0) {
+    result.var <- data[[4]]
     if (!reset.result.var) {
-        out[[i]] <- results
-        names(out)[i] <- "Results"
-        i <- i + 1
+      message("result.var = TRUE.  Resetting: \n", appendLF = FALSE)
+      message("result.var = c(\"", paste(result.var, collapse = "\",\"",
+                                         sep = ""), "\")\n\n", sep = "", appendLF = FALSE)
     }
-
-    # if(length(plot.stats[[1]]) > 0) {
+  }
+  if (length(plot.var) == 0) {
+    plot.var <- data[[4]]
     if (!reset.plot.var) {
-        out[[i]] <- plot.stats
-        names(out)[i] <- "Plot.Stats"
-        i <- i + 1
+      message("plot.var = TRUE.  Resetting: \n", appendLF = FALSE)
+      message("plot.var = c(\"", paste(plot.var, collapse = "\",\"",
+                                       sep = ""), "\")\n\n", sep = "", appendLF = FALSE)
     }
-
-    ret.stats <- FALSE
-    if (ret.stats) {
-        out[[i]] <- stats
-        names(out)[i] <- "stats"
-        out[[i + 1]] <- stats1
-        out[[i + 2]] <- stats2
-        out[[i + 3]] <- delta.out
-        names(out)[i:(i + 3)] <- c("stats", "stats1", "stats2", "delta.out")
-        i <- i + 4
+  }
+  if (length(match.covar) == 0) {
+    match.covar <- data[[3]]
+    if (!reset.match.covar) {
+      message("match.covar = TRUE.  Resetting: \n", appendLF = FALSE)
+      message("match.covar = c(\"", paste(match.covar,
+                                          collapse = "\",\"", sep = ""), "\")\n\n", sep = "",
+              appendLF = FALSE)
     }
-
-    if (length(result.file) > 0 & !reset.result.var) {
-        out.results(results, int.time, max.time, result.file)
+  }
+  Intervention <- data[[2]]
+  data <- data[[1]]
+  times <- as.numeric(colnames(Intervention))
+  if (length(int.time) == 0) {
+    int.time <- FALSE
+  }
+  if (is.logical(int.time)) {
+    int.time1 <- int.time
+    int.time <- which(colSums(Intervention) != 0)
+    if (length(int.time) == 0) {
+      stop("There are no intervention cases.\n")
     }
-
-    all.tmp <- proc.time() - all.tmp
-    message("microsynth complete: Overall time = ", round(all.tmp[3], 2), "\n\n", sep = "", appendLF=FALSE)
-
-    out <- makemicrosynth(out)
-    return(out)
-
+    else {
+      if (int.time1) {
+        int.time <- min(times[int.time]) - 1
+      }
+      else {
+        int.time <- min(times[int.time])
+      }
+      if (int.time == 0) {
+        stop("There are no pre-intervention time points.")
+      }
+      message("Setting int.time = ", int.time, ".\n", sep = "",
+              appendLF = FALSE)
+    }
+  }
+  if (length(start.time) == 0) {
+    start.time <- min(times)
+  }
+  if (length(max.time) == 0) {
+    max.time <- max(times)
+  }
+  if (length(match.out) == 0) {
+    match.out <- result.var
+    if (!reset.match.out) {
+      message("match.out = TRUE.  Resetting: \n", appendLF = FALSE)
+      message("match.out = c(\"", paste(match.out, collapse = "\",\"",
+                                        sep = ""), "\")\n\n", sep = "", appendLF = FALSE)
+    }
+  }
+  if (!is.list(match.out) & length(match.out) > 0) {
+    match.out.tmp <- match.out
+    match.out <- list()
+    for (i in 1:length(match.out.tmp)) {
+      match.out[[i]] <- rep(period, (int.time - start.time +
+                                       1)%/%period)
+    }
+    names(match.out) <- match.out.tmp
+  }
+  if (!is.list(match.out.min) & length(match.out.min) > 0) {
+    match.out.tmp1 <- match.out.min
+    match.out.min <- list()
+    for (i in 1:length(match.out.tmp1)) {
+      match.out.min[[i]] <- rep(period, (int.time - start.time +
+                                           1)%/%period)
+    }
+    names(match.out.min) <- match.out.tmp1
+  }
+  if (is.logical(omnibus.var)) {
+    if (omnibus.var) {
+      if (length(match.out) == 1) {
+        omnibus.var <- NULL
+      }
+      else {
+        omnibus.var <- result.var
+        message("omnibus.var = TRUE.  Resetting: \n",
+                appendLF = FALSE)
+        message("omnibus.var = c(\"", paste(omnibus.var,
+                                            collapse = "\",\"", sep = ""), "\")\n\n", sep = "",
+                appendLF = FALSE)
+      }
+    }
+    else {
+      omnibus.var <- NULL
+    }
+  }
+  int.num <- 1
+  dum <- max(colSums(Intervention == 1))
+  dum <- min(NROW(Intervention) - dum, dum)
+  dum1 <- ((max(max.time) - (max(max.time) - int.time)%%period -
+              int.time)/period)
+  if (dum <= dum1 + 1) {
+    message("WARNING: There is a low number (", dum, ") of cases in the treatment or intervention group.\n",
+            sep = "", appendLF = FALSE)
+    if (jack > 0) {
+      jack <- 0
+      message("setting jack = 0.\n", appendLF = FALSE)
+    }
+    if (use.survey) {
+      use.survey <- FALSE
+      message("Setting use.survey = FALSE.\n", appendLF = FALSE)
+    }
+    message("Be cautious of results involving linearization or confidence intervals.\n\n",
+            appendLF = FALSE)
+  }
+  if (reset.match.covar) {
+    match.covar <- NULL
+  }
+  if (reset.match.out) {
+    match.out <- NULL
+  }
+  if (reset.plot.var) {
+    plot.var <- NULL
+  }
+  if (length(rm.col) > 0) {
+    for (i in 1:length(rm.col)) {
+      if (is.element(rm.col[i], result.var)) {
+        message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from result.var. \n",
+                sep = "", appendLF = FALSE)
+        result.var <- setdiff(result.var, rm.col[i])
+      }
+      if (is.element(rm.col[i], omnibus.var)) {
+        message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from omnibus.var. \n",
+                sep = "", appendLF = FALSE)
+        omnibus.var <- setdiff(omnibus.var, rm.col[i])
+      }
+      if (is.element(rm.col[i], match.covar)) {
+        message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar. \n",
+                sep = "", appendLF = FALSE)
+        match.covar <- setdiff(match.covar, rm.col[i])
+      }
+      if (is.element(rm.col[i], match.covar.min)) {
+        message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar.min. \n",
+                sep = "", appendLF = FALSE)
+        match.covar.min <- setdiff(match.covar.min, rm.col[i])
+      }
+      if (is.element(rm.col[i], names(match.out))) {
+        message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out. \n",
+                sep = "", appendLF = FALSE)
+        rm.li <- which(is.element(names(match.out), rm.col[i]))
+        match.out <- match.out[-rm.li]
+      }
+      if (is.element(rm.col[i], names(match.out.min))) {
+        message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out.min. \n",
+                sep = "", appendLF = FALSE)
+        rm.li1 <- which(is.element(names(match.out.min),
+                                   rm.col[i]))
+        match.out.min <- match.out.min[-rm.li1]
+      }
+    }
+  }
+  if (length(w) == 0) {
+    tmp <- proc.time()
+    message("Calculating weights...", "\n", appendLF = FALSE)
+    w <- get.w(data, match.covar, match.covar.min, match.out,
+               match.out.min, boot = perm, jack = jack, Int = Intervention[,
+                                                                           as.character(int.time)], int.var = int.num, trim = NULL,
+               int.time = int.time, cal.epsilon = cal.epsilon, maxit = maxit,
+               bounds = bounds, calfun = calfun, check.feas = check.feas,
+               scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup)
+    tmp <- proc.time() - tmp
+    message("Calculation of weights complete: Total time = ",
+            round(tmp[3], 2), sep = "", appendLF = FALSE)
+  }
+  else {
+    message("Weights have been provided.  Will not calculate weights",
+            appendLF = FALSE)
+    is.correct.w <- is.list(w)
+    if (is.correct.w) {
+      is.correct.w <- is.correct.w & sum(names(w) != c("Weights",
+                                                       "Intervention", "MSE", "Model", "Summary")) ==
+        0
+    }
+    if (is.correct.w) {
+      is.correct.w <- is.correct.w & dim(w$Weights)[1] ==
+        dim(data)[1]
+    }
+    if (is.correct.w) {
+      is.correct.w <- is.correct.w & dim(w$Intervention)[1] ==
+        dim(data)[1]
+    }
+    if (!is.correct.w) {
+      stop("w is not formatted correctly.")
+    }
+    perm <- sum(grepl("Perm", colnames(w$Weights)))
+    jack <- sum(grepl("Jack", colnames(w$Weights)))
+    message("Setting jack = ", jack, sep = "", appendLF = FALSE)
+    message("Setting perm = ", perm, sep = "", appendLF = FALSE)
+  }
+  not.jack <- !grepl("Jack", colnames(w$Weights))
+  if (is.logical(plot.var)) {
+    if (plot.var) {
+      plot.var <- result.var
+    }
+    else {
+      plot.var <- NULL
+    }
+  }
+  else {
+    plot.var <- intersect(plot.var, dimnames(data)[[2]])
+  }
+  max.time <- max.time - (max.time - int.time)%%period
+  if (length(plot.var) > 0 & length(times) == 1) {
+    plot.var <- NULL
+    message("There is only one time point in the data.\n            Will not generate plots.\n\n",
+            appendLF = FALSE)
+  }
+  if (!reset.result.var | !reset.plot.var) {
+    stats <- list()
+    stats1 <- list()
+    stats2 <- list()
+    delta.out <- list()
+    dof <- list()
+    results <- list()
+    for (i in 1:length(max.time)) {
+      tmp <- proc.time()
+      is.graph <- is.graph1 <- ""
+      if (!reset.plot.var & !reset.result.var) {
+        is.graph <- "Making graphs and calculating basic statistics"
+        is.graph1 <- "Completed graphs and calculation of basic statistics"
+      }
+      else if (reset.plot.var & !reset.result.var) {
+        is.graph <- "Calculating basic statistics"
+        is.graph1 <- "Completed calculation of basic statistics"
+      }
+      else if (!reset.plot.var & reset.result.var) {
+        is.graph <- "Making graphs"
+        is.graph1 <- "Completed graphs"
+      }
+      message(is.graph, " for max.time = ", max.time[i],
+              "...", "\n", sep = "", appendLF = FALSE)
+      stats[[i]] <- get.stats(data, w$Weights, w$Intervention,
+                              w$MSE[1, ], result.var, int.time = int.time,
+                              period = period, plot.it = plot.var, max.time = max.time[i],
+                              file = plot.file, omnibus.var = omnibus.var,
+                              sep = sep, start.time = start.time, legend.spot = legend.spot,
+                              cut.mse = cut.mse, twosided = twosided)
+      if (i == which.max(max.time)) {
+        plot.stats <- stats[[i]][[5]]
+      }
+      stats[[i]] <- stats[[i]][-5]
+      tmp <- proc.time() - tmp
+      message(is.graph1, " for max.time = ", max.time[i],
+              ".  Time = ", round(tmp[3], 2), "\n\n", sep = "",
+              appendLF = FALSE)
+      if (!reset.result.var) {
+        w.tmp <- w$Weights
+        Inter.tmp <- w$Intervention
+        mse.tmp <- w$MSE[1, ]
+        if (!use.survey) {
+          keep.surv <- !grepl("Perm", colnames(w.tmp))
+          w.tmp <- w.tmp[, keep.surv, drop = FALSE]
+          Inter.tmp <- Inter.tmp[, keep.surv, drop = FALSE]
+          mse.tmp <- mse.tmp[keep.surv]
+        }
+        tmp <- proc.time()
+        message("Calculating survey statistics for max.time = ",
+                max.time[i], "...", "\n", sep = "", appendLF = FALSE)
+        stats.tmp <- get.stats1(data, w.tmp, Inter.tmp,
+                                mse.tmp, result.var, int.time = int.time, period = period,
+                                max.time = max.time[i], omnibus.var = omnibus.var,
+                                cut.mse = cut.mse, twosided = twosided)
+        stats1[[i]] <- stats.tmp[[1]]
+        stats2[[i]] <- stats.tmp[[2]]
+        delta.out[[i]] <- stats.tmp[[3]]
+        dof[[i]] <- stats.tmp[[4]]
+        tmp <- proc.time() - tmp
+        message("Completed calculation of survey statistics for max.time = ",
+                max.time[i], ".  Time = ", round(tmp[3], 2),
+                "\n\n", sep = "", appendLF = FALSE)
+        Pct.Chng <- cbind(Pct.Chng = stats[[i]][[2]][1,
+                                                     ])
+        if (is.element("Omnibus", rownames(Pct.Chng))) {
+          Pct.Chng["Omnibus", ] <- NA
+        }
+        Trt <- cbind(Trt = stats[[i]][[3]][1, ])
+        Con <- cbind(Con = stats[[i]][[4]][1, ])
+        synth.stats1 <- stats1[[i]]
+        synth.stats2 <- stats2[[i]]
+        synth.delta.out <- delta.out[[i]]
+        synth.dof <- dof[[i]]
+        if (test == "lower") {
+          Linear.pVal <- cbind(Linear.pVal = stats::pnorm(synth.stats1[1,
+                                                                       ], lower.tail = TRUE))
+        }
+        else if (test == "upper") {
+          Linear.pVal <- cbind(Linear.pVal = stats::pnorm(synth.stats1[1,
+                                                                       ], lower.tail = FALSE))
+        }
+        else {
+          Linear.pVal <- cbind(Linear.pVal = 2 * stats::pnorm(abs(synth.stats1[1,
+                                                                               ]), lower.tail = FALSE))
+          if (is.element("Omnibus", rownames(Linear.pVal))) {
+            Linear.pVal["Omnibus", ] <- stats::pchisq(synth.stats1[1,
+                                                                   "Omnibus"], df = synth.dof, lower.tail = FALSE)
+          }
+        }
+        Linear.CI <- make.ci(synth.stats2[1, ], sqrt(synth.delta.out[1,
+                                                                     ]), alpha = 1 - confidence)
+        colnames(Linear.CI) <- paste("Linear.", colnames(Linear.CI),
+                                     sep = "")
+        Jack.pVal <- Jack.CI <- Perm.pVal <- Perm.CI <- NULL
+        if (jack > 0) {
+          jack.stats1 <- synth.stats1[2, ]
+          jack.stats2 <- synth.stats2[2, ]
+          jack.delta.out <- synth.delta.out[2, ]
+          synth.stats1 <- synth.stats1[-2, , drop = FALSE]
+          synth.stats2 <- synth.stats2[-2, , drop = FALSE]
+          synth.delta.out <- synth.delta.out[-2, , drop = FALSE]
+          if (test == "lower") {
+            Jack.pVal <- cbind(Jack.pVal = stats::pnorm(jack.stats1,
+                                                        lower.tail = TRUE))
+          }
+          else if (test == "upper") {
+            Jack.pVal <- cbind(Jack.pVal = stats::pnorm(jack.stats1,
+                                                        lower.tail = FALSE))
+          }
+          else {
+            Jack.pVal <- cbind(Jack.pVal = 2 * stats::pnorm(abs(jack.stats1),
+                                                            lower.tail = FALSE))
+            if (is.element("Omnibus", rownames(Jack.pVal))) {
+              Jack.pVal["Omnibus", ] <- stats::pchisq(c(jack.stats1)["Omnibus"],
+                                                      df = synth.dof, lower.tail = FALSE)
+            }
+          }
+          Jack.CI <- make.ci(jack.stats2, sqrt(jack.delta.out),
+                             alpha = 1 - confidence)
+          colnames(Jack.CI) <- paste("Jack.", colnames(Jack.CI),
+                                     sep = "")
+        }
+        if (perm > 0 & use.survey) {
+          perm.stats1 <- get.pval(list(synth.stats1),
+                                  ret.na = TRUE)
+          dum <- perm.stats1[[2]]
+          perm.stats1 <- perm.stats1[[1]]
+          if (test == "lower") {
+            Perm.pVal <- cbind(Perm.pVal = c(perm.stats1))
+          }
+          else if (test == "upper") {
+            Perm.pVal <- cbind(Perm.pVal = 1 - c(perm.stats1))
+          }
+          else {
+            Perm.pVal <- cbind(Perm.pVal = 2 * apply(cbind(c(perm.stats1),
+                                                           1 - c(perm.stats1)), 1, min))
+            if (is.element("Omnibus", rownames(Perm.pVal))) {
+              Perm.pVal["Omnibus", ] <- 1 - c(perm.stats1)["Omnibus"]
+            }
+          }
+          Perm.CI <- make.ci2(synth.stats2, synth.delta.out,
+                              alpha = 1 - confidence)
+          colnames(Perm.CI) <- paste("Perm.", colnames(Perm.CI),
+                                     sep = "")
+        }
+        else if (perm > 0) {
+          perm.stats = get.pval(stats[[i]], ret.na = TRUE)
+          dum <- perm.stats[[2]]
+          perm.stats <- (perm.stats[[1]])[c(1), , drop = FALSE]
+          if (test == "lower") {
+            Perm.pVal <- cbind(Perm.pVal = c(perm.stats[1,
+                                                        ]))
+          }
+          else if (test == "upper") {
+            Perm.pVal <- cbind(Perm.pVal = 1 - c(perm.stats[1,
+                                                            ]))
+          }
+          else {
+            Perm.pVal <- cbind(Perm.pVal = 2 * pmin(c(perm.stats[1,
+                                                                 ]), 1 - c(perm.stats[1, ])))
+            if (is.element("Omnibus", rownames(Perm.pVal))) {
+              Perm.pVal["Omnibus", ] <- 1 - c(perm.stats[1,
+                                                         ])["Omnibus"]
+            }
+          }
+        }
+        results[[i]] <- cbind(Trt, Con, Pct.Chng, Linear.pVal,
+                              Linear.CI, Jack.pVal, Jack.CI, Perm.pVal, Perm.CI)
+        if (NROW(results[[i]]) == 1) {
+          rownames(results[[i]]) <- result.var[1]
+        }
+        names(results)[i] <- max.time[i]
+      }
+    }
+  }
+  if (reset.plot.var) {
+    message("No plotting variables specified (e.g., plot.var = NULL).\n",
+            appendLF = FALSE)
+    message("Plots will not be created.\n", appendLF = FALSE)
+  }
+  if (reset.result.var) {
+    message("No outcome variables specified (e.g., result.var = NULL).\n",
+            appendLF = FALSE)
+    message("Results will not be tablulated.\n", appendLF = FALSE)
+  }
+  if (reset.result.var & reset.plot.var) {
+    message("Returning weights only.\n", appendLF = FALSE)
+  }
+  out <- list()
+  i <- 1
+  out[[i]] <- w
+  names(out)[i] <- "w"
+  i <- i + 1
+  if (!reset.result.var) {
+    out[[i]] <- results
+    names(out)[i] <- "Results"
+    i <- i + 1
+  }
+  if (!reset.plot.var) {
+    out[[i]] <- plot.stats
+    names(out)[i] <- "Plot.Stats"
+    i <- i + 1
+  }
+  ret.stats <- FALSE
+  if (ret.stats) {
+    out[[i]] <- stats
+    names(out)[i] <- "stats"
+    out[[i + 1]] <- stats1
+    out[[i + 2]] <- stats2
+    out[[i + 3]] <- delta.out
+    names(out)[i:(i + 3)] <- c("stats", "stats1", "stats2",
+                               "delta.out")
+    i <- i + 4
+  }
+  if (length(result.file) > 0 & !reset.result.var) {
+    out.results(results, int.time, max.time, result.file)
+  }
+  all.tmp <- proc.time() - all.tmp
+  message("microsynth complete: Overall time = ", round(all.tmp[3],
+                                                        2), "\n\n", sep = "", appendLF = FALSE)
+  out <- makemicrosynth(out)
+  return(out)
 }
 
 
@@ -1046,282 +1092,340 @@ make.ci2 <- function(stats, delta.out, alpha = 0.05) {
 }
 
 
-get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot = 0, jack = 0, Int, int.var = 1, trim = NULL, maxit = 500,
-    cal.epsilon = 1e-04, int.time, bounds = c(-Inf, Inf), calfun = "raking", qpmeth = "LowRankQP", check.feas = FALSE, use.backup = TRUE,
-    scale.var = "Intercept", cut.mse = 1) {
-    n <- dim(bigdat)[1]
-    n.int <- sum(Int == int.var)
-
-    back.state <- back.state1 <- back.state2 <- back.state3 <- ""
-    fin.boots <- FALSE
-    if (boot > 0) {
-        n.choose <- choose(n, n.int)
-        if (boot > n.choose - 1) {
-            boot <- n.choose - 1
-            message("Resetting perm = ", boot, "\n", sep = "", appendLF=FALSE)
-        }
-        if (n.choose - 1 <= max(1e+06, boot)) {
-            boots <- utils::combn(1:n, n.int)
-            check.combn <- function(x, y) {
-                return(sum(!is.element(x, y)))
-            }
-            is.trt.area <- which(apply(boots, 2, check.combn, x = which(Int == int.var)) == 0)
-            boots <- boots[, sample((1:NCOL(boots))[-is.trt.area], boot), drop = FALSE]
-            fin.boots <- TRUE
-        }
+get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
+                   boot = 0, jack = 0, Int, int.var = 1, trim = NULL, maxit = 500,
+                   cal.epsilon = 1e-04, int.time, bounds = c(-Inf, Inf), calfun = "raking",
+                   qpmeth = "LowRankQP", check.feas = FALSE, use.backup = TRUE,
+                   scale.var = "Intercept", cut.mse = 1)
+{
+  n <- dim(bigdat)[1]
+  n.int <- sum(Int == int.var)
+  back.state <- back.state1 <- back.state2 <- back.state3 <- ""
+  fin.boots <- FALSE
+  if (boot > 0) {
+    n.choose <- choose(n, n.int)
+    if (boot > n.choose - 1) {
+      boot <- n.choose - 1
+      message("Resetting perm = ", boot, "\n", sep = "",
+              appendLF = FALSE)
     }
-
-    use.model <- 1
-
-    if (check.feas & use.backup) {
-        tmp <- proc.time()
-        message("Checking feasibility of first model...", "\n", sep = "", appendLF=FALSE)
-        is.sol <- is.feasible(bigdat, covar.var, dum, Int = Int, int.var = int.var, int.time = int.time, eps = 1e-04)
-        tmp <- proc.time() - tmp
-
-        if (!is.sol) {
-            use.model <- 2
-            message("First model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF=FALSE)
-            dum.tmp <- merge.dums(dum, dum1)
-            tmp <- proc.time()
-            message("Checking feasibility of second model...", "\n", sep = "", appendLF=FALSE)
-            is.sol <- is.feasible(bigdat, covar.var, dum.tmp[[1]], Int = Int, int.var = int.var, int.time = int.time, eps = 1e-04)
-            tmp <- proc.time() - tmp
-
-            if (!is.sol) {
-                use.model <- 3
-                message("Second model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF=FALSE)
-                message("Will use third model.", "\n", sep = "", appendLF=FALSE)
-            } else {
-                message("Second model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF=FALSE)
-            }
-        } else {
-            message("First model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF=FALSE)
-        }
+    if (n.choose - 1 <= max(1e+06, boot)) {
+      boots <- utils::combn(1:n, n.int)
+      check.combn <- function(x, y) {
+        return(sum(!is.element(x, y)))
+      }
+      is.trt.area <- which(apply(boots, 2, check.combn,
+                                 x = which(Int == int.var)) == 0)
+      boots <- boots[, sample((1:NCOL(boots))[-is.trt.area],
+                              boot), drop = FALSE]
+      fin.boots <- TRUE
     }
-
-    newdat <- get.newdat(bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1, int.time = int.time)
-    newdat1 <- newdat[[2]]
-    newdat <- newdat[[1]]
-
-    duma <- merge.dums(dum, dum1)
-    newdata <- get.newdat(bigdat, dum = duma[[1]], dum1 = duma[[2]], covar.var = covar.var, covar.var1 = covar.var1, int.time = int.time)
-    newdat1a <- newdata[[2]]
-    newdata <- newdata[[1]]
-
-    dumb <- merge.dums(duma[[1]], duma[[2]])
-    covar.var1b <- union(covar.var, covar.var1)
-    covar.varb <- NULL
-    newdatb <- get.newdat(bigdat, dum = dumb[[1]], dum1 = dumb[[2]], covar.var = covar.varb, covar.var1 = covar.var1b, int.time = int.time)
-    newdat1b <- newdatb[[2]]
-    newdatb <- newdatb[[1]]
-
-    colnam <- "Main"
-    if (is.logical(jack)) {
-        if (jack) {
-            jack <- min(table(Int == int.var))
-        } else {
-            jack <- 0
-        }
+  }
+  use.model <- 1
+  if (check.feas & use.backup) {
+    tmp <- proc.time()
+    message("Checking feasibility of first model...", "\n",
+            sep = "", appendLF = FALSE)
+    is.sol <- is.feasible(bigdat, covar.var, dum, Int = Int,
+                          int.var = int.var, int.time = int.time, eps = 1e-04)
+    tmp <- proc.time() - tmp
+    if (!is.sol) {
+      use.model <- 2
+      message("First model is infeasible: Time = ", round(tmp[3],
+                                                          2), "\n", sep = "", appendLF = FALSE)
+      dum.tmp <- merge.dums(dum, dum1)
+      tmp <- proc.time()
+      message("Checking feasibility of second model...",
+              "\n", sep = "", appendLF = FALSE)
+      is.sol <- is.feasible(bigdat, covar.var, dum.tmp[[1]],
+                            Int = Int, int.var = int.var, int.time = int.time,
+                            eps = 1e-04)
+      tmp <- proc.time() - tmp
+      if (!is.sol) {
+        use.model <- 3
+        message("Second model is infeasible: Time = ",
+                round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+        message("Will use third model.", "\n", sep = "",
+                appendLF = FALSE)
+      }
+      else {
+        message("Second model is feasible: Time = ",
+                round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+      }
     }
-    if (jack > min(table(Int == int.var))) {
-        jack <- min(table(Int == int.var))
-        message("Resetting jack = ", jack, "\n", sep = "", appendLF=FALSE)
+    else {
+      message("First model is feasible: Time = ", round(tmp[3],
+                                                        2), "\n", sep = "", appendLF = FALSE)
     }
-    if (jack > 0) {
-        rep.G <- assign.groups(Int == int.var, G = jack)
-        colnam <- c(colnam, paste("Jack", 1:jack, sep = ""))
+  }
+  newdat <- get.newdat(bigdat, dum = dum, dum1 = dum1, covar.var = covar.var,
+                       covar.var1 = covar.var1, int.time = int.time)
+  newdat1 <- newdat[[2]]
+  newdat <- newdat[[1]]
+  duma <- merge.dums(dum, dum1)
+  newdata <- get.newdat(bigdat, dum = duma[[1]], dum1 = duma[[2]],
+                        covar.var = covar.var, covar.var1 = covar.var1, int.time = int.time)
+  newdat1a <- newdata[[2]]
+  newdata <- newdata[[1]]
+  dumb <- merge.dums(duma[[1]], duma[[2]])
+  covar.var1b <- union(covar.var, covar.var1)
+  covar.varb <- NULL
+  newdatb <- get.newdat(bigdat, dum = dumb[[1]], dum1 = dumb[[2]],
+                        covar.var = covar.varb, covar.var1 = covar.var1b, int.time = int.time)
+  newdat1b <- newdatb[[2]]
+  newdatb <- newdatb[[1]]
+  colnam <- "Main"
+  if (is.logical(jack)) {
+    if (jack) {
+      jack <- min(table(Int == int.var))
     }
-    if (boot > 0) {
-        colnam <- c(colnam, paste("Perm", 1:boot, sep = ""))
+    else {
+      jack <- 0
     }
-
-    wghts <- Inter <- matrix(NA, n, boot + jack + 1)
-    mse <- matrix(NA, 6, boot + jack + 1)
-    mod <- rep(NA, boot + jack + 1)
-    rownames(wghts) <- rownames(Inter) <- dimnames(bigdat)[[1]]
-    rownames(mse) <- c("First model: Primary variables", "First model: Second variables", "Secondary model: Primary variables", "Second model: Secondary variables",
-        "Third model: Primary variables", "Third model: Secondary variables")
-    names(mod) <- colnames(wghts) <- colnames(Inter) <- colnames(mse) <- colnam
-    inds <- 1:(boot + jack + 1)
-    jack.lower <- 2
-    jack.upper <- 1 + jack
-    boot.lower <- 2 + jack
-    boot.upper <- 1 + jack + boot
-
-    for (i in inds) {
-        use.model.i <- use.model
-        tmp <- proc.time()
-
-        if (i == 1) {
-            samp <- Int == int.var
-            use <- rep(TRUE, n)
-        } else if (grepl("Jack", colnam[i])) {
-            samp <- Int == int.var
-            g <- as.numeric(gsub("Jack", "", colnam[i]))
-            use <- rep.G != g
-            rep.meth <- "jackknife"
-        } else if (grepl("Perm", colnam[i])) {
-            g <- as.numeric(gsub("Perm", "", colnam[i]))
-            if (!fin.boots) {
-                samp <- sample(1:n, sum(Int == int.var), replace = FALSE, prob = NULL)
-                samp <- is.element(1:n, samp)
-            } else {
-                samp <- is.element(1:n, boots[, g])
-            }
-            use <- rep(TRUE, n)
-            rep.meth <- "permutation"
-        }
-
-        Inter[samp & use, i] <- TRUE
-        Inter[!samp & use, i] <- FALSE
-
-        if (use.model.i == 1) {
-            mod[i] <- "First"
-            ws <- get.w.sub(newdat = newdat, newdat1 = newdat1, int.time = int.time, samp = samp, use = use, n = NROW(newdat), maxit = maxit,
-                calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var)
-
-            if (ws$mse > cut.mse | is.na(ws$mse)) {
-                if (use.backup) {
-                  cat.back <- ".  Using second model."
-                  cat.back1 <- ".  Used second model."
-                } else {
-                  cat.back <- cat.back1 <- ".  Consider setting use.backup = TRUE."
-                }
-                if (i > 1) {
-                  back.state1 <- paste("First model was infeasible for ", rep.meth, " group ", g, cat.back1, "\n", sep = "")
-                } else {
-                  back.state1 <- paste("First model is infeasible for primary weights", cat.back, "\n", sep = "")
-                }
-                if (use.backup) {
-                  use.model.i <- 2
-                }
-            }
-        }
-
-        if (use.model.i == 2 & use.backup) {
-            mod[i] <- "Second"
-            ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a, int.time = int.time, samp = samp, use = use, n = NROW(newdat), maxit = maxit,
-                calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var)
-
-            if (ws$mse > cut.mse | is.na(ws$mse)) {
-                if (i > 1) {
-                  back.state2 <- paste("Second model was infeasible for ", rep.meth, " group ", g, ".  Used third model.", "\n", sep = "")
-                  back.state3 <- paste("First and second model were infeasible for ", rep.meth, " group ", g, ".  Used third model.",
-                    "\n", sep = "")
-                } else {
-                  back.state2 <- paste("Second model is infeasible for primary weights.  Will use third model.", "\n", sep = "")
-                  back.state3 <- paste("First and second model are infeasible for primary weights.  Will use third model.", "\n",
-                    sep = "")
-                }
-                use.model.i <- 3
-            }
-        }
-
-        if (use.model.i == 3 & use.backup) {
-            mod[i] <- "Third"
-            ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b, int.time = int.time, samp = samp, use = use, n = NROW(newdat), maxit = maxit,
-                calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var)
-        }
-
-        if (back.state1 != "" & back.state2 != "") {
-            back.state.final <- back.state3
-        } else if (back.state1 != "" & back.state2 == "") {
-            back.state.final <- back.state1
-        } else if (back.state1 == "" & back.state2 != "") {
-            back.state.final <- back.state2
-        } else {
-            back.state.final <- ""
-        }
-        back.state <- paste(back.state, back.state.final, sep = "")
-        back.state1 <- back.state2 <- back.state3 <- ""
-
-        mses <- get.mse(newdat, newdat1, samp, use, ws$wghts, ws$wghts.init, ws$scale.by)
-        msesa <- get.mse(newdata, newdat1a, samp, use, ws$wghts, ws$wghts.init, ws$scale.by)
-        msesb <- get.mse(newdatb, newdat1b, samp, use, ws$wghts, ws$wghts.init, ws$scale.by)
-
-        mse[1, i] <- mses$mse
-        mse[2, i] <- mses$mse1
-        mse[3, i] <- msesa$mse
-        mse[4, i] <- msesa$mse1
-        mse[5, i] <- msesb$mse
-        mse[6, i] <- msesb$mse1
-        wghts[, i] <- ws$wghts
-
-        tmp <- proc.time() - tmp
-        if (i == 1) {
-            if(back.state!='') message(back.state, appendLF=FALSE)
-            back.state <- ""
-            use.model <- use.model.i
-            message("Created main weights for synthetic control: Time = ", round(tmp[3], 2), "\n\n",
-                    sep = "", appendLF=FALSE)
-            message("Matching summary for main weights:\n", appendLF=FALSE)
-            if (use.model.i == 1) {
-                printstuff <- mses$printstuff
-                message(paste0(capture.output(round(printstuff, 4)), collapse="\n"), appendLF=FALSE)
-            } else if (use.model.i == 2) {
-                printstuff <- msesa$printstuff
-                message(paste0(capture.output(round(printstuff, 4)), collapse='\n'), appendLF=FALSE)
-            } else if (use.model.i == 3) {
-                printstuff <- msesb$printstuff
-                message(paste0(capture.output(round(printstuff, 4)), collapse="/n"), appendLF=FALSE)
-            }
-            if (jack > 0) {
-                message("Calculating weights for jackknife replication groups...\n", appendLF=FALSE)
-                tmp.jack <- proc.time()
-            } else if (boot > 0) {
-                message("Calculating weights for permutation groups...\n", appendLF=FALSE)
-                tmp.boot <- proc.time()
-            }
-        } else if (i >= jack.lower & i <= jack.upper) {
-            if (i == jack.lower) {
-                message("Completed weights for jackknife group:\n", i - 1, sep = "", appendLF=FALSE)
-            } else if ((i - 1)%%20 != 1 & i != jack.upper) {
-                message(", ", i - 1, sep = "", appendLF=FALSE)
-            } else if ((i - 1)%%20 == 1 & i != jack.upper) {
-                message(", \n", i - 1, sep = "", appendLF=FALSE)
-            } else if ((i - 1)%%20 != 1 & i == jack.upper) {
-                message(", ", i - 1, "\n", sep = "", appendLF=FALSE)
-            } else {
-                message(", \n", i - 1, "\n", sep = "", appendLF=FALSE)
-            }
-            if (i == jack.upper) {
-                if (i == jack.lower) {
-                }
-                if(back.state!='') message(back.state, appendLF=FALSE)
-                back.state <- ""
-                tmp.jack <- proc.time() - tmp.jack
-                message("Completed weights for all jackknife replication groups: Time = ", round(tmp.jack[3], 2), "\n\n", sep = "", appendLF=FALSE)
-                if (boot > 0) {
-                  message("Calculating weights for permutation groups...\n", appendLF=FALSE)
-                  tmp.boot <- proc.time()
-                }
-            }
-        } else if (i >= boot.lower & i <= boot.upper) {
-            if (i == boot.lower) {
-                message("Completed weights for permutation group:\n", i - jack - 1, sep = "", appendLF=FALSE)
-            } else if ((i - jack - 1)%%20 != 1 & i != boot.upper) {
-                message(", ", i - jack - 1, sep = "", appendLF=FALSE)
-            } else if ((i - jack - 1)%%20 == 1 & i != boot.upper) {
-                message(", \n", i - jack - 1, sep = "", appendLF=FALSE)
-            } else if ((i - jack - 1)%%20 != 1 & i == boot.upper) {
-                message(", ", i - jack - 1, "\n", sep = "", appendLF=FALSE)
-            } else {
-                message(", \n", i - jack - 1, "\n", sep = "", appendLF=FALSE)
-            }
-            if (i == boot.upper) {
-                if (i == boot.lower) {
-                  message("\n", appendLF=FALSE)
-                }
-                tmp.boot <- proc.time() - tmp.boot
-                message("Completed weights for all permutation groups: Time = ", round(tmp.boot[3], 2), "\n\n",
-                        sep = "", appendLF=FALSE)
-            }
-        }
+  }
+  if (jack > min(table(Int == int.var))) {
+    jack <- min(table(Int == int.var))
+    message("Resetting jack = ", jack, "\n", sep = "", appendLF = FALSE)
+  }
+  if (jack > 0) {
+    rep.G <- assign.groups(Int == int.var, G = jack)
+    colnam <- c(colnam, paste("Jack", 1:jack, sep = ""))
+  }
+  if (boot > 0) {
+    colnam <- c(colnam, paste("Perm", 1:boot, sep = ""))
+  }
+  wghts <- Inter <- matrix(NA, n, boot + jack + 1)
+  mse <- matrix(NA, 6, boot + jack + 1)
+  mod <- rep(NA, boot + jack + 1)
+  rownames(wghts) <- rownames(Inter) <- dimnames(bigdat)[[1]]
+  rownames(mse) <- c("First model: Primary variables", "First model: Second variables",
+                     "Secondary model: Primary variables", "Second model: Secondary variables",
+                     "Third model: Primary variables", "Third model: Secondary variables")
+  names(mod) <- colnames(wghts) <- colnames(Inter) <- colnames(mse) <- colnam
+  inds <- 1:(boot + jack + 1)
+  jack.lower <- 2
+  jack.upper <- 1 + jack
+  boot.lower <- 2 + jack
+  boot.upper <- 1 + jack + boot
+  for (i in inds) {
+    use.model.i <- use.model
+    tmp <- proc.time()
+    if (i == 1) {
+      samp <- Int == int.var
+      use <- rep(TRUE, n)
     }
-
-    out <- list(Weights = wghts, Intervention = Inter, MSE = mse, Model = mod, Summary = printstuff)
-    return(out)
+    else if (grepl("Jack", colnam[i])) {
+      samp <- Int == int.var
+      g <- as.numeric(gsub("Jack", "", colnam[i]))
+      use <- rep.G != g
+      rep.meth <- "jackknife"
+    }
+    else if (grepl("Perm", colnam[i])) {
+      g <- as.numeric(gsub("Perm", "", colnam[i]))
+      if (!fin.boots) {
+        samp <- sample(1:n, sum(Int == int.var), replace = FALSE,
+                       prob = NULL)
+        samp <- is.element(1:n, samp)
+      }
+      else {
+        samp <- is.element(1:n, boots[, g])
+      }
+      use <- rep(TRUE, n)
+      rep.meth <- "permutation"
+    }
+    Inter[samp & use, i] <- TRUE
+    Inter[!samp & use, i] <- FALSE
+    if (use.model.i == 1) {
+      mod[i] <- "First"
+      ws <- get.w.sub(newdat = newdat, newdat1 = newdat1,
+                      int.time = int.time, samp = samp, use = use,
+                      n = NROW(newdat), maxit = maxit, calfun = calfun,
+                      bounds = bounds, epsilon = cal.epsilon, trim = trim,
+                      qpmeth = qpmeth, scale.var = scale.var)
+      if (ws$mse > cut.mse | is.na(ws$mse)) {
+        if (use.backup) {
+          cat.back <- ".  Using second model."
+          cat.back1 <- ".  Used second model."
+        }
+        else {
+          cat.back <- cat.back1 <- ".  Consider setting use.backup = TRUE."
+        }
+        if (i > 1) {
+          back.state1 <- paste("First model was infeasible for ",
+                               rep.meth, " group ", g, cat.back1, "\n",
+                               sep = "")
+        }
+        else {
+          back.state1 <- paste("First model is infeasible for primary weights",
+                               cat.back, "\n", sep = "")
+        }
+        if (use.backup) {
+          use.model.i <- 2
+        }
+      }
+    }
+    if (use.model.i == 2 & use.backup) {
+      mod[i] <- "Second"
+      ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a,
+                      int.time = int.time, samp = samp, use = use,
+                      n = NROW(newdat), maxit = maxit, calfun = calfun,
+                      bounds = bounds, epsilon = cal.epsilon, trim = trim,
+                      qpmeth = qpmeth, scale.var = scale.var)
+      if (ws$mse > cut.mse | is.na(ws$mse)) {
+        if (i > 1) {
+          back.state2 <- paste("Second model was infeasible for ",
+                               rep.meth, " group ", g, ".  Used third model.",
+                               "\n", sep = "")
+          back.state3 <- paste("First and second model were infeasible for ",
+                               rep.meth, " group ", g, ".  Used third model.",
+                               "\n", sep = "")
+        }
+        else {
+          back.state2 <- paste("Second model is infeasible for primary weights.  Will use third model.",
+                               "\n", sep = "")
+          back.state3 <- paste("First and second model are infeasible for primary weights.  Will use third model.",
+                               "\n", sep = "")
+        }
+        use.model.i <- 3
+      }
+    }
+    if (use.model.i == 3 & use.backup) {
+      mod[i] <- "Third"
+      ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b,
+                      int.time = int.time, samp = samp, use = use,
+                      n = NROW(newdat), maxit = maxit, calfun = calfun,
+                      bounds = bounds, epsilon = cal.epsilon, trim = trim,
+                      qpmeth = qpmeth, scale.var = scale.var)
+    }
+    if (back.state1 != "" & back.state2 != "") {
+      back.state.final <- back.state3
+    }
+    else if (back.state1 != "" & back.state2 == "") {
+      back.state.final <- back.state1
+    }
+    else if (back.state1 == "" & back.state2 != "") {
+      back.state.final <- back.state2
+    }
+    else {
+      back.state.final <- ""
+    }
+    back.state <- paste(back.state, back.state.final, sep = "")
+    back.state1 <- back.state2 <- back.state3 <- ""
+    mses <- get.mse(newdat, newdat1, samp, use, ws$wghts,
+                    ws$wghts.init, ws$scale.by)
+    msesa <- get.mse(newdata, newdat1a, samp, use, ws$wghts,
+                     ws$wghts.init, ws$scale.by)
+    msesb <- get.mse(newdatb, newdat1b, samp, use, ws$wghts,
+                     ws$wghts.init, ws$scale.by)
+    mse[1, i] <- mses$mse
+    mse[2, i] <- mses$mse1
+    mse[3, i] <- msesa$mse
+    mse[4, i] <- msesa$mse1
+    mse[5, i] <- msesb$mse
+    mse[6, i] <- msesb$mse1
+    wghts[, i] <- ws$wghts
+    tmp <- proc.time() - tmp
+    if (i == 1) {
+      if (back.state != "")
+        message(back.state, appendLF = FALSE)
+      back.state <- ""
+      use.model <- use.model.i
+      message("Created main weights for synthetic control: Time = ",
+              round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
+      message("Matching summary for main weights:\n", appendLF = FALSE)
+      if (use.model.i == 1) {
+        printstuff <- mses$printstuff
+        message(paste0(capture.output(round(printstuff,
+                                            4)), collapse = "\n"), appendLF = FALSE)
+        message("\n", appendLF = FALSE)
+      }
+      else if (use.model.i == 2) {
+        printstuff <- msesa$printstuff
+        message(paste0(capture.output(round(printstuff,
+                                            4)), collapse = "\n"), appendLF = FALSE)
+        message("\n", appendLF = FALSE)
+      }
+      else if (use.model.i == 3) {
+        printstuff <- msesb$printstuff
+        message(paste0(capture.output(round(printstuff,
+                                            4)), collapse = "/n"), appendLF = FALSE)
+        message("\n", appendLF = FALSE)
+      }
+      if (jack > 0) {
+        message("Calculating weights for jackknife replication groups...\n",
+                appendLF = FALSE)
+        tmp.jack <- proc.time()
+      }
+      else if (boot > 0) {
+        message("Calculating weights for permutation groups...\n",
+                appendLF = FALSE)
+        tmp.boot <- proc.time()
+      }
+    }
+    else if (i >= jack.lower & i <= jack.upper) {
+      if (i == jack.lower) {
+        message("Completed weights for jackknife group:\n",
+                i - 1, sep = "", appendLF = FALSE)
+      }
+      else if ((i - 1)%%20 != 1 & i != jack.upper) {
+        message(", ", i - 1, sep = "", appendLF = FALSE)
+      }
+      else if ((i - 1)%%20 == 1 & i != jack.upper) {
+        message(", \n", i - 1, sep = "", appendLF = FALSE)
+      }
+      else if ((i - 1)%%20 != 1 & i == jack.upper) {
+        message(", ", i - 1, "\n", sep = "", appendLF = FALSE)
+      }
+      else {
+        message(", \n", i - 1, "\n", sep = "", appendLF = FALSE)
+      }
+      if (i == jack.upper) {
+        if (i == jack.lower) {
+        }
+        if (back.state != "")
+          message(back.state, appendLF = FALSE)
+        back.state <- ""
+        tmp.jack <- proc.time() - tmp.jack
+        message("Completed weights for all jackknife replication groups: Time = ",
+                round(tmp.jack[3], 2), "\n\n", sep = "", appendLF = FALSE)
+        if (boot > 0) {
+          message("Calculating weights for permutation groups...\n",
+                  appendLF = FALSE)
+          tmp.boot <- proc.time()
+        }
+      }
+    }
+    else if (i >= boot.lower & i <= boot.upper) {
+      if (i == boot.lower) {
+        message("Completed weights for permutation group:\n",
+                i - jack - 1, sep = "", appendLF = FALSE)
+      }
+      else if ((i - jack - 1)%%20 != 1 & i != boot.upper) {
+        message(", ", i - jack - 1, sep = "", appendLF = FALSE)
+      }
+      else if ((i - jack - 1)%%20 == 1 & i != boot.upper) {
+        message(", \n", i - jack - 1, sep = "", appendLF = FALSE)
+      }
+      else if ((i - jack - 1)%%20 != 1 & i == boot.upper) {
+        message(", ", i - jack - 1, "\n", sep = "", appendLF = FALSE)
+      }
+      else {
+        message(", \n", i - jack - 1, "\n", sep = "",
+                appendLF = FALSE)
+      }
+      if (i == boot.upper) {
+        if (i == boot.lower) {
+          message("\n", appendLF = FALSE)
+        }
+        tmp.boot <- proc.time() - tmp.boot
+        message("Completed weights for all permutation groups: Time = ",
+                round(tmp.boot[3], 2), "\n\n", sep = "", appendLF = FALSE)
+      }
+    }
+  }
+  out <- list(Weights = wghts, Intervention = Inter, MSE = mse,
+              Model = mod, Summary = printstuff)
+  return(out)
 }
 
 

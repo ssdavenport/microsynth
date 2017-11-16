@@ -12,7 +12,7 @@ vignette: >
 ```{r load, echo=F}
 library(microsynth)
 library(knitr)
-knitr::opts_chunk$set(message = FALSE, fig.height=3.6, fig.width=10, fig.show = "hold")
+knitr::opts_chunk$set(message = FALSE, fig.height=3.1, fig.width=7.2, fig.show = "hold")
 ```
 
 ## Introduction to Synthetic Controls
