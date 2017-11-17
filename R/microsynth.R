@@ -777,7 +777,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
                scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup)
     tmp <- proc.time() - tmp
     message("Calculation of weights complete: Total time = ",
-            round(tmp[3], 2), sep = "", appendLF = FALSE)
+            round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
   }
   else {
     message("Weights have been provided.  Will not calculate weights",
