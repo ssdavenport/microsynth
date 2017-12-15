@@ -71,7 +71,7 @@ to the maximum time that appears in the column given by \code{timevar}.}
 
 \item{match.out}{Either A) logical, B) a vector of variable names that
   indicates across which outcome variables treatment is to be exactly matched
-  to synthetic control pre-intervention, or, to allow more flexibility, C) a
+  to synthetic control pre-intervention, or, to allow more flexibility, or C) a
   list consisting of variable names and timespans over which variables should
   be aggregated before matching.
 
@@ -84,18 +84,27 @@ to the maximum time that appears in the column given by \code{timevar}.}
   time point from \code{start.time} to \code{int.time}. Otherwise, to allow
   more flexibility, \code{match.out} may also be a list that gives
   an outcome-based model outlining more specific constraints that are to be
-  exactly satisfied within calibration weighting.  In this case, each element
-  of \code{match.out} is a vector of integers, and the names of elements of
+  exactly satisfied within calibration weighting.  In this case, each entry
+  of \code{match.out} is a vector of integers, and the names of entries of
   \code{match.out} are the outcome variables to which the vectors correspond.
-  The following example shows the proper formatting of \code{match.out} as a
-  list.  Assume that there are two outcomes, Y1 and Y2, across which
-  treatment is to be matched to synthetic control and that the intervention
+  Each element of the vectors gives a number of time points that are to be
+  aggregated for the respective outcome, with the first element indicating
+  time points immediately prior the time of the intervention.  The sum of
+  the elements in each vector should not exceed the number of
+  pre-intervention time periods in the data.
+
+  The following examples show the proper formatting of \code{match.out} as a
+  list.  Assume that there are two outcomes, Y1 and Y2 (across which
+  treatment is to be matched to synthetic control), and that the intervention
   occurs at time 10.   Let \code{match.out = list('Y1' = c(1, 3, 3), 'Y2'=
   c(2,5,1))}.  According to this specification, treatment is to be matched to
   synthetic control across: a) The value of Y1 at time 10; b) the sum of Y1
   across times 7, 8 and 9; c) the sum of Y1 across times 4, 5 and 6; e) The
   sum of Y2 across times time 9 and 10; e) the sum of Y2 across times 4, 5,
-  6, 7, and 8; f) the value of Y2 at time 3.}
+  6, 7, and 8; f) the value of Y2 at time 3.  Likwise, if \code{match.out =
+  list('Y1' = 10, 'Y2'= rep(1,10))}, Y1 is matched to synthetic control
+  the entire aggregated pre-intervention time range, and Y2 is matched
+  at each pre-intervention time point individually.}
 
 \item{match.covar}{Either a logical or a vector of variable names that
 indicates which covariates
@@ -249,9 +258,10 @@ as output, use \code{\link[graphics]{par}}.}
 \item{legend.spot}{The location of the legend in the plots.}
 }
 \value{
-\code{microsynth} returns a list with up to three elements: a)
-  \code{w}, b) \code{Results}, and c) \code{Plot.Stats}.  The third element
-  is returned only if \code{plot.var} is not \code{NULL} or \code{FALSE}.
+\code{microsynth} returns a list with up to four elements: a)
+  \code{w}, b) \code{Results}, c) \code{svyglm.stats},
+  and c) \code{Plot.Stats}.  The fourth element is returned only if
+  \code{plot.var} is not \code{NULL} or \code{FALSE}.
 
   \code{w} is a list with five elements: a) \code{Weights}, b)
   \code{Intervention},
@@ -281,6 +291,12 @@ as output, use \code{\link[graphics]{par}}.}
   the intervention effects and p-values, upper, and lower bounds of
   confidence intervals as found using Taylor series linearization (Linear),
   jackknife (jack), and permutation (perm) methods where needed.
+
+  In addition, \code{svyglm.stats} is a list where each element is a
+  matrix that includes the output from the regression models run using the
+  \code{svyglm()} function to estimate the treatment effect.  The list has one
+  element for each value of \code{max.time}, and the matrices each have
+  one row per variable in \code{result.var}.
 
   Lastly, \code{Plot.Stats} contains the data that are displayed in the
   plots.  \code{Plot.Stats} is a list with four elements (Treatment, Control,
