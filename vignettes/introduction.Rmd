@@ -151,7 +151,7 @@ the dataset; the intervention occurs after 12 quarters of pre-intervention data
 post-intervention data (`max.time = 16`). With this dataset, `max.time` could 
 also be left unassigned and would be automatically set to the latest observation
 in the data; likewise, we can set `int.time = NULL` or `int.time = FALSE`, as we
-expect the program's effects not to occur instantaneously, the `int.var` column
+expect the program's effects not to occur instantaneously, the `intvar` column
 is adequately formatted to allow microsynth to detect the intervention time
 automatically. Note that `start.time` will default to the earliest time in the
 dataset.
