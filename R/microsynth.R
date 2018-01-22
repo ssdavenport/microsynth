@@ -399,7 +399,7 @@
 
 #' # Perform matching and estimation, without permutations or jackknife
 #' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'        intvar='Intervention', start.time=1, int.time=NULL, max.time=16,
+#'        intvar='Intervention', start.time=1, int.time=12, max.time=16,
 #'        match.out=match.out, match.covar=cov.var, result.var=match.out,
 #'        omnibus.var=match.out, plot.var=match.out, test='lower')
 #'
@@ -426,7 +426,8 @@
 #' # Perform matching, setting check.feas = T and use.backup = T
 #' # to ensure model feasibility
 #' sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'         intvar='Intervention', match.out=match.out, match.covar=cov.var,
+#'         intvar='Intervention', int.time=12,
+#'         match.out=match.out, match.covar=cov.var,
 #'         result.var=match.out, plot.var=match.out, perm=250, jack=TRUE,
 #'         test='lower', check.feas=TRUE, use.backup = TRUE,
 #'         plot.file=NULL, result.file='ExResults3.xlsx')
@@ -440,7 +441,8 @@
 #'
 #' # After aggregation, use.backup and cheack.feas no longer needed
 #' sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
+#'          intvar='Intervention', int.time=12,
+#'          match.out=match.out, match.covar=cov.var,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
 #'          plot.var=names(match.out), perm=250, jack = 0, test='lower',
 #'          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
@@ -448,7 +450,8 @@
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
-#'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
+#'          intvar='Intervention', int.time=12,
+#'          match.out=match.out, match.covar=cov.var,
 #'          result.var=FALSE, plot.var=FALSE, perm=250, jack=TRUE)
 #'
 #' # View weights
@@ -456,12 +459,13 @@
 #'
 #' # Generate plots only using previous weights
 #' sea6 <- microsynth(seattledmi,  idvar='ID', timevar='time',
-#'           intvar='Intervention', result.var=FALSE, plot.var=match.out[1:2],
+#'           intvar='Intervention', int.time=12,
+#'           result.var=FALSE, plot.var=match.out[1:2],
 #'           w=sea5$w)
 #'
 #' # Generate results only
 #' sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'           intvar='Intervention', max.time=c(14, 16),
+#'           intvar='Intervention', int.time=12, max.time=c(14, 16),
 #'           result.var=match.out, plot.var=FALSE, test='lower',
 #'           w=sea5$w, result.file='ExResults7.xlsx')
 #'
@@ -479,7 +483,8 @@
 #'
 #' # Apply microsynth to the new macro-level data
 #' sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
-#'            intvar='Intervention', match.out=match.out[4],
+#'            intvar='Intervention', int.time=12,
+#'            match.out=match.out[4],
 #'            match.covar=cov.var, result.var=match.out[4],
 #'            plot.var=match.out[4], test='lower', perm=250, jack=FALSE,
 #'            check.feas=TRUE, use.backup=TRUE)

@@ -27,13 +27,15 @@ values of all variables at all time points.}
 \item{intvar}{A character string that gives the variable in \code{data} that
 corresponds to the intervention variable.  The intervention variable
 indicates which cases (and times) have received the intervention.  The
-variable should be binary, with a 1 indicating treated.  If \code{int.time}
+variable should be binary, with a 1 indicating treated and 0 indicating
+untreated.  If \code{int.time}
 is specified, a case is considered treated if there is 1 or more non-zero
 entries in the column indicated by \code{intvar} for that case (at any time
 point).  If \code{int.time} is not specified, an attempt will be made to
-use\code{intvar} to determine which time the intervention occurred (i.e.,
-the intervention is considered to have occurred at the time of the first
-non-zero entry in \code{intvar}).}
+use\code{intvar} to determine which time periods will be considered
+post-intervention (i.e., the times contained in the evalution period).
+In this case, the evaluation period is considered to begin at the time of
+the first non-zero entry in \code{intvar}).}
 
 \item{timevar}{A character string that gives the variable in
 \code{data} that differentiate multiple records from the same case.  Can be
@@ -46,19 +48,16 @@ will also determine the beginning of the pre-intervention period used for
 matching. When \code{start.time = NULL} (default), it is reset to the
 minimum time appearing in the column given by \code{timevar}.}
 
-\item{int.time}{A logical, or an integer that gives the final time point at
-which treatment and synthetic control will be matched to one another.
-If the intervention is expected to have an
-instantaneous effect, \code{int.time} should be set to the time immediately
-prior to the intervention. Otherwise, \code{int.time} should be set to
-when the intervention occurred.  If \code{intvar} is formatted such that
-all treatment cases receive 0 pre-intervention and 1 post-intervention, and
-all control cases receive 0 at all time points, then \code{int.time} may
-be logical. Setting \code{int.time = TRUE} indicates that effects are
-expected to be instantaneous, i.e., \code{int.time} is set to the time of
-the last 0 observed among the treatment column. Setting
-\code{int.time = FALSE} or \code{int.time = NULL} will set \code{int.time}
-as the time of the first 1 in the treatment column.}
+\item{int.time}{An integer that gives the final time point at
+which treatment and synthetic control will be matched to one another.  That
+is, \code{int.time} indicates the time period immediately preceeding
+the start of the evaluation period.  All time points
+following \code{int.time} are considered to be post-intervention and the
+behavior of outcomes will be compared between the treatment and synthetic
+control groups across those time periods.
+Setting \code{int.time = NULL} will begin the evaluation period at the time
+that corresponds to the first non-zero entry in the column indicated by
+\code{intvar}.}
 
 \item{max.time}{An integer that gives the maximum post-intervention time that
 is taken into when compiling results.  That is, the treatment and synthetic
@@ -70,10 +69,11 @@ in \code{max.time}.  When \code{max.time = NULL} (the default), it is reset
 to the maximum time that appears in the column given by \code{timevar}.}
 
 \item{match.out}{Either A) logical, B) a vector of variable names that
-  indicates across which outcome variables treatment is to be exactly matched
+  indicates across which time-varying variables treatment is to be exactly matched
   to synthetic control pre-intervention, or, to allow more flexibility, or C) a
   list consisting of variable names and timespans over which variables should
-  be aggregated before matching.
+  be aggregated before matching.  Note that outcome variables and time-varying
+  covariates should be included in \code{match.out}.
 
   If \code{match.out = TRUE} (the default), it is set equal to
   \code{result.var}; if \code{match.out = NULL} or \code{match.out = FALSE},
@@ -87,28 +87,30 @@ to the maximum time that appears in the column given by \code{timevar}.}
   exactly satisfied within calibration weighting.  In this case, each entry
   of \code{match.out} is a vector of integers, and the names of entries of
   \code{match.out} are the outcome variables to which the vectors correspond.
-  Each element of the vectors gives a number of time points that are to be 
-  aggregated for the respective outcome, with the first element indicating 
-  time points immediately prior the time of the intervention.  The sum of 
-  the elements in each vector should not exceed the number of 
-  pre-intervention time periods in the data.  
+  Each element of the vectors gives a number of time points that are to be
+  aggregated for the respective outcome, with the first element indicating
+  time points immediately prior the beginning of the (post-intervention)
+  evaluation period.  The sum of
+  the elements in each vector should not exceed the number of
+  pre-intervention time periods in the data.
 
   The following examples show the proper formatting of \code{match.out} as a
   list.  Assume that there are two outcomes, Y1 and Y2 (across which
-  treatment is to be matched to synthetic control), and that the intervention
-  occurs at time 10.   Let \code{match.out = list('Y1' = c(1, 3, 3), 'Y2'=
+  treatment is to be matched to synthetic control), and \code{int.time = 10}
+  (i.e., the post-intervention evaluation period begins at time 11).
+  Let \code{match.out = list('Y1' = c(1, 3, 3), 'Y2'=
   c(2,5,1))}.  According to this specification, treatment is to be matched to
   synthetic control across: a) The value of Y1 at time 10; b) the sum of Y1
   across times 7, 8 and 9; c) the sum of Y1 across times 4, 5 and 6; e) The
   sum of Y2 across times time 9 and 10; e) the sum of Y2 across times 4, 5,
-  6, 7, and 8; f) the value of Y2 at time 3.  Likwise, if \code{match.out = 
-  list('Y1' = 10, 'Y2'= rep(1,10))}, Y1 is matched to synthetic control 
-  the entire aggregated pre-intervention time range, and Y2 is matched 
+  6, 7, and 8; f) the value of Y2 at time 3.  Likwise, if \code{match.out =
+  list('Y1' = 10, 'Y2'= rep(1,10))}, Y1 is matched to synthetic control
+  the entire aggregated pre-intervention time range, and Y2 is matched
   at each pre-intervention time point individually.}
 
 \item{match.covar}{Either a logical or a vector of variable names that
-indicates which covariates
-(i.e., time invariant variables) are to be used for weighting.  Weights are
+indicates which time invariant covariates
+are to be used for weighting.  Weights are
 calculated so that treatment and synthetic control exactly match across
 these variables.  If \code{match.covar = TRUE}, it is set equal to a vector
 of variable names corresponding to the time invariant variables that
@@ -117,7 +119,7 @@ appear in \code{data}.  If \code{match.covar = FALSE}, it is set to
 when calculating weights).}
 
 \item{match.out.min}{A vector or list of the same format as \code{match.out}
-that is used to specify additional time-variant outcome variables to match
+that is used to specify additional time-varying variables to match
 on, but which need not be matched exactly. Weights are calculated so the
 distance is minimized between treatment and synthetic control across these
 variables. If \code{match.out.min = NULL}, no outcome-based constraints
@@ -129,9 +131,10 @@ time invariant variables that are to be used for weighting, for which exact
 matches are not required. Weights are calculated so the distance is
 minimized between treatment and synthetic control across these variables.}
 
-\item{result.var}{A vector of variable names giving the (time variant) outcome
-variables for which results will be reported.  If \code{result.var = TRUE}
-(the default), \code{result.var} is set as being equal to all time variant
+\item{result.var}{A vector of variable names giving the outcome
+variables for which results will be reported.  Time-varying covariates
+should be excluded from \code{result.var}.  If \code{result.var = TRUE}
+(the default), \code{result.var} is set as being equal to all time-varying
 variables that appear in \code{data}.  If \code{result.var = NULL} or
 \code{result.var = FALSE}, results are not tabulated.}
 
@@ -259,8 +262,8 @@ as output, use \code{\link[graphics]{par}}.}
 }
 \value{
 \code{microsynth} returns a list with up to four elements: a)
-  \code{w}, b) \code{Results}, c) \code{svyglm.stats}, 
-  and c) \code{Plot.Stats}.  The fourth element is returned only if 
+  \code{w}, b) \code{Results}, c) \code{svyglm.stats},
+  and c) \code{Plot.Stats}.  The fourth element is returned only if
   \code{plot.var} is not \code{NULL} or \code{FALSE}.
 
   \code{w} is a list with five elements: a) \code{Weights}, b)
@@ -292,12 +295,12 @@ as output, use \code{\link[graphics]{par}}.}
   confidence intervals as found using Taylor series linearization (Linear),
   jackknife (jack), and permutation (perm) methods where needed.
 
-  In addition, \code{svyglm.stats} is a list where each element is a 
-  matrix that includes the output from the regression models run using the 
+  In addition, \code{svyglm.stats} is a list where each element is a
+  matrix that includes the output from the regression models run using the
   \code{svyglm()} function to estimate the treatment effect.  The list has one
   element for each value of \code{max.time}, and the matrices each have
   one row per variable in \code{result.var}.
-  
+
   Lastly, \code{Plot.Stats} contains the data that are displayed in the
   plots.  \code{Plot.Stats} is a list with four elements (Treatment, Control,
   All, Difference).  The first three elements are matrices with one row per
@@ -398,7 +401,7 @@ cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
 match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 # Perform matching and estimation, without permutations or jackknife
 sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
-       intvar='Intervention', start.time=1, int.time=NULL, max.time=16,
+       intvar='Intervention', start.time=1, int.time=12, max.time=16,
        match.out=match.out, match.covar=cov.var, result.var=match.out,
        omnibus.var=match.out, plot.var=match.out, test='lower')
 
@@ -425,7 +428,8 @@ match.out <- c('i_robbery','i_aggassau','i_burglary','i_larceny',
 # Perform matching, setting check.feas = T and use.backup = T
 # to ensure model feasibility
 sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
-        intvar='Intervention', match.out=match.out, match.covar=cov.var,
+        intvar='Intervention', int.time=12,
+        match.out=match.out, match.covar=cov.var,
         result.var=match.out, plot.var=match.out, perm=250, jack=TRUE,
         test='lower', check.feas=TRUE, use.backup = TRUE,
         plot.file=NULL, result.file='ExResults3.xlsx')
@@ -439,7 +443,8 @@ match.out <- list( 'i_robbery'=rep(2, 6), 'i_aggassau'=rep(2, 6),
 
 # After aggregation, use.backup and cheack.feas no longer needed
 sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
-         intvar='Intervention', match.out=match.out, match.covar=cov.var,
+         intvar='Intervention', int.time=12,
+         match.out=match.out, match.covar=cov.var,
          result.var=names(match.out), omnibus.var=names(match.out),
          plot.var=names(match.out), perm=250, jack = 0, test='lower',
          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
@@ -447,7 +452,8 @@ sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
 # Generate weights only (for four variables)
 match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
-         intvar='Intervention', match.out=match.out, match.covar=cov.var,
+         intvar='Intervention', int.time=12,
+         match.out=match.out, match.covar=cov.var,
          result.var=FALSE, plot.var=FALSE, perm=250, jack=TRUE)
 
 # View weights
@@ -455,12 +461,13 @@ summary(sea5)
 
 # Generate plots only using previous weights
 sea6 <- microsynth(seattledmi,  idvar='ID', timevar='time',
-          intvar='Intervention', result.var=FALSE, plot.var=match.out[1:2],
+          intvar='Intervention', int.time=12,
+          result.var=FALSE, plot.var=match.out[1:2],
           w=sea5$w)
 
 # Generate results only
 sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
-          intvar='Intervention', max.time=c(14, 16),
+          intvar='Intervention', int.time=12, max.time=c(14, 16),
           result.var=match.out, plot.var=FALSE, test='lower',
           w=sea5$w, result.file='ExResults7.xlsx')
 
@@ -478,7 +485,8 @@ seattledmi.one <- seattledmi[is.element(seattledmi$ID,
 
 # Apply microsynth to the new macro-level data
 sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
-           intvar='Intervention', match.out=match.out[4],
+           intvar='Intervention', int.time=12,
+           match.out=match.out[4],
            match.covar=cov.var, result.var=match.out[4],
            plot.var=match.out[4], test='lower', perm=250, jack=FALSE,
            check.feas=TRUE, use.backup=TRUE)
