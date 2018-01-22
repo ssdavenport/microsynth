@@ -1,12 +1,14 @@
+#' @title
 #' Synthetic control methods for micro- and meso-level data.
 #'
+#' @description
 #' Implements the synthetic control method for micro-level data as outlined in
 #' Robbins, Saunders, and Kilmer (2017).  \code{microsynth} is a generalization
 #' of \code{Synth} (see Abadie and Gardeazabal (2003) and Abadie, Diamond,
 #' Hainmueller (2010, 2011, 2014)) that is designed for data at a more granular
 #' level (e.g., micro-level). \code{microsynth} may also be used to calculate
 #' propensity score-type weights. For more details see the help vignette:
-#' \code{vignette('microsynth', package = 'microsynth')}
+#' \code{vignette('microsynth', package = 'microsynth')}.
 #'
 #' \code{microsynth} develops a synthetic control group by searching for weights
 #' that exactly match the treatment group to the synthetic control group across
@@ -15,6 +17,16 @@
 #' variables.  \code{microsynth} works in three primary steps: 1) calculation of
 #' weights, 2) plotting of treatment vs. synthetic control for pertinent
 #' outcomes, and 3) calculation of results.
+#'
+#' The time range over which data are observed is segmented into pre- and
+#' post-intervention periods.  Treatment is matched to synthetic control
+#' across the pre-intervention period, and the effect of the intervention
+#' is assessed across the post-intervention (or evaluation) period.  The input
+#' \code{end.pre} (which gives the last pre-intervention time period) is used to
+#' delineate between pre- and post-intervention.  Note that if the intervention
+#' is not believed to have an instantaneous effect, \code{end.pre} should indicate
+#' the time of the intervention.
+#'
 #' Variables are categorized as outcomes (which are time-variant) and covariates
 #' (which are time-invariant).  Using the respective inputs \code{match.covar}
 #' and \code{match.out}, the user specifies across which covariates and outcomes
@@ -29,7 +41,9 @@
 #' that the model specified by \code{match.covar} and \code{match.out} is not
 #' feasible (i.e., weights do not exist that exactly match treatment and
 #' synthetic control subject to the given constraints), a less restrictive
-#' backup model is used. \code{microsynth} has the capability to perform
+#' backup model is used.
+#'
+#' \code{microsynth} has the capability to perform
 #' statistical inference using Taylor series linearization, a jackknife and
 #' permutation methods.  Several sets of weights are calculated.  A set of main
 #' weights is calculated that is used to determine a point estimate of the
@@ -41,6 +55,7 @@
 #' are not easily matched based upon the model outlined in \code{match.covar}
 #' and \code{match.out} (i.e., an exact solution is infeasible or nearly
 #' infeasible), it is recommended that the jackknife not be used for inference.
+#'
 #' The software provides the user the option to create time series plots of
 #' outcomes for both the treatment and outcome groups during the pre- and
 #' post-intervention time periods and to output overall findings in an Excel
@@ -51,6 +66,7 @@
 #' noted above.  \code{microsynth} can also apply an omnibus test that examines
 #' the presence of a treatment effect jointly across several outcomes.
 #'
+#' @details
 #' \code{microsynth} requires specification of the following inputs:
 #' \code{data}, \code{idvar}, \code{intvar}.  \code{data} is a longitudinal data
 #' frame; \code{idvar} and \code{intvar} are character strings that specific
@@ -74,10 +90,10 @@
 #'   corresponds to the intervention variable.  The intervention variable
 #'   indicates which cases (and times) have received the intervention.  The
 #'   variable should be binary, with a 1 indicating treated and 0 indicating
-#'   untreated.  If \code{int.time}
+#'   untreated.  If \code{end.pre}
 #'   is specified, a case is considered treated if there is 1 or more non-zero
 #'   entries in the column indicated by \code{intvar} for that case (at any time
-#'   point).  If \code{int.time} is not specified, an attempt will be made to
+#'   point).  If \code{end.pre} is not specified, an attempt will be made to
 #'   use\code{intvar} to determine which time periods will be considered
 #'   post-intervention (i.e., the times contained in the evalution period).
 #'   In this case, the evaluation period is considered to begin at the time of
@@ -93,24 +109,25 @@
 #'   scratch.  Entering a \code{non-NULL} value affords the user the ability to
 #'   use previously calculated  weights.
 #'
-#' @param int.time An integer that gives the final time point at
-#'   which treatment and synthetic control will be matched to one another.  That
-#'   is, \code{int.time} indicates the time period immediately preceeding
-#'   the start of the evaluation period.  All time points
-#'   following \code{int.time} are considered to be post-intervention and the
+#' @param end.pre An integer that gives the final time point of the
+#'   pre-intervention period.  That is, \code{end.pre} is the last time at
+#'   which treatment and synthetic control will be matched to one another.
+#'   All time points
+#'   following \code{end.pre} are considered to be post-intervention and the
 #'   behavior of outcomes will be compared between the treatment and synthetic
 #'   control groups across those time periods.
-#'   Setting \code{int.time = NULL} will begin the evaluation period at the time
+#'   Setting \code{end.pre = NULL} will begin the post-intervention period
+#'   at the time
 #'   that corresponds to the first non-zero entry in the column indicated by
 #'   \code{intvar}.
 #'
-#' @param max.time An integer that gives the maximum post-intervention time that
+#' @param end.post An integer that gives the maximum post-intervention time that
 #'   is taken into when compiling results.  That is, the treatment and synthetic
 #'   control groups are compared across the outcomes listed in \code{result.var}
-#'   from the first time following the intervention up to \code{max.time}.  Can
+#'   from the first time following the intervention up to \code{end.post}.  Can
 #'   be a vector (ordered, increasing) giving multiple values of
-#'   \code{max.time}.  In this case, the results will be compiled for each entry
-#'   in \code{max.time}.  When \code{max.time = NULL} (the default), it is reset
+#'   \code{end.post}.  In this case, the results will be compiled for each entry
+#'   in \code{end.post}.  When \code{end.post = NULL} (the default), it is reset
 #'   to the maximum time that appears in the column given by \code{timevar}.
 #'
 #' @param match.out Either A) logical, B) a vector of variable names that
@@ -126,7 +143,7 @@
 #'   \code{match.out} is passed a vector of variable
 #'   names, then weights are calculated to match treatment and synthetic control
 #'   for the value of each variable that appears in \code{match.out} at each
-#'   time point from \code{start.time} to \code{int.time}. Otherwise, to allow
+#'   time point from \code{start.pre} to \code{end.pre}. Otherwise, to allow
 #'   more flexibility, \code{match.out} may also be a list that gives
 #'   an outcome-based model outlining more specific constraints that are to be
 #'   exactly satisfied within calibration weighting.  In this case, each entry
@@ -134,15 +151,15 @@
 #'   \code{match.out} are the outcome variables to which the vectors correspond.
 #'   Each element of the vectors gives a number of time points that are to be
 #'   aggregated for the respective outcome, with the first element indicating
-#'   time points immediately prior the beginning of the (post-intervention)
-#'   evaluation period.  The sum of
+#'   time points immediately prior the beginning of the post-intervention
+#'   period.  The sum of
 #'   the elements in each vector should not exceed the number of
 #'   pre-intervention time periods in the data.
 #'
 #'   The following examples show the proper formatting of \code{match.out} as a
 #'   list.  Assume that there are two outcomes, Y1 and Y2 (across which
-#'   treatment is to be matched to synthetic control), and \code{int.time = 10}
-#'   (i.e., the post-intervention evaluation period begins at time 11).
+#'   treatment is to be matched to synthetic control), and \code{end.pre = 10}
+#'   (i.e., the post-intervention period begins at time 11).
 #'   Let \code{match.out = list('Y1' = c(1, 3, 3), 'Y2'=
 #'   c(2,5,1))}.  According to this specification, treatment is to be matched to
 #'   synthetic control across: a) The value of Y1 at time 10; b) the sum of Y1
@@ -243,13 +260,13 @@
 #'   \code{'lower'}, \code{'upper'}, and \code{'twosided'} are recognized.
 #' @param result.file A character string giving the name of a file that will be
 #'   created in the home directory containing results.  If \code{result.file =
-#'   NULL} (the default), no file is created.  If \code{max.time} has length 1,
-#'   a \code{.csv} file is created.  If \code{max.time} has length greater than
+#'   NULL} (the default), no file is created.  If \code{end.post} has length 1,
+#'   a \code{.csv} file is created.  If \code{end.post} has length greater than
 #'   one, a formatted \code{.xlsx} file is created with one tab for each element
-#'   of \code{max.time}.  If \code{result.file} has a \code{.xlsx} (or
+#'   of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
 #'   \code{.xls}) extension (e.g., the last five characters of result.file are
 #'   '.xlsx'), an \code{.xlsx} file is created regardless of the length of
-#'   \code{max.time}.
+#'   \code{end.post}.
 #' @param use.survey If \code{use.survey = TRUE}, Taylor series linearization is
 #'   applied to the estimated treatment effect within each permutation group.
 #'   Setting \code{use.survey = TRUE} makes for better inference but increases
@@ -266,11 +283,12 @@
 #'   created in the home directory containing plots (if \code{plot.var} is
 #'   non-\code{NULL}).  The name should have a \code{.pdf} extension.
 #'
-#' @param start.time An integer indicating the earliest time shown in the plots;
-#'   if match.out and match.out.min are provided a vector of variable names, it
-#'   will also determine the beginning of the pre-intervention period used for
-#'   matching. When \code{start.time = NULL} (default), it is reset to the
-#'   minimum time appearing in the column given by \code{timevar}.
+#' @param start.pre An integer indicating the time point that corresponds to the
+#'   beginning of the pre-intervention period used for
+#'   matching.  When \code{start.pre = NULL} (default), it is reset to the
+#'   minimum time appearing in the column given by \code{timevar}.  If
+#'   \code{match.out} (and \code{match.out.min}) are given in list format,
+#'   \code{start.pre} is ignored except for plotting.
 #'
 #' @param sep If \code{sep = TRUE}, separate plots will be generated for each
 #'   outcome.  Applicable only if plotting variables are specified (
@@ -335,7 +353,7 @@
 #'   printed by microsynth while weights are being calculated.
 #'
 #'   Further, \code{Results} is a list where each element gives the final
-#'   results for each value of \code{max.time}.  Each element of \code{Results}
+#'   results for each value of \code{end.post}.  Each element of \code{Results}
 #'   is itself a matrix with each row corresponding to an outcome variable (and
 #'   a row for the omnibus test, if used) and each column denotes estimates of
 #'   the intervention effects and p-values, upper, and lower bounds of
@@ -345,7 +363,7 @@
 #'   In addition, \code{svyglm.stats} is a list where each element is a
 #'   matrix that includes the output from the regression models run using the
 #'   \code{svyglm()} function to estimate the treatment effect.  The list has one
-#'   element for each value of \code{max.time}, and the matrices each have
+#'   element for each value of \code{end.post}, and the matrices each have
 #'   one row per variable in \code{result.var}.
 #'
 #'   Lastly, \code{Plot.Stats} contains the data that are displayed in the
@@ -399,7 +417,7 @@
 
 #' # Perform matching and estimation, without permutations or jackknife
 #' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'        intvar='Intervention', start.time=1, int.time=12, max.time=16,
+#'        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
 #'        match.out=match.out, match.covar=cov.var, result.var=match.out,
 #'        omnibus.var=match.out, plot.var=match.out, test='lower')
 #'
@@ -410,7 +428,7 @@
 #' # Set permutations and jack-knife to very few groups (2) for
 #' # quick demonstration only.
 #' sea2 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'         intvar='Intervention', start.time=1, int.time=12, max.time=c(14, 16),
+#'         intvar='Intervention', start.pre=1, end.pre=12, end.post=c(14, 16),
 #'         match.out=match.out, match.covar=cov.var, result.var=match.out,
 #'         omnibus.var=match.out, plot.var=match.out, test='lower', perm=250,
 #'         jack=TRUE, plot.file=NULL, sep = TRUE, result.file='ExResults2.xlsx')
@@ -426,8 +444,7 @@
 #' # Perform matching, setting check.feas = T and use.backup = T
 #' # to ensure model feasibility
 #' sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'         intvar='Intervention', int.time=12,
-#'         match.out=match.out, match.covar=cov.var,
+#'         intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'         result.var=match.out, plot.var=match.out, perm=250, jack=TRUE,
 #'         test='lower', check.feas=TRUE, use.backup = TRUE,
 #'         plot.file=NULL, result.file='ExResults3.xlsx')
@@ -441,8 +458,7 @@
 #'
 #' # After aggregation, use.backup and cheack.feas no longer needed
 #' sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'          intvar='Intervention', int.time=12,
-#'          match.out=match.out, match.covar=cov.var,
+#'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
 #'          plot.var=names(match.out), perm=250, jack = 0, test='lower',
 #'          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
@@ -450,8 +466,7 @@
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
-#'          intvar='Intervention', int.time=12,
-#'          match.out=match.out, match.covar=cov.var,
+#'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          result.var=FALSE, plot.var=FALSE, perm=250, jack=TRUE)
 #'
 #' # View weights
@@ -459,13 +474,12 @@
 #'
 #' # Generate plots only using previous weights
 #' sea6 <- microsynth(seattledmi,  idvar='ID', timevar='time',
-#'           intvar='Intervention', int.time=12,
-#'           result.var=FALSE, plot.var=match.out[1:2],
+#'           intvar='Intervention', result.var=FALSE, plot.var=match.out[1:2],
 #'           w=sea5$w)
 #'
 #' # Generate results only
 #' sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'           intvar='Intervention', int.time=12, max.time=c(14, 16),
+#'           intvar='Intervention', end.post=c(14, 16),
 #'           result.var=match.out, plot.var=FALSE, test='lower',
 #'           w=sea5$w, result.file='ExResults7.xlsx')
 #'
@@ -483,8 +497,7 @@
 #'
 #' # Apply microsynth to the new macro-level data
 #' sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
-#'            intvar='Intervention', int.time=12,
-#'            match.out=match.out[4],
+#'            intvar='Intervention', match.out=match.out[4],
 #'            match.covar=cov.var, result.var=match.out[4],
 #'            plot.var=match.out[4], test='lower', perm=250, jack=FALSE,
 #'            check.feas=TRUE, use.backup=TRUE)
@@ -505,8 +518,8 @@
 #'
 #' @export
 
-microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
-                        int.time = NULL, max.time = NULL, match.out = TRUE, match.covar = TRUE,
+microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
+                        end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE,
                         match.out.min = NULL, match.covar.min = NULL, result.var = TRUE,
                         omnibus.var = result.var, plot.var = TRUE, period = 1, scale.var = "Intercept",
                         confidence = 0.9, test = "twosided", perm = 0, jack = 0,
@@ -523,20 +536,20 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
     else {
       data$Time <- 1
       timevar <- "Time"
-      int.time <- 1
+      end.pre <- 1
     }
   }
   time.tmp <- data[,timevar]
   time.names <- names(table(time.tmp))
   data[,timevar] <- match(as.character(time.tmp), time.names)
-  if (length(start.time) > 0 & !is.logical(start.time)) {
-    start.time <- match(as.character(start.time), time.names)
+  if (length(start.pre) > 0 & !is.logical(start.pre)) {
+    start.pre <- match(as.character(start.pre), time.names)
   }
-  if (length(int.time) > 0) {
-    int.time <- match(as.character(int.time), time.names)
+  if (length(end.pre) > 0) {
+    end.pre <- match(as.character(end.pre), time.names)
   }
-  if (length(max.time) > 0 & !is.logical(max.time)) {
-    max.time <- match(as.character(max.time), time.names)
+  if (length(end.post) > 0 & !is.logical(end.post)) {
+    end.post <- match(as.character(end.post), time.names)
   }
   twosided <- TRUE
   if (test == "lower" | test == "upper") {
@@ -673,25 +686,25 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
   Intervention <- data[[2]]
   data <- data[[1]]
   times <- as.numeric(colnames(Intervention))
-  if (length(int.time) == 0) {
+  if (length(end.pre) == 0) {
     eval.times <- which(colSums(Intervention) != 0)
     if (length(eval.times) == 0) {
       stop("There are no intervention cases.\n")
     }
-    int.time <- min(eval.times) - 1
-    if (int.time == 0) {
+    end.pre <- min(eval.times) - 1
+    if (end.pre == 0) {
       stop("There are no pre-intervention time points.")
     }
-    int.time <- times[int.time]
-    message("Setting int.time = ", time.names[int.time], ".\n\n", sep = "",
+    end.pre <- times[end.pre]
+    message("Setting end.pre = ", time.names[end.pre], ".\n\n", sep = "",
             appendLF = FALSE)
   }
   Intervention[] <- as.integer(rowSums(Intervention) != 0)
-  if (length(start.time) == 0) {
-    start.time <- min(times)
+  if (length(start.pre) == 0) {
+    start.pre <- min(times)
   }
-  if (length(max.time) == 0) {
-    max.time <- max(times)
+  if (length(end.post) == 0) {
+    end.post <- max(times)
   }
   if (length(match.out) == 0) {
     match.out <- result.var
@@ -705,12 +718,12 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
     match.out.tmp <- match.out
     match.out <- list()
     for (i in 1:length(match.out.tmp)) {
-      match.out[[i]] <- rep(period, (int.time - start.time +
+      match.out[[i]] <- rep(period, (end.pre - start.pre +
                                        1)%/%period)
     }
     names(match.out) <- match.out.tmp
   } else if (length(match.out) > 0) {
-    match.out <- check.matchout(match.out, int.time - min(times) + 1)
+    match.out <- check.matchout(match.out, end.pre - min(times) + 1)
     if (match.out[[2]]) {
       message("WARNING: match.out calls on time periods that are beyond the data range.\n",
               sep ="", appendLF = FALSE)
@@ -722,12 +735,12 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
     match.out.tmp1 <- match.out.min
     match.out.min <- list()
     for (i in 1:length(match.out.tmp1)) {
-      match.out.min[[i]] <- rep(period, (int.time - start.time +
+      match.out.min[[i]] <- rep(period, (end.pre - start.pre +
                                            1)%/%period)
     }
     names(match.out.min) <- match.out.tmp1
   } else if (length(match.out.min) > 0) {
-    match.out.min <- check.matchout(match.out.min, int.time - min(times) + 1)
+    match.out.min <- check.matchout(match.out.min, end.pre - min(times) + 1)
     if (match.out.min[[2]]) {
       message("WARNING: match.out.min calls on time periods that are beyond the data range. \n",
               sep ="", appendLF = FALSE)
@@ -756,8 +769,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
   int.num <- 1
   dum <- max(colSums(Intervention == 1))
   dum <- min(NROW(Intervention) - dum, dum)
-  dum1 <- ((max(max.time) - (max(max.time) - int.time)%%period -
-              int.time)/period)
+  dum1 <- ((max(end.post) - (max(end.post) - end.pre)%%period -
+              end.pre)/period)
   if (dum <= dum1 + 1) {
     message("WARNING: There is a low number (", dum, ") of cases in the treatment or intervention group.\n",
             sep = "", appendLF = FALSE)
@@ -823,8 +836,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
     message("Calculating weights...", "\n", appendLF = FALSE)
     w <- get.w(data, match.covar, match.covar.min, match.out,
                match.out.min, boot = perm, jack = jack, Int = Intervention[,
-                                                                           as.character(int.time)], int.val = int.num, trim = NULL,
-               int.time = int.time, cal.epsilon = cal.epsilon, maxit = maxit,
+                                                                           as.character(end.pre)], int.val = int.num, trim = NULL,
+               end.pre = end.pre, cal.epsilon = cal.epsilon, maxit = maxit,
                bounds = bounds, calfun = calfun, check.feas = check.feas,
                scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup, time.names = time.names)
     tmp <- proc.time() - tmp
@@ -868,7 +881,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
   else {
     plot.var <- intersect(plot.var, dimnames(data)[[2]])
   }
-  max.time <- max.time - (max.time - int.time)%%period
+  end.post <- end.post - (end.post - end.pre)%%period
   if (length(plot.var) > 0 & length(times) == 1) {
     plot.var <- NULL
     message("There is only one time point in the data.\n            Will not generate plots.\n\n",
@@ -882,7 +895,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
     dof <- list()
     out.coefs <- list()
     results <- list()
-    for (i in 1:length(max.time)) {
+    for (i in 1:length(end.post)) {
       tmp <- proc.time()
       is.graph <- is.graph1 <- ""
       if (!reset.plot.var & !reset.result.var) {
@@ -897,20 +910,20 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
         is.graph <- "Making graphs"
         is.graph1 <- "Completed graphs"
       }
-      message(is.graph, " for max.time = ", time.names[max.time[i]],
+      message(is.graph, " for end.post = ", time.names[end.post[i]],
               "...", "\n", sep = "", appendLF = FALSE)
       stats[[i]] <- get.stats(data, w$Weights, w$Intervention,
-                              w$MSE[1, ], result.var, int.time = int.time,
-                              period = period, plot.it = plot.var, max.time = max.time[i],
+                              w$MSE[1, ], result.var, end.pre = end.pre,
+                              period = period, plot.it = plot.var, end.post = end.post[i],
                               file = plot.file, omnibus.var = omnibus.var,
-                              sep = sep, start.time = start.time, legend.spot = legend.spot,
+                              sep = sep, start.pre = start.pre, legend.spot = legend.spot,
                               cut.mse = cut.mse, twosided = twosided, time.names = time.names)
-      if (i == which.max(max.time)) {
+      if (i == which.max(end.post)) {
         plot.stats <- stats[[i]][[5]]
       }
       stats[[i]] <- stats[[i]][-5]
       tmp <- proc.time() - tmp
-      message(is.graph1, " for max.time = ", time.names[max.time[i]],
+      message(is.graph1, " for end.post = ", time.names[end.post[i]],
               ".  Time = ", round(tmp[3], 2), "\n\n", sep = "",
               appendLF = FALSE)
       if (!reset.result.var) {
@@ -924,11 +937,11 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
           mse.tmp <- mse.tmp[keep.surv]
         }
         tmp <- proc.time()
-        message("Calculating survey statistics for max.time = ",
-                time.names[max.time[i]], "...", "\n", sep = "", appendLF = FALSE)
+        message("Calculating survey statistics for end.post = ",
+                time.names[end.post[i]], "...", "\n", sep = "", appendLF = FALSE)
         stats.tmp <- get.stats1(data, w.tmp, Inter.tmp,
-                                mse.tmp, result.var, int.time = int.time, period = period,
-                                max.time = max.time[i], omnibus.var = omnibus.var,
+                                mse.tmp, result.var, end.pre = end.pre, period = period,
+                                end.post = end.post[i], omnibus.var = omnibus.var,
                                 cut.mse = cut.mse, twosided = twosided)
         stats1[[i]] <- stats.tmp[[1]]
         stats2[[i]] <- stats.tmp[[2]]
@@ -936,8 +949,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
         dof[[i]] <- stats.tmp[[4]]
         out.coefs[[i]] <- stats.tmp[[5]]
         tmp <- proc.time() - tmp
-        message("Completed calculation of survey statistics for max.time = ",
-                time.names[max.time[i]], ".  Time = ", round(tmp[3], 2),
+        message("Completed calculation of survey statistics for end.post = ",
+                time.names[end.post[i]], ".  Time = ", round(tmp[3], 2),
                 "\n\n", sep = "", appendLF = FALSE)
         Pct.Chng <- cbind(Pct.Chng = stats[[i]][[2]][1,
                                                      ])
@@ -1048,7 +1061,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
         if (NROW(results[[i]]) == 1) {
           rownames(results[[i]]) <- result.var[1]
         }
-        names(results)[i] <- names(out.coefs)[i] <- time.names[max.time[i]]
+        names(results)[i] <- names(out.coefs)[i] <- time.names[end.post[i]]
       }
     }
   }
@@ -1094,7 +1107,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
     i <- i + 4
   }
   if (length(result.file) > 0 & !reset.result.var) {
-    out.results(results, int.time, max.time = names(results), result.file)
+    out.results(results, end.pre, end.post = names(results), result.file)
   }
   all.tmp <- proc.time() - all.tmp
   message("microsynth complete: Overall time = ", round(all.tmp[3],
@@ -1155,7 +1168,7 @@ make.ci2 <- function(stats, delta.out, alpha = 0.05) {
 
 get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
                    boot = 0, jack = 0, Int, int.val = 1, trim = NULL, maxit = 500,
-                   cal.epsilon = 1e-04, int.time, bounds = c(-Inf, Inf), calfun = "raking",
+                   cal.epsilon = 1e-04, end.pre, bounds = c(-Inf, Inf), calfun = "raking",
                    qpmeth = "LowRankQP", check.feas = FALSE, use.backup = TRUE,
                    scale.var = "Intercept", cut.mse = 1, time.names = NULL)
 {
@@ -1188,7 +1201,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
     message("Checking feasibility of first model...", "\n",
             sep = "", appendLF = FALSE)
     is.sol <- is.feasible(bigdat, covar.var, dum, Int = Int,
-                          int.val = int.val, int.time = int.time, eps = 1e-04)
+                          int.val = int.val, end.pre = end.pre, eps = 1e-04)
     tmp <- proc.time() - tmp
     if (!is.sol) {
       use.model <- 2
@@ -1199,7 +1212,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       message("Checking feasibility of second model...",
               "\n", sep = "", appendLF = FALSE)
       is.sol <- is.feasible(bigdat, covar.var, dum.tmp[[1]],
-                            Int = Int, int.val = int.val, int.time = int.time,
+                            Int = Int, int.val = int.val, end.pre = end.pre,
                             eps = 1e-04)
       tmp <- proc.time() - tmp
       if (!is.sol) {
@@ -1220,19 +1233,19 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
     }
   }
   newdat <- get.newdat(bigdat, dum = dum, dum1 = dum1, covar.var = covar.var,
-                       covar.var1 = covar.var1, int.time = int.time, time.names = time.names)
+                       covar.var1 = covar.var1, end.pre = end.pre, time.names = time.names)
   newdat1 <- newdat[[2]]
   newdat <- newdat[[1]]
   duma <- merge.dums(dum, dum1)
   newdata <- get.newdat(bigdat, dum = duma[[1]], dum1 = duma[[2]], covar.var = covar.var,
-                        covar.var1 = covar.var1, int.time = int.time, time.names = time.names)
+                        covar.var1 = covar.var1, end.pre = end.pre, time.names = time.names)
   newdat1a <- newdata[[2]]
   newdata <- newdata[[1]]
   dumb <- merge.dums(duma[[1]], duma[[2]])
   covar.var1b <- union(covar.var, covar.var1)
   covar.varb <- NULL
   newdatb <- get.newdat(bigdat, dum = dumb[[1]], dum1 = dumb[[2]], covar.var = covar.varb,
-                        covar.var1 = covar.var1b, int.time = int.time, time.names = time.names)
+                        covar.var1 = covar.var1b, end.pre = end.pre, time.names = time.names)
   newdat1b <- newdatb[[2]]
   newdatb <- newdatb[[1]]
   colnam <- "Main"
@@ -1299,7 +1312,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
     if (use.model.i == 1) {
       mod[i] <- "First"
       ws <- get.w.sub(newdat = newdat, newdat1 = newdat1,
-                      int.time = int.time, samp = samp, use = use,
+                      end.pre = end.pre, samp = samp, use = use,
                       n = NROW(newdat), maxit = maxit, calfun = calfun,
                       bounds = bounds, epsilon = cal.epsilon, trim = trim,
                       qpmeth = qpmeth, scale.var = scale.var)
@@ -1328,7 +1341,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
     if (use.model.i == 2 & use.backup) {
       mod[i] <- "Second"
       ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a,
-                      int.time = int.time, samp = samp, use = use,
+                      end.pre = end.pre, samp = samp, use = use,
                       n = NROW(newdat), maxit = maxit, calfun = calfun,
                       bounds = bounds, epsilon = cal.epsilon, trim = trim,
                       qpmeth = qpmeth, scale.var = scale.var)
@@ -1353,7 +1366,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
     if (use.model.i == 3 & use.backup) {
       mod[i] <- "Third"
       ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b,
-                      int.time = int.time, samp = samp, use = use,
+                      end.pre = end.pre, samp = samp, use = use,
                       n = NROW(newdat), maxit = maxit, calfun = calfun,
                       bounds = bounds, epsilon = cal.epsilon, trim = trim,
                       qpmeth = qpmeth, scale.var = scale.var)
@@ -1491,12 +1504,12 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
 
 
 get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL,
-                      int.time, samp, use, n = NROW(newdat), maxit = 500, calfun = "raking", bounds = c(-Inf, Inf), epsilon = 1e-04, trim = NULL, qpmeth = "LowRankQP",
+                      end.pre, samp, use, n = NROW(newdat), maxit = 500, calfun = "raking", bounds = c(-Inf, Inf), epsilon = 1e-04, trim = NULL, qpmeth = "LowRankQP",
                       scale.var = "Intercept") {
   tmp <- proc.time()
 
   if (length(newdat) == 0) {
-    newdat <- get.newdat(bigdat = bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1, int.time = int.time)
+    newdat <- get.newdat(bigdat = bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1, end.pre = end.pre)
     newdat1 <- newdat[[2]]
     newdat <- newdat[[1]]
   }
@@ -1583,7 +1596,7 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
 }
 
 
-get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL, int.time, time.names = NULL) {
+get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL, end.pre, time.names = NULL) {
   n <- dim(bigdat)[1]
 
   if (length(time.names) == 0) {
@@ -1596,8 +1609,8 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
   if (length(result.var) > 0) {
     for (j in 1:length(result.var)) {
       dum.tmp <- dum[[j]]
-      high <- int.time
-      low <- int.time
+      high <- end.pre
+      low <- end.pre
       i <- 0
       while (low > 0 & i < length(dum.tmp)) {
         i <- i + 1
@@ -1651,8 +1664,8 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
     result.var1 <- names(dum1)
     for (j in 1:length(result.var1)) {
       dum.tmp <- dum1[[j]]
-      high <- int.time
-      low <- int.time
+      high <- end.pre
+      low <- end.pre
       i <- 0
       while (low > 0 & i < length(dum.tmp)) {
         i <- i + 1
@@ -1707,8 +1720,8 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
 
 
 get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
-                       int.time, period = 1, plot.it = result.var, max.time = 80,
-                       plot.first = 100, file = NULL, sep = TRUE, start.time = 25,
+                       end.pre, period = 1, plot.it = result.var, end.post = 80,
+                       plot.first = 100, file = NULL, sep = TRUE, start.pre = 25,
                        legend.spot = "bottomleft", omnibus.var = result.var, cut.mse = 1,
                        scale.var = "Intercept", twosided = FALSE, time.names = NULL)
 {
@@ -1730,7 +1743,7 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
   else {
     colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var)
   }
-  bigdat1 <- make.quarter3(bigdat, period = period, int.time = int.time)
+  bigdat1 <- make.quarter3(bigdat, period = period, end.pre = end.pre)
   keep <- mse < cut.mse & !is.na(mse)
   keep[1] <- TRUE
   synth <- list()
@@ -1761,17 +1774,17 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
     }
     if (i == 1) {
       xnams <- as.numeric(colnames(test1))
-      tuse <- xnams <= max.time & xnams >= start.time
-      use <- xnams <= int.time
-      nuse <- xnams >= int.time
-      if (max.time > int.time) {
-        fuse <- !use & xnams <= max.time
+      tuse <- xnams <= end.post & xnams >= start.pre
+      use <- xnams <= end.pre
+      nuse <- xnams >= end.pre
+      if (end.post > end.pre) {
+        fuse <- !use & xnams <= end.post
       }
-      else if (max.time == int.time) {
-        fuse <- xnams >= int.time & xnams <= max.time
+      else if (end.post == end.pre) {
+        fuse <- xnams >= end.pre & xnams <= end.post
       }
       else {
-        stop("max.time is less than int.time")
+        stop("end.post is less than end.pre")
       }
       if (length(plot.it) > 0) {
         no.jack <- which(!grepl("Jack", colnames(w)))
@@ -1873,19 +1886,19 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
           xxnams1 <- as.numeric(as.character(time.names[xnams[tuse]]))
           xxnams2 <- as.numeric(as.character(time.names[xnams[tuse & use]]))
           xxnams3 <- as.numeric(as.character(time.names[xnams[tuse & nuse]]))
-          iint.time <- as.numeric(as.character(time.names[int.time]))
+          iend.pre <- as.numeric(as.character(time.names[end.pre]))
           if (sum(is.na(xxnams1)) > 0) {
             xxnams1 <- xnams[tuse]
             xxnams2 <- xnams[tuse & use]
             xxnams3 <- xnams[tuse & nuse]
-            iint.time <- int.time
+            iend.pre <- end.pre
           }
           xlim <- c(min(xxnams1), max(xxnams1))
           graphics::plot(xxnams1, tmp1[tuse], type = "l",
                          lty = lty[1], col = col[1], lwd = lwd[1],
                          xlim = xlim, xlab = "", ylab = ylab1, main = main,
                          ylim = ylim)
-          graphics::abline(v = iint.time, lty = 2, col = 2)
+          graphics::abline(v = iend.pre, lty = 2, col = 2)
           graphics::lines(xxnams1, tmp2[tuse], type = "l",
                           lty = lty[2], col = col[2], lwd = lwd[2])
           graphics::lines(xxnams1, tmp3[tuse], type = "l",
@@ -1938,7 +1951,7 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
                                          use], lty = 1, col = 1, lwd = 2)
           graphics::lines(xxnams3, tmp[tuse &
                                          nuse], col = 2, lwd = 2)
-          graphics::abline(v = iint.time, col = 2, lwd = 1,
+          graphics::abline(v = iend.pre, col = 2, lwd = 1,
                            lty = 2)
           graphics::abline(h = 0, lwd = 1, lty = 2)
           if (sep & length(file) > 0) {
@@ -1960,7 +1973,7 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
 }
 
 
-get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max.time = 80, mfrow = c(1, 3), plot.first = 100, omnibus.var = NULL,
+get.stats1 <- function(bigdat, w, inter, mse, all.var, end.pre, period = 1, end.post = 80, mfrow = c(1, 3), plot.first = 100, omnibus.var = NULL,
                        cut.mse = 1, G = 25, twosided = FALSE) {
   use.omnibus <- length(omnibus.var) > 0
   dof <- NA
@@ -2023,13 +2036,13 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
     is.tre <- is.tre[use]
 
     if (i == 1) {
-      test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, period = period, int.time = int.time)
-      if (max.time > int.time) {
-        use.test <- test[, 1] > int.time & test[, 1] <= max.time
-      } else if (max.time == int.time) {
-        use.test <- test[, 1] >= int.time & test[, 1] <= max.time
+      test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, period = period, end.pre = end.pre)
+      if (end.post > end.pre) {
+        use.test <- test[, 1] > end.pre & test[, 1] <= end.post
+      } else if (end.post == end.pre) {
+        use.test <- test[, 1] >= end.pre & test[, 1] <= end.post
       } else {
-        stop("max.time is less than int.time")
+        stop("end.post is less than end.pre")
       }
       time <- test[use.test, 1, drop = FALSE]
       time.tmp <- length(table(time))
@@ -2042,7 +2055,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
     } else if (is.jack) {
       w.tmp <- w.tmp1
       treat <- treat1
-      remain <- int.time%%period
+      remain <- end.pre%%period
       newcol <- (dim(bigdat)[3] - remain)%/%period
       time.tmp <- time.tmp1
       w.jack.tmp <- do.call("rbind", rep(list(w.jack), newcol))
@@ -2050,7 +2063,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, int.time, period = 1, max
       w.jack.tmp[is.na(w.jack.tmp)] <- 0
       G.tmp <- NCOL(w.jack.tmp)
     } else {
-      remain <- int.time%%period
+      remain <- end.pre%%period
       newcol <- (dim(bigdat)[3] - remain)%/%period
       time.tmp <- time.tmp1
       w.tmp <- rep(w.tmp, newcol)
@@ -2383,12 +2396,12 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
 }
 
 
-make.quarter2 <- function(dat, tre, w, period = 1, int.time) {
+make.quarter2 <- function(dat, tre, w, period = 1, end.pre) {
   n <- dim(dat)[1]
   p <- dim(dat)[2]
   q <- dim(dat)[3]
   add.back <- min(as.numeric(dimnames(dat)[[3]]))
-  remain <- int.time%%period
+  remain <- end.pre%%period
   newcol <- (q - remain)%/%period
   times <- period * (1:newcol) + remain
   times <- times + add.back - 1
@@ -2411,13 +2424,13 @@ make.quarter2 <- function(dat, tre, w, period = 1, int.time) {
 }
 
 
-make.quarter3 <- function(dat, period = 1, int.time) {
+make.quarter3 <- function(dat, period = 1, end.pre) {
   n <- dim(dat)[1]
   p <- dim(dat)[2]
   q <- dim(dat)[3]
   add.back <- min(as.numeric(dimnames(dat)[[3]]))
 
-  remain <- int.time%%period
+  remain <- end.pre%%period
   newcol <- (q - remain)%/%period
   times <- period * (1:newcol) + remain
   times <- times + add.back - 1
@@ -2472,13 +2485,13 @@ iso.nam <- function(a, sep = "-") {
 }
 
 
-out.results <- function(results, int.time, max.time = names(results), file = NULL) {
-  use.xlsx <- length(max.time) > 1
+out.results <- function(results, end.pre, end.post = names(results), file = NULL) {
+  use.xlsx <- length(end.post) > 1
 
   if (substr(file, nchar(file) - 3, nchar(file)) == ".csv") {
     file <- substr(file, 1, nchar(file) - 4)
     if (use.xlsx) {
-      message("WARNING: Cannot return .csv file since length(max.time) > 1.  Returning .xlsx file instead.\n",
+      message("WARNING: Cannot return .csv file since length(end.post) > 1.  Returning .xlsx file instead.\n",
               sep = "", appendLF=FALSE)
     }
   } else if (substr(file, nchar(file) - 3, nchar(file)) == ".xls") {
@@ -2499,13 +2512,13 @@ out.results <- function(results, int.time, max.time = names(results), file = NUL
     if (!xlsx.loaded) {
       attachNamespace("xlsx")
     }
-    max.time <- as.numeric(max.time)
+    end.post <- as.numeric(end.post)
     wb <- xlsx::createWorkbook()
     cspValColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0000"))
     csOtherColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.00"))
     csPercColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0%"))
 
-    for (i in 1:length(max.time)) {
+    for (i in 1:length(end.post)) {
       out <- results[[i]]
       keep <- rowMeans(is.na(out)) < 1
       out <- out[keep, , drop = FALSE]
@@ -2529,7 +2542,7 @@ out.results <- function(results, int.time, max.time = names(results), file = NUL
       p <- NCOL(out)
       n <- NROW(out)
 
-      nam <- paste("Max time = ", max.time[i], sep = "")
+      nam <- paste("Max time = ", end.post[i], sep = "")
       sheet <- xlsx::createSheet(wb, sheetName = nam)
       xlsx::setColumnWidth(sheet, colIndex = 1:(p + 1), colWidth = 13)
       xlsx::addDataFrame(out, sheet, colStyle = c(pct.list, pval.list, oth.list))
@@ -2614,10 +2627,10 @@ merge.dums <- function(dum, dum1) {
 }
 
 
-is.feasible <- function(bigdat, covar.var, dum, Int, int.val = 1, int.time, eps = 0.001) {
+is.feasible <- function(bigdat, covar.var, dum, Int, int.val = 1, end.pre, eps = 0.001) {
   n <- dim(bigdat)[1]
 
-  newdat <- get.newdat(bigdat, dum = dum, covar.var = covar.var, int.time = int.time)[[1]]
+  newdat <- get.newdat(bigdat, dum = dum, covar.var = covar.var, end.pre = end.pre)[[1]]
 
   intdat <- newdat[Int == int.val, ]
   condat <- newdat[Int != int.val, ]
@@ -2828,17 +2841,17 @@ remove.vars <- function(vars, nams, objnam = "result.var") {
   return(vars)
 }
 
-check.matchout <- function (match.out, int.time) {
+check.matchout <- function (match.out, end.pre) {
   bad <- FALSE
   for (i in 1:length(match.out)) {
     tmp <- match.out[[i]]
-    if (int.time < sum(tmp)) {
+    if (end.pre < sum(tmp)) {
       bad <- TRUE
       cum.tmp <- cumsum(tmp)
-      cum.tmp <- cum.tmp <= int.time
+      cum.tmp <- cum.tmp <= end.pre
       match.out[[i]] <- c(tmp[cum.tmp])
-      if (int.time - sum(tmp[cum.tmp]) > 0) {
-        match.out[[i]] <- c(match.out[[i]], int.time - sum(tmp[cum.tmp]))
+      if (end.pre - sum(tmp[cum.tmp]) > 0) {
+        match.out[[i]] <- c(match.out[[i]], end.pre - sum(tmp[cum.tmp]))
       }
     }
   }

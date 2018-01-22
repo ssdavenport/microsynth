@@ -12,7 +12,7 @@ vignette: >
 This is a brief discussion of how microsynth allows the user to aggregate
 outcome variables (passed to `match.out` or `match.out.min`) over time, either
 before or after matching, and how that can affect the workings of two other
-arguments: `period` and `start.time`.
+arguments: `period` and `start.pre`.
 
 ## Declaring outcome variables as a vector or list
 
@@ -47,17 +47,17 @@ the user has already manually specified how the variables should be aggregated
 prior to matching; in this case, `period` will only affect the appearance of
 charts and how results are reported (but not the matching procedure).
 
-`start.time` is also affected. When match.out is provided the simple input (a
-vector of variable names), start.time will identify the time of the beginning of
+`start.pre` is also affected. When match.out is provided the simple input (a
+vector of variable names), start.pre will identify the time of the beginning of
 the pre-intervention data to be used for matching, plotting, and displaying
-results. Data observed any time before the `start.time` will be ignored
-entirely. If provided the complex (list) input, then `start.time` will merely
+results. Data observed any time before the `start.pre` will be ignored
+entirely. If provided the complex (list) input, then `start.pre` will merely
 affect plotting behavior and suppress some of the results. But observations
-before the `start.time` will still be used for matching.
+before the `start.pre` will still be used for matching.
 
 In conclusion, passing a list to `match.out` will lock into place the parameters
-around the matching procedure; arguments such as `period` and `start.time` will
+around the matching procedure; arguments such as `period` and `start.pre` will
 only alter how results are reported and how charts are plotted. But when
-`match.out` is passed only variable names, then `period` and `start.time` will
+`match.out` is passed only variable names, then `period` and `start.pre` will
 also govern the matching procedure.
 
