@@ -299,7 +299,7 @@ covariates will also be matched on exactly.
 ```{r ex1, eval = TRUE} 
 sea1 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
-                   start.time=1, int.time=NULL, max.time=16, 
+                   start.time=1, int.time=12, max.time=16, 
                    match.out=match.out, match.covar=cov.var, 
                    result.var=match.out, omnibus.var=match.out, plot.var=match.out,
                    test="lower", sep = TRUE)
@@ -403,6 +403,7 @@ number of non-default arguments.
 ```{r ex3, eval = TRUE} 
 sea3 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
+                   int.time=12,
                    match.out=match.out, match.covar=cov.var, 
                    result.var=match.out, plot.var=match.out, 
                    perm=250, jack=TRUE, 
@@ -458,6 +459,7 @@ sea4 <- microsynth(seattledmi,
                    match.out=match.out, match.covar=cov.var, 
                    result.var=names(match.out), omnibus.var=names(match.out), 
                    plot.var=names(match.out),
+                   int.time=12,
                    perm=250, jack = 0,
                    test="lower",
                    plot.file="ExPlots4.pdf", result.file="ExResults4.xlsx")
@@ -493,6 +495,7 @@ match.out <- c("i_felony", "i_misdemea", "i_drugs", "any_crime")
 
 sea5 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time",intvar="Intervention",
+                   int.time=12,
                    match.out=match.out, match.covar=cov.var,
                    result.var=FALSE, plot.var=FALSE,
                    perm=250, jack=TRUE)
@@ -517,6 +520,7 @@ unspecified. Further, plots can be limited to a subset of time-variant variables
 ```{r ex6, eval = TRUE}
 sea6 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
+                   int.time=12,
                    result.var=FALSE, plot.var=match.out[1:2],
                    w=sea5$w)
 ```
@@ -533,6 +537,7 @@ weights.
 ```{r ex7, eval = TRUE}
 sea7 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
+                   int.time=12,
                    max.time=c(14, 16),
                    result.var=match.out, plot.var=FALSE,
                    test="lower", 

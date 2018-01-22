@@ -73,13 +73,15 @@
 #' @param intvar A character string that gives the variable in \code{data} that
 #'   corresponds to the intervention variable.  The intervention variable
 #'   indicates which cases (and times) have received the intervention.  The
-#'   variable should be binary, with a 1 indicating treated.  If \code{int.time}
+#'   variable should be binary, with a 1 indicating treated and 0 indicating
+#'   untreated.  If \code{int.time}
 #'   is specified, a case is considered treated if there is 1 or more non-zero
 #'   entries in the column indicated by \code{intvar} for that case (at any time
 #'   point).  If \code{int.time} is not specified, an attempt will be made to
-#'   use\code{intvar} to determine which time the intervention occurred (i.e.,
-#'   the intervention is considered to have occurred at the time of the first
-#'   non-zero entry in \code{intvar}).
+#'   use\code{intvar} to determine which time periods will be considered
+#'   post-intervention (i.e., the times contained in the evalution period).
+#'   In this case, the evaluation period is considered to begin at the time of
+#'   the first non-zero entry in \code{intvar}).
 #'
 #' @param timevar A character string that gives the variable in
 #'   \code{data} that differentiate multiple records from the same case.  Can be
@@ -90,6 +92,26 @@
 #'   \code{microsynth}.  If \code{w = NULL}, weights are calculated from
 #'   scratch.  Entering a \code{non-NULL} value affords the user the ability to
 #'   use previously calculated  weights.
+#'
+#' @param int.time An integer that gives the final time point at
+#'   which treatment and synthetic control will be matched to one another.  That
+#'   is, \code{int.time} indicates the time period immediately preceeding
+#'   the start of the evaluation period.  All time points
+#'   following \code{int.time} are considered to be post-intervention and the
+#'   behavior of outcomes will be compared between the treatment and synthetic
+#'   control groups across those time periods.
+#'   Setting \code{int.time = NULL} will begin the evaluation period at the time
+#'   that corresponds to the first non-zero entry in the column indicated by
+#'   \code{intvar}.
+#'
+#' @param max.time An integer that gives the maximum post-intervention time that
+#'   is taken into when compiling results.  That is, the treatment and synthetic
+#'   control groups are compared across the outcomes listed in \code{result.var}
+#'   from the first time following the intervention up to \code{max.time}.  Can
+#'   be a vector (ordered, increasing) giving multiple values of
+#'   \code{max.time}.  In this case, the results will be compiled for each entry
+#'   in \code{max.time}.  When \code{max.time = NULL} (the default), it is reset
+#'   to the maximum time that appears in the column given by \code{timevar}.
 #'
 #' @param match.out Either A) logical, B) a vector of variable names that
 #'   indicates across which time-varying variables treatment is to be exactly matched
@@ -112,14 +134,16 @@
 #'   \code{match.out} are the outcome variables to which the vectors correspond.
 #'   Each element of the vectors gives a number of time points that are to be
 #'   aggregated for the respective outcome, with the first element indicating
-#'   time points immediately prior the time of the intervention.  The sum of
+#'   time points immediately prior the beginning of the (post-intervention)
+#'   evaluation period.  The sum of
 #'   the elements in each vector should not exceed the number of
 #'   pre-intervention time periods in the data.
 #'
 #'   The following examples show the proper formatting of \code{match.out} as a
 #'   list.  Assume that there are two outcomes, Y1 and Y2 (across which
-#'   treatment is to be matched to synthetic control), and that the intervention
-#'   occurs at time 10.   Let \code{match.out = list('Y1' = c(1, 3, 3), 'Y2'=
+#'   treatment is to be matched to synthetic control), and \code{int.time = 10}
+#'   (i.e., the post-intervention evaluation period begins at time 11).
+#'   Let \code{match.out = list('Y1' = c(1, 3, 3), 'Y2'=
 #'   c(2,5,1))}.  According to this specification, treatment is to be matched to
 #'   synthetic control across: a) The value of Y1 at time 10; b) the sum of Y1
 #'   across times 7, 8 and 9; c) the sum of Y1 across times 4, 5 and 6; e) The
@@ -151,22 +175,6 @@
 #'   time invariant variables that are to be used for weighting, for which exact
 #'   matches are not required. Weights are calculated so the distance is
 #'   minimized between treatment and synthetic control across these variables.
-#'
-#' @param int.time A logical, or an integer that gives the final time point at
-#'   which treatment and synthetic control will be matched to one another.  If an
-#'   an integer, \code{int.time} indicates the start of the evaluation period.
-
-#'   If the intervention is expected to have an
-#'   instantaneous effect, \code{int.time} should be set to when the intervention
-#'   occurred. Otherwise, \code{int.time} should be set to the time immediately
-#'   prior to the intervention. If \code{intvar} is formatted such that
-#'   all treatment cases receive 0 pre-intervention and 1 post-intervention, and
-#'   all control cases receive 0 at all time points, then \code{int.time} may
-#'   be logical. Setting \code{int.time = TRUE} indicates that effects are
-#'   expected to be instantaneous, i.e., \code{int.time} is set to the time of
-#'   the last 0 observed among the treatment column. Setting
-#'   \code{int.time = FALSE} or \code{int.time = NULL} will set \code{int.time}
-#'   as the time of the first 1 in the treatment column.
 #'
 #' @param perm An integer giving the number of permutation groups that are used.
 #'   If \code{perm = 0}, no permutation groups are generated, permutation
@@ -215,14 +223,7 @@
 #'   TRUE}, it is reset as being equal to \code{result.var}.  When
 #'   \code{omnibus.var = NULL} or \code{omnibus = FALSE}, no omnibus statistic
 #'   is calculated.
-#' @param max.time An integer that gives the maximum post-intervention time that
-#'   is taken into when compiling results.  That is, the treatment and synthetic
-#'   control groups are compared across the outcomes listed in \code{result.var}
-#'   from the first time following the intervention up to \code{max.time}.  Can
-#'   be a vector (ordered, increasing) giving multiple values of
-#'   \code{max.time}.  In this case, the results will be compiled for each entry
-#'   in \code{max.time}.  When \code{max.time = NULL} (the default), it is reset
-#'   to the maximum time that appears in the column given by \code{timevar}.
+#'
 #' @param period An integer that gives the granularity of the data that will be
 #'   used for plotting and compiling results; if \code{match.out} and
 #'   \code{match.out.min} are provided a vector of variable names, it will also
@@ -526,7 +527,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
   if (length(start.time) > 0 & !is.logical(start.time)) {
     start.time <- match(as.character(start.time), time.names)
   }
-  if (length(int.time) > 0 & !is.logical(int.time)) {
+  if (length(int.time) > 0) {
     int.time <- match(as.character(int.time), time.names)
   }
   if (length(max.time) > 0 & !is.logical(max.time)) {
@@ -668,30 +669,19 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.time = NULL,
   data <- data[[1]]
   times <- as.numeric(colnames(Intervention))
   if (length(int.time) == 0) {
-    int.time <- FALSE
-  }
-  if (is.logical(int.time)) {
-    int.time1 <- int.time
-    int.time <- which(colSums(Intervention) != 0)
-    if (length(int.time) == 0) {
+    eval.times <- which(colSums(Intervention) != 0)
+    if (length(eval.times) == 0) {
       stop("There are no intervention cases.\n")
     }
-    else {
-      if (int.time1) {
-        int.time <- min(times[int.time]) - 1
-      }
-      else {
-        int.time <- min(times[int.time])
-      }
-      if (int.time == 0) {
-        stop("There are no pre-intervention time points.")
-      }
-      message("Setting int.time = ", time.names[int.time], ".\n\n", sep = "",
-              appendLF = FALSE)
+    int.time <- min(eval.times) - 1
+    if (int.time == 0) {
+      stop("There are no pre-intervention time points.")
     }
-  } else {
-    Intervention[] <- Intervention[, NCOL(Intervention)]
+    int.time <- times[int.time]
+    message("Setting int.time = ", time.names[int.time], ".\n\n", sep = "",
+            appendLF = FALSE)
   }
+  Intervention[] <- as.integer(rowSums(Intervention) != 0)
   if (length(start.time) == 0) {
     start.time <- min(times)
   }
