@@ -445,6 +445,7 @@
 #' # to ensure model feasibility
 #' sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'         intvar='Intervention', match.out=match.out, match.covar=cov.var,
+#'         start.pre=1, end.pre=12, end.post=16,
 #'         result.var=match.out, plot.var=match.out, perm=250, jack=TRUE,
 #'         test='lower', check.feas=TRUE, use.backup = TRUE,
 #'         plot.file=NULL, result.file='ExResults3.xlsx')
@@ -459,6 +460,7 @@
 #' # After aggregation, use.backup and cheack.feas no longer needed
 #' sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
+#'          start.pre=1, end.pre=12, end.post=16,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
 #'          plot.var=names(match.out), perm=250, jack = 0, test='lower',
 #'          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
@@ -467,6 +469,7 @@
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
+#'          start.pre=1, end.pre=12, end.post=16,
 #'          result.var=FALSE, plot.var=FALSE, perm=250, jack=TRUE)
 #'
 #' # View weights
@@ -474,12 +477,15 @@
 #'
 #' # Generate plots only using previous weights
 #' sea6 <- microsynth(seattledmi,  idvar='ID', timevar='time',
-#'           intvar='Intervention', result.var=FALSE, plot.var=match.out[1:2],
+#'           intvar='Intervention',
+#'           start.pre=1, end.pre=12, end.post=16,
+#'           result.var=FALSE, plot.var=match.out[1:2],
 #'           w=sea5$w)
 #'
 #' # Generate results only
 #' sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'           intvar='Intervention', end.post=c(14, 16),
+#'           intvar='Intervention',
+#'           start.pre=1, end.pre=12, end.post=c(14, 16),
 #'           result.var=match.out, plot.var=FALSE, test='lower',
 #'           w=sea5$w, result.file='ExResults7.xlsx')
 #'
@@ -497,15 +503,16 @@
 #'
 #' # Apply microsynth to the new macro-level data
 #' sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
-#'            intvar='Intervention', match.out=match.out[4],
+#'            intvar='Intervention',
+#'            start.pre=1, end.pre=12, end.post=16,
+#'            match.out=match.out[4],
 #'            match.covar=cov.var, result.var=match.out[4],
 #'            plot.var=match.out[4], test='lower', perm=250, jack=FALSE,
 #'            check.feas=TRUE, use.backup=TRUE)
 #'
 #' # Use microsynth to calculate propensity score-type weights
 #' # Prepare cross-sectional data at time of intervention
-#' seattledmi.cross <- seattledmi[seattledmi$time==12, ]
-#' seattledmi.cross <- seattledmi.cross[, colnames(seattledmi)!='time']
+#' seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]#'
 #'
 #' # Apply microsynth to find propensity score-type weights
 #' sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
@@ -1073,7 +1080,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   if (reset.result.var) {
     message("No outcome variables specified (e.g., result.var = NULL).\n",
             appendLF = FALSE)
-    message("Results will not be tablulated.\n", appendLF = FALSE)
+    message("Results will not be tabulated.\n", appendLF = FALSE)
   }
   if (reset.result.var & reset.plot.var) {
     message("Returning weights only.\n", appendLF = FALSE)

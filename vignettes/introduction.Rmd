@@ -364,7 +364,7 @@ Calling \code{summary} identifies other new changes to the results.
 Columns are added to display the confidence intervals (`confidence = 0.9`) and
 p-values (`test = "lower"`) from the jackknife and permutation tests. Note that
 `end.post=c(14,16)` in the code above, instructing results to be calculated for
-two different follow-up periods, ending at t=14 and t-16 respectively. One
+two different follow-up periods, ending at t=14 and t=16 respectively. One
 results table will be calculated for each.
 
 ```{r, eval = TRUE}
