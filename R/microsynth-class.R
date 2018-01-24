@@ -13,12 +13,15 @@
 #' post-intervention evaluation time.
 #' @export
 summary.microsynth <- function(microsynth_output) {
-  out <- list(microsynth_output$w$Summary, microsynth_output$Results)
-  names(out) <- c("Matching Summary", "Results")
+
   cat("Weight Balance Table: \n")
-  print(out[[1]])
-  cat("\nResults: \n")
-  print.res(out[[2]])
+  print(object$w$Summary)
+
+  # Be careful about case when $Results does not exist.
+  if(!is.null(object$Results)) {
+    cat("\nResults: \n")
+    print.res(object$Results)
+  }
 }
 
 #' Displaying microsynth Fits and Results
@@ -35,13 +38,16 @@ summary.microsynth <- function(microsynth_output) {
 #' appear when saved to .csv or .xlsx., once for each specified
 #' post-intervention evaluation time.
 #' @export
-print.microsynth <- function(microsynth_output) {
-  out <- list(microsynth_output$w$Summary, microsynth_output$Results)
-  names(out) <- c("Matching Summary", "Results")
+print.microsynth <- function(object) {
+
   cat("Weight Balance Table: \n")
-  print(out[[1]])
-  cat("\nResults: \n")
-  print.res(out[[2]])
+  print(object$w$Summary)
+
+  # Be careful about case when $Results does not exist.
+  if(!is.null(object$Results)) {
+    cat("\nResults: \n")
+    print.res(object$Results)
+  }
 }
 
 # This is a helper function for print/summary
