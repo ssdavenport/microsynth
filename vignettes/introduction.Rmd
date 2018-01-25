@@ -12,7 +12,7 @@ vignette: >
 ```{r load, echo=F}
 library(microsynth)
 library(knitr)
-knitr::opts_chunk$set(message = FALSE, fig.height=3.1, fig.width=7.2, fig.show = "hold")
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.height=3.1, fig.width=7.2, fig.show = "hold")
 ```
 
 ## Introduction to Synthetic Controls
@@ -567,7 +567,7 @@ To demonstrate, first we will create a reduced dataset with 1 treatment block
 and 100 control blocks.
 
 ```{r ex8prep, eval = TRUE}
-set.seed(66872)
+set.seed(86872)
 ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
 ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
 ids.synth <- c(sample(ids.t, 1), sample(ids.c, 100))
