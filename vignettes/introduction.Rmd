@@ -407,7 +407,7 @@ sea3 <- microsynth(seattledmi,
                    end.pre=12,
                    match.out=match.out, match.covar=cov.var, 
                    result.var=match.out, plot.var=match.out, 
-                   perm=250, jack=TRUE, 
+                   perm=250, jack=0, 
                    test="lower", check.feas=TRUE, use.backup = TRUE)
 ```
 
@@ -461,7 +461,7 @@ sea4 <- microsynth(seattledmi,
                    result.var=names(match.out), omnibus.var=names(match.out), 
                    plot.var=names(match.out),
                    end.pre=12,
-                   perm=250, jack = 0,
+                   perm=250, jack = TRUE,
                    test="lower",
                    plot.file="ExPlots4.pdf", result.file="ExResults4.xlsx")
 ```
@@ -567,7 +567,7 @@ To demonstrate, first we will create a reduced dataset with 1 treatment block
 and 100 control blocks.
 
 ```{r ex8prep, eval = TRUE}
-set.seed(66872)
+set.seed(86872)
 ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
 ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
 ids.synth <- c(sample(ids.t, 1), sample(ids.c, 100))

@@ -12,7 +12,7 @@
 #' appear when saved to .csv or .xlsx., once for each specified
 #' post-intervention evaluation time.
 #' @export
-summary.microsynth <- function(microsynth_output) {
+summary.microsynth <- function(object) {
 
   cat("Weight Balance Table: \n")
   print(object$w$Summary)

@@ -446,7 +446,7 @@
 #' sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'         intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'         start.pre=1, end.pre=12, end.post=16,
-#'         result.var=match.out, plot.var=match.out, perm=250, jack=TRUE,
+#'         result.var=match.out, plot.var=match.out, perm=250, jack=0,
 #'         test='lower', check.feas=TRUE, use.backup = TRUE,
 #'         plot.file=NULL, result.file='ExResults3.xlsx')
 #'
@@ -462,7 +462,7 @@
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
-#'          plot.var=names(match.out), perm=250, jack = 0, test='lower',
+#'          plot.var=names(match.out), perm=250, jack = TRUE, test='lower',
 #'          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
 #'
 #' # Generate weights only (for four variables)
@@ -494,7 +494,7 @@
 #'
 #' # Apply microsynth in the traditional setting of Synth
 #' # Create macro-level (small n) data, with 1 treatment unit
-#' set.seed(66872)
+#' set.seed(86872)
 #' ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
 #' ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
 #' ids.synth <- c(sample(ids.t, 1), sample(ids.c, 100))
