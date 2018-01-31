@@ -263,25 +263,6 @@ as output, use \code{\link[graphics]{par}}.}
 
 \item{legend.spot}{The location of the legend in the plots.}
 
-\item{scale.var}{A variable name.  When comparing the treatment group to all
-cases, the latter is scaled to the size of the former with respect to the
-variable indicated by \code{scale.var}.  Defaults to the number of units
-receiving treatment (i.e., the intercept).}
-
-\item{maxit}{The maximum number of iterations used within the calibration
-routine (\code{survey::calibrate()} from the \code{survey} package) for
-calculating weights.}
-
-\item{cal.epsilon}{The tolerance used within the calibration routine
-(\code{survey::calibrate()} from the \code{survey} package) for calculating
-weights.}
-
-\item{calfun}{The calibration function used within the calibration routine
-(\code{survey::calibrate()} from the \code{survey} package) for calculating
-weights.}
-
-\item{bounds}{Bounds for calibration weighting (fed into the
-\code{survey::calibrate()} from the \code{survey} package).}
 }
 \value{
 \code{microsynth} returns a list with up to four elements: a)
