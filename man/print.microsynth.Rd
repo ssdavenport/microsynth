@@ -4,7 +4,7 @@
 \alias{print.microsynth}
 \title{Displaying microsynth Fits and Results}
 \usage{
-\method{print}{microsynth}(microsynth_output)
+\method{print}{microsynth}(object)
 }
 \value{
 The functions \code{print.microsynth} and

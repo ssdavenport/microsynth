@@ -4,7 +4,7 @@
 \alias{summary.microsynth}
 \title{Summarizing microsynth Fits and Results}
 \usage{
-\method{summary}{microsynth}(microsynth_output)
+\method{summary}{microsynth}(object)
 }
 \value{
 The functions \code{print.microsynth} and
