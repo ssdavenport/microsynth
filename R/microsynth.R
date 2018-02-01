@@ -1429,7 +1429,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       else if (use.model.i == 3) {
         printstuff <- msesb$printstuff
         message(paste0(capture.output(round(printstuff,
-                                            4)), collapse = "/n"), appendLF = FALSE)
+                                            4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       if (jack > 0) {
