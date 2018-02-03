@@ -16,7 +16,7 @@ microsynth(data, idvar, intvar, timevar = NULL, start.pre = NULL,
   legend.spot = "bottomleft")
 }
 \arguments{
-\item{data}{A longitudinal data frame.  The data must be entered in tall
+\item{data}{A data frame.  If longitudinal, the data must be entered in tall
 format (e.g., at the case/time-level with one row for each time period for
 each case).  Missingness is not allowed.  All individuals must have non-NA
 values of all variables at all time points.}
@@ -32,8 +32,8 @@ untreated.  If \code{end.pre}
 is specified, a case is considered treated if there is 1 or more non-zero
 entries in the column indicated by \code{intvar} for that case (at any time
 point).  If \code{end.pre} is not specified, an attempt will be made to
-use\code{intvar} to determine which time periods will be considered
-post-intervention (i.e., the times contained in the evalution period).
+use \code{intvar} to determine which time periods will be considered
+post-intervention (i.e., the times contained in the evaluation period).
 In this case, the evaluation period is considered to begin at the time of
 the first non-zero entry in \code{intvar}).}
 
@@ -72,7 +72,7 @@ to the maximum time that appears in the column given by \code{timevar}.}
 
 \item{match.out}{Either A) logical, B) a vector of variable names that
   indicates across which time-varying variables treatment is to be exactly matched
-  to synthetic control pre-intervention, or, to allow more flexibility, or C) a
+  to synthetic control pre-intervention, or C) a
   list consisting of variable names and timespans over which variables should
   be aggregated before matching.  Note that outcome variables and time-varying
   covariates should be included in \code{match.out}.
@@ -105,7 +105,7 @@ to the maximum time that appears in the column given by \code{timevar}.}
   synthetic control across: a) The value of Y1 at time 10; b) the sum of Y1
   across times 7, 8 and 9; c) the sum of Y1 across times 4, 5 and 6; e) The
   sum of Y2 across times time 9 and 10; e) the sum of Y2 across times 4, 5,
-  6, 7, and 8; f) the value of Y2 at time 3.  Likwise, if \code{match.out =
+  6, 7, and 8; f) the value of Y2 at time 3.  Likewise, if \code{match.out =
   list('Y1' = 10, 'Y2'= rep(1,10))}, Y1 is matched to synthetic control
   the entire aggregated pre-intervention time range, and Y2 is matched
   at each pre-intervention time point individually.}
@@ -221,24 +221,24 @@ scratch.  Entering a \code{non-NULL} value affords the user the ability to
 use previously calculated  weights.}
 
 \item{max.mse}{The maximum error (given as mean-squared error) permissible
-for constraints that are to be exactly satisfied.  If max.mse is not
+for constraints that are to be exactly satisfied.  If \code{max.mse} is not
 satisfied by these constraints, and either \code{check.feas = TRUE} or
 \code{use.backup = TRUE}, then back-up models are used.}
 
 \item{maxit}{The maximum number of iterations used within the calibration
-routine (\code{survey::calibrate()} from the \code{survey} package) for
+routine (\code{calibrate()} from the \code{survey} package) for
 calculating weights.}
 
 \item{cal.epsilon}{The tolerance used within the calibration routine
-(\code{survey::calibrate()} from the \code{survey} package) for calculating
+(\code{calibrate()} from the \code{survey} package) for calculating
 weights.}
 
 \item{calfun}{The calibration function used within the calibration routine
-(\code{survey::calibrate()} from the \code{survey} package) for calculating
+(\code{calibrate()} from the \code{survey} package) for calculating
 weights.}
 
 \item{bounds}{Bounds for calibration weighting (fed into the
-\code{survey::calibrate()} from the \code{survey} package).}
+\code{calibrate()} from the \code{survey} package).}
 
 \item{result.file}{A character string giving the name of a file that will be
 created in the home directory containing results.  If \code{result.file =
@@ -287,7 +287,7 @@ as output, use \code{\link[graphics]{par}}.}
   synthetic control, and the full dataset), shows aggregate values
   of the variables across which treatment and synthetic control are matched.
   The summary, which is tabulated only for the primary weights, is also
-  printed by microsynth while weights are being calculated.
+  printed by \code{microsynth} while weights are being calculated.
 
   Further, \code{Results} is a list where each element gives the final
   results for each value of \code{end.post}.  Each element of \code{Results}
@@ -319,15 +319,17 @@ as output, use \code{\link[graphics]{par}}.}
 }
 \description{
 Implements the synthetic control method for micro-level data as outlined in
-Robbins, Saunders, and Kilmer (2017).  \code{microsynth} is a generalization
+Robbins, Saunders, and Kilmer (2017).  \code{microsynth} is designed for use
+in assessment of the effect of an intervention using longitudinal data.  
+However, it may also be used to calculate propensity score-type weights in 
+cross-sectional data. \code{microsynth} is a generalization
 of \code{Synth} (see Abadie and Gardeazabal (2003) and Abadie, Diamond,
 Hainmueller (2010, 2011, 2014)) that is designed for data at a more granular
-level (e.g., micro-level). \code{microsynth} may also be used to calculate
-propensity score-type weights. For more details see the help vignette:
+level (e.g., micro-level). For more details see the help vignette:
 \code{vignette('microsynth', package = 'microsynth')}.
 
 \code{microsynth} develops a synthetic control group by searching for weights
-that exactly match the treatment group to the synthetic control group across
+that exactly match a treatment group to a synthetic control group across
 a number of variables while also minimizing the discrepancy between the
 synthetic control group and the treatment group across a set second set of
 variables.  \code{microsynth} works in three primary steps: 1) calculation of
@@ -352,7 +354,7 @@ exactly matched to synthetic control.  The inputs \code{match.covar.min} and
 treatment is to be matched to synthetic control as closely as possible.  If
 there are no variables specified in \code{match.covar.min} and
 \code{match.out.min}, the function \code{calibrate()} from the \code{survey}
-package is used to calculate weights otherwise, the function
+package is used to calculate weights.  Otherwise, the function
 \code{LowRankQP()} from the package of the same name is used.  In the event
 that the model specified by \code{match.covar} and \code{match.out} is not
 feasible (i.e., weights do not exist that exactly match treatment and
@@ -545,7 +547,7 @@ Abadie A, Diamond A, Hainmueller J (2010). “Synthetic control
   Observational Studies,” \emph{Political Analysis}, 20, 25–46.
 
   Robbins MW, Saunders J, Kilmer B (2017). “A framework for synthetic control
-  methods withhigh-dimensional, micro-level data: Evaluating a neighborhood-
+  methods with high-dimensional, micro-level data: Evaluating a neighborhood-
   specific crime intervention,” \emph{Journal of the American Statistical
   Association}, 112(517), 109-126.
 }
