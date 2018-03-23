@@ -1,6 +1,6 @@
 Package: microsynth
 Title: Synthetic Control Methods with Micro- and Meso-level Data
-Version: 0.0.0.9217
+Version: 0.0.0.9300
 Description: A generalization of the ‘Synth’ package that is designed
  for data at a more granular level (e.g., micro-level). Provides
  functions to construct weights (including propensity score-type

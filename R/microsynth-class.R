@@ -11,11 +11,15 @@
 #' population; and 2) estimated results, in a similar format as they
 #' appear when saved to .csv or .xlsx., once for each specified
 #' post-intervention evaluation time.
+#'
+#' @param object A \code{microsynth} object produced by \code{microsynth()}
+#' @param ... further arguments passed to or from other methods.
+#'
 #' @export
-summary.microsynth <- function(object) {
+summary.microsynth <- function(object, ...) {
 
   cat("Weight Balance Table: \n")
-  print(object$w$Summary)
+  print(object$w$Summary, ...)
 
   # Be careful about case when $Results does not exist.
   if(!is.null(object$Results)) {
@@ -28,6 +32,9 @@ summary.microsynth <- function(object) {
 #'
 #' Print method for class "microsynth".
 #'
+#' @param x A \code{microsynth} object produced by \code{microsynth()}
+#' @param ... further arguments passed to or from other methods.
+#'
 #' @return The functions \code{print.microsynth} and
 #' \code{summary.microsynth} display information about the microsynth
 #' fit and estimation results, if available.
@@ -38,21 +45,20 @@ summary.microsynth <- function(object) {
 #' appear when saved to .csv or .xlsx., once for each specified
 #' post-intervention evaluation time.
 #' @export
-print.microsynth <- function(object) {
+print.microsynth <- function(x, ...) {
 
   cat("Weight Balance Table: \n")
-  print(object$w$Summary)
+  print(x$w$Summary, ...)
 
   # Be careful about case when $Results does not exist.
-  if(!is.null(object$Results)) {
+  if(!is.null(x$Results)) {
     cat("\nResults: \n")
-    print.res(object$Results)
+    print.res(x$Results)
   }
 }
 
 # This is a helper function for print/summary
-print.res <- function(results.tables)
-{
+print.res <- function(results.tables, ...) {
   # First, extract the end.post value (otherwise it will interfere with colnames)
   # Allow for an iterated process if there are 2 end times (and 2 tables)
 
@@ -85,6 +91,6 @@ print.res <- function(results.tables)
     }
     # Produce output (for each table)
     cat(paste0("\nend.post = ", end.post[j], "\n"))
-    print(res)
+    print(res, ...)
   }
 }
