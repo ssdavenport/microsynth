@@ -2,4 +2,5 @@
 
 S3method(print,microsynth)
 S3method(summary,microsynth)
+importFrom("utils", "capture.output")
 export(microsynth)

@@ -4,8 +4,8 @@
 #' @description
 #' Implements the synthetic control method for micro-level data as outlined in
 #' Robbins, Saunders, and Kilmer (2017).  \code{microsynth} is designed for use
-#' in assessment of the effect of an intervention using longitudinal data.  
-#' However, it may also be used to calculate propensity score-type weights in 
+#' in assessment of the effect of an intervention using longitudinal data.
+#' However, it may also be used to calculate propensity score-type weights in
 #' cross-sectional data. \code{microsynth} is a generalization
 #' of \code{Synth} (see Abadie and Gardeazabal (2003) and Abadie, Diamond,
 #' Hainmueller (2010, 2011, 2014)) that is designed for data at a more granular
@@ -2670,6 +2670,8 @@ find.sing <- function(X) {
 
 
 check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
+  maxit <- NULL # for R CMD check ("no visible binding for global variable ‘maxit’")
+
   rem <- find.sing(A %*% t(A))
   leave <- setdiff(1:NROW(A), rem)
   A <- A[leave, ]
