@@ -4,7 +4,12 @@
 \alias{print.microsynth}
 \title{Displaying microsynth Fits and Results}
 \usage{
-\method{print}{microsynth}(object)
+\method{print}{microsynth}(x, ...)
+}
+\arguments{
+\item{x}{A \code{microsynth} object produced by \code{microsynth()}}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \value{
 The functions \code{print.microsynth} and
