@@ -4,7 +4,12 @@
 \alias{summary.microsynth}
 \title{Summarizing microsynth Fits and Results}
 \usage{
-\method{summary}{microsynth}(object)
+\method{summary}{microsynth}(object, ...)
+}
+\arguments{
+\item{object}{A \code{microsynth} object produced by \code{microsynth()}}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \value{
 The functions \code{print.microsynth} and

@@ -320,8 +320,8 @@ as output, use \code{\link[graphics]{par}}.}
 \description{
 Implements the synthetic control method for micro-level data as outlined in
 Robbins, Saunders, and Kilmer (2017).  \code{microsynth} is designed for use
-in assessment of the effect of an intervention using longitudinal data.  
-However, it may also be used to calculate propensity score-type weights in 
+in assessment of the effect of an intervention using longitudinal data.
+However, it may also be used to calculate propensity score-type weights in
 cross-sectional data. \code{microsynth} is a generalization
 of \code{Synth} (see Abadie and Gardeazabal (2003) and Abadie, Diamond,
 Hainmueller (2010, 2011, 2014)) that is designed for data at a more granular

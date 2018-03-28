@@ -407,6 +407,8 @@
 #'   specific crime intervention,” \emph{Journal of the American Statistical
 #'   Association}, 112(517), 109-126.
 #'
+#' @importFrom utils capture.output
+#'
 #' @examples
 #' set.seed(99199) # for reproducibility
 #'
@@ -1418,19 +1420,19 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       message("Matching summary for main weights:\n", appendLF = FALSE)
       if (use.model.i == 1) {
         printstuff <- mses$printstuff
-        message(paste0(capture.output(round(printstuff,
+        message(paste0(utils::capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 2) {
         printstuff <- msesa$printstuff
-        message(paste0(capture.output(round(printstuff,
+        message(paste0(utils::capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 3) {
         printstuff <- msesb$printstuff
-        message(paste0(capture.output(round(printstuff,
+        message(paste0(utils::capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
@@ -2146,7 +2148,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, end.pre, period = 1, end.
         keep <- !is.na(dum.tmp)
         if (sum(!keep) > 0) {
           message("\nThe following variables yield survey statistics with value NA. \nThese will be removed from the omnibus statistic: \n", appendLF=FALSE)
-          message(paste0(capture.output(omnibus.var[!keep]), collapse='\n'))
+          message(paste0(utils::capture.output(omnibus.var[!keep]), collapse='\n'))
           message("\n", appendLF=FALSE)
         }
         omnibus.var <- omnibus.var[keep]
@@ -2815,9 +2817,9 @@ rref <- function(A, tol = sqrt(.Machine$double.eps), verbose = FALSE, fractions 
       A[y.position, ] <- row  # restore current row
       if (verbose)
         if (fractions) {
-          message(paste0(capture.output(fractions(A)), collapse="\n"), appendLF=FALSE)
+          message(paste0(utils::capture.output(fractions(A)), collapse="\n"), appendLF=FALSE)
         } else {
-          message(paste0(capture.output(round(A, round(abs(log(tol, 10))))), collapse="\n"), appendLF=FALSE)
+          message(paste0(utils::capture.output(round(A, round(abs(log(tol, 10))))), collapse="\n"), appendLF=FALSE)
         }
       x.position <- x.position + 1
       y.position <- y.position + 1
