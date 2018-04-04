@@ -85,7 +85,7 @@
 #'   each case).  Missingness is not allowed.  All individuals must have non-NA
 #'   values of all variables at all time points.
 #'
-#' @param idvar A character string that gives that gives the variable in
+#' @param idvar A character string that gives the variable in
 #'   \code{data} that identifies multiple records from the same case.
 #'
 #' @param intvar A character string that gives the variable in \code{data} that
@@ -102,7 +102,7 @@
 #'   the first non-zero entry in \code{intvar}).
 #'
 #' @param timevar A character string that gives the variable in
-#'   \code{data} that differentiate multiple records from the same case.  Can be
+#'   \code{data} that differentiates multiple records of the same case. Can be
 #'   set to \code{NULL} only when used with cross-sectional data (i.e., with one
 #'   observation per entry in \code{idvar}).
 #'
@@ -410,15 +410,13 @@
 #' @importFrom utils capture.output
 #'
 #' @examples
-#' set.seed(99199) # for reproducibility
-#'
+#' \dontrun{set.seed(99199) # for reproducibility
 #' # Use seattledmi, block-level panel data, to evaluate a crime intervention.
 #'
 #' # Declare time-variant (outcome) and time-invariant variables for matching
 #' cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
 #'        'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
-
 #' # Perform matching and estimation, without permutations or jackknife
 #' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
@@ -524,8 +522,7 @@
 #'              test='lower', perm=250, jack=TRUE)
 #'
 #' # View results
-#' summary(sea9)
-#'
+#' summary(sea9)}
 #'
 #' @export
 

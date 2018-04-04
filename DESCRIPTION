@@ -13,11 +13,9 @@ LazyData: true
 Imports: boot, survey, MASS, stats, utils, kernlab, LowRankQP, nleqslv
 Suggests: knitr, xlsx, rmarkdown
 RoxygenNote: 6.0.1
-Authors@R: as.person(c(
-    "Michael Robbins <mrobbins@rand.org> [cre]",
-    "Michael Robbins <mrobbins@rand.org> [aut]",
-    "Steven Davenport <sdavenpo@rand.org> [aut]"
-  ))
+Authors@R: c(
+  person("Michael", "Robbins", , "mrobbins@rand.org", c("aut", "cre")),
+  person("Steven", "Davenport", , "sdavenpo@rand.org", "aut"))
 VignetteBuilder: knitr
 NeedsCompilation: no
 Author: Michael Robbins [cre],

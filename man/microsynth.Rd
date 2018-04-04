@@ -408,8 +408,7 @@ specified) as proposed by Hainmueller (2012).
   \code{use.backup = FALSE}.
 }
 \examples{
-set.seed(99199) # for reproducibility
-
+\dontrun{set.seed(99199) # for reproducibility
 # Use seattledmi, block-level panel data, to evaluate a crime intervention.
 
 # Declare time-variant (outcome) and time-invariant variables for matching
@@ -521,8 +520,7 @@ sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
              test='lower', perm=250, jack=TRUE)
 
 # View results
-summary(sea9)
-
+summary(sea9)}
 
 }
 \references{
