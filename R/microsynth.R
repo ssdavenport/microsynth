@@ -499,7 +499,7 @@
 #' set.seed(86872)
 #' ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
 #' ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
-#' ids.synth <- c(sample(ids.t, 1), sample(ids.c, 100))
+#' ids.synth <- c(base::sample(ids.t, 1), base::sample(ids.c, 100))
 #' seattledmi.one <- seattledmi[is.element(seattledmi$ID,
 #'            as.numeric(ids.synth)), ]
 #'
@@ -1198,7 +1198,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       }
       is.trt.area <- which(apply(boots, 2, check.combn,
                                  x = which(Int == int.val)) == 0)
-      boots <- boots[, sample((1:NCOL(boots))[-is.trt.area],
+      boots <- boots[, base::sample((1:NCOL(boots))[-is.trt.area],
                               boot), drop = FALSE]
       fin.boots <- TRUE
     }
@@ -1305,7 +1305,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
     else if (grepl("Perm", colnam[i])) {
       g <- as.numeric(gsub("Perm", "", colnam[i]))
       if (!fin.boots) {
-        samp <- sample(1:n, sum(Int == int.val), replace = FALSE,
+        samp <- base::sample(1:n, sum(Int == int.val), replace = FALSE,
                        prob = NULL)
         samp <- is.element(1:n, samp)
       }
@@ -2707,7 +2707,7 @@ assign.groups <- function(strata = NULL, n = length(strata), G = min(table(strat
 
   states <- names(table(strata))
 
-  Gs <- sample(1:G, G)
+  Gs <- base::sample(1:G, G)
   Gs1 <- Gs
 
   rep.G <- rep(NA, n)
@@ -2716,7 +2716,7 @@ assign.groups <- function(strata = NULL, n = length(strata), G = min(table(strat
     here <- which(strata == states[i])
 
     n <- length(here)
-    samp <- sample(1:n, n)
+    samp <- base::sample(1:n, n)
 
     J <- floor(n/G)
 
