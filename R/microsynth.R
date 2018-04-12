@@ -85,7 +85,7 @@
 #'   each case).  Missingness is not allowed.  All individuals must have non-NA
 #'   values of all variables at all time points.
 #'
-#' @param idvar A character string that gives the variable in
+#' @param idvar A character string that gives that gives the variable in
 #'   \code{data} that identifies multiple records from the same case.
 #'
 #' @param intvar A character string that gives the variable in \code{data} that
@@ -102,7 +102,7 @@
 #'   the first non-zero entry in \code{intvar}).
 #'
 #' @param timevar A character string that gives the variable in
-#'   \code{data} that differentiates multiple records of the same case. Can be
+#'   \code{data} that differentiate multiple records from the same case.  Can be
 #'   set to \code{NULL} only when used with cross-sectional data (i.e., with one
 #'   observation per entry in \code{idvar}).
 #'
@@ -407,16 +407,16 @@
 #'   specific crime intervention,” \emph{Journal of the American Statistical
 #'   Association}, 112(517), 109-126.
 #'
-#' @importFrom utils capture.output
-#'
 #' @examples
-#' \dontrun{set.seed(99199) # for reproducibility
+#' set.seed(99199) # for reproducibility
+#'
 #' # Use seattledmi, block-level panel data, to evaluate a crime intervention.
 #'
 #' # Declare time-variant (outcome) and time-invariant variables for matching
 #' cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
 #'        'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+
 #' # Perform matching and estimation, without permutations or jackknife
 #' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
@@ -499,7 +499,7 @@
 #' set.seed(86872)
 #' ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
 #' ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
-#' ids.synth <- c(base::sample(ids.t, 1), base::sample(ids.c, 100))
+#' ids.synth <- c(sample(ids.t, 1), sample(ids.c, 100))
 #' seattledmi.one <- seattledmi[is.element(seattledmi$ID,
 #'            as.numeric(ids.synth)), ]
 #'
@@ -522,7 +522,8 @@
 #'              test='lower', perm=250, jack=TRUE)
 #'
 #' # View results
-#' summary(sea9)}
+#' summary(sea9)
+#'
 #'
 #' @export
 
@@ -1199,7 +1200,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       is.trt.area <- which(apply(boots, 2, check.combn,
                                  x = which(Int == int.val)) == 0)
       boots <- boots[, base::sample((1:NCOL(boots))[-is.trt.area],
-                              boot), drop = FALSE]
+                                    boot), drop = FALSE]
       fin.boots <- TRUE
     }
   }
@@ -1306,7 +1307,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       g <- as.numeric(gsub("Perm", "", colnam[i]))
       if (!fin.boots) {
         samp <- base::sample(1:n, sum(Int == int.val), replace = FALSE,
-                       prob = NULL)
+                             prob = NULL)
         samp <- is.element(1:n, samp)
       }
       else {
@@ -1417,19 +1418,19 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       message("Matching summary for main weights:\n", appendLF = FALSE)
       if (use.model.i == 1) {
         printstuff <- mses$printstuff
-        message(paste0(utils::capture.output(round(printstuff,
+        message(paste0(capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 2) {
         printstuff <- msesa$printstuff
-        message(paste0(utils::capture.output(round(printstuff,
+        message(paste0(capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 3) {
         printstuff <- msesb$printstuff
-        message(paste0(utils::capture.output(round(printstuff,
+        message(paste0(capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
@@ -2145,7 +2146,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, end.pre, period = 1, end.
         keep <- !is.na(dum.tmp)
         if (sum(!keep) > 0) {
           message("\nThe following variables yield survey statistics with value NA. \nThese will be removed from the omnibus statistic: \n", appendLF=FALSE)
-          message(paste0(utils::capture.output(omnibus.var[!keep]), collapse='\n'))
+          message(paste0(capture.output(omnibus.var[!keep]), collapse='\n'))
           message("\n", appendLF=FALSE)
         }
         omnibus.var <- omnibus.var[keep]
@@ -2377,7 +2378,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
     here <- here & (substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == "." | substr(colnames(newdat), nchar(nam.tmp) +
                                                                                                        1, nchar(nam.tmp) + 1) == "")
     tmp <- newdat[, here, drop = FALSE]
-    if (sum(here) > 1) {
+    if (sum(here, na.rm = TRUE) > 1) {
       colnames(tmp) <- gsub(paste(dimnames(out)[[2]][i], ".", sep = ""), "", colnames(tmp))
       tmpcols1 <- as.numeric(colnames(tmp))
       tmp <- tmp[, order(tmpcols1, decreasing = FALSE)]
@@ -2390,7 +2391,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
     for (i in 1:dim(out)[2]) {
       diff.out <- out[, i, ] - rowMeans(out[, i, ])
       diff.out <- rowMeans(diff.out^2)
-      if (sum(diff.out) == 0) {
+      if (sum(diff.out, na.rm = TRUE) == 0) {
         nv.names <- c(nv.names, dimnames(out)[[2]][i])
       }
     }
@@ -2669,8 +2670,6 @@ find.sing <- function(X) {
 
 
 check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
-  maxit <- NULL # for R CMD check ("no visible binding for global variable ‘maxit’")
-
   rem <- find.sing(A %*% t(A))
   leave <- setdiff(1:NROW(A), rem)
   A <- A[leave, ]
@@ -2814,9 +2813,9 @@ rref <- function(A, tol = sqrt(.Machine$double.eps), verbose = FALSE, fractions 
       A[y.position, ] <- row  # restore current row
       if (verbose)
         if (fractions) {
-          message(paste0(utils::capture.output(fractions(A)), collapse="\n"), appendLF=FALSE)
+          message(paste0(capture.output(fractions(A)), collapse="\n"), appendLF=FALSE)
         } else {
-          message(paste0(utils::capture.output(round(A, round(abs(log(tol, 10))))), collapse="\n"), appendLF=FALSE)
+          message(paste0(capture.output(round(A, round(abs(log(tol, 10))))), collapse="\n"), appendLF=FALSE)
         }
       x.position <- x.position + 1
       y.position <- y.position + 1
