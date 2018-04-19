@@ -21,7 +21,7 @@ format (e.g., at the case/time-level with one row for each time period for
 each case).  Missingness is not allowed.  All individuals must have non-NA
 values of all variables at all time points.}
 
-\item{idvar}{A character string that gives that gives the variable in
+\item{idvar}{A character string that gives the variable in
 \code{data} that identifies multiple records from the same case.}
 
 \item{intvar}{A character string that gives the variable in \code{data} that
@@ -38,7 +38,7 @@ In this case, the evaluation period is considered to begin at the time of
 the first non-zero entry in \code{intvar}).}
 
 \item{timevar}{A character string that gives the variable in
-\code{data} that differentiate multiple records from the same case.  Can be
+\code{data} that differentiate multiple records of the same case.  Can be
 set to \code{NULL} only when used with cross-sectional data (i.e., with one
 observation per entry in \code{idvar}).}
 
@@ -408,13 +408,16 @@ specified) as proposed by Hainmueller (2012).
   \code{use.backup = FALSE}.
 }
 \examples{
-\dontrun{set.seed(99199) # for reproducibility
 # Use seattledmi, block-level panel data, to evaluate a crime intervention.
-
 # Declare time-variant (outcome) and time-invariant variables for matching
 cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
        'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
+
+\dontrun{
 match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+
+set.seed(99199) # for reproducibility
+
 # Perform matching and estimation, without permutations or jackknife
 sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
@@ -465,8 +468,12 @@ sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
          plot.var=names(match.out), perm=250, jack = TRUE, test='lower',
          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
 
+}
+
 # Generate weights only (for four variables)
 match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+
+\dontrun{
 sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
          intvar='Intervention', match.out=match.out, match.covar=cov.var,
          start.pre=1, end.pre=12, end.post=16,
@@ -491,15 +498,17 @@ sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
 
 # View results (including previously-found weights)
 summary(sea7)
+}
 
 # Apply microsynth in the traditional setting of Synth
 # Create macro-level (small n) data, with 1 treatment unit
 set.seed(86872)
 ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
 ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
-ids.synth <- c(sample(ids.t, 1), sample(ids.c, 100))
+ids.synth <- c(base::sample(ids.t, 1), base::sample(ids.c, 100))
 seattledmi.one <- seattledmi[is.element(seattledmi$ID,
            as.numeric(ids.synth)), ]
+
 
 # Apply microsynth to the new macro-level data
 sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
@@ -510,6 +519,7 @@ sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
            plot.var=match.out[4], test='lower', perm=250, jack=FALSE,
            check.feas=TRUE, use.backup=TRUE)
 
+\dontrun{
 # Use microsynth to calculate propensity score-type weights
 # Prepare cross-sectional data at time of intervention
 seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]#'
@@ -520,7 +530,8 @@ sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
              test='lower', perm=250, jack=TRUE)
 
 # View results
-summary(sea9)}
+summary(sea9)
+}
 
 }
 \references{
