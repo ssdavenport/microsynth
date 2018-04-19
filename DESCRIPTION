@@ -1,6 +1,6 @@
 Package: microsynth
-Title: Synthetic Control Methods with Micro- and Meso-Level Data
-Version: 1.0.0.2
+Title: Synthetic Control Methods with Micro- And Meso-Level Data
+Version: 1.0.2.0
 Description: A generalization of the ‘Synth’ package that is designed
  for data at a more granular level (e.g., micro-level). Provides
  functions to construct weights (including propensity score-type
@@ -18,8 +18,7 @@ Authors@R: c(
   person("Steven", "Davenport", , "sdavenpo@rand.org", "aut"))
 VignetteBuilder: knitr
 NeedsCompilation: no
-Author: Michael Robbins [cre],
-  Michael Robbins [aut],
+Author: Michael Robbins [aut, cre],
   Steven Davenport [aut]
 Maintainer: Michael Robbins <mrobbins@rand.org>
 URL: https://github.com/ssdavenport/microsynth/

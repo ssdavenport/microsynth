@@ -85,7 +85,7 @@
 #'   each case).  Missingness is not allowed.  All individuals must have non-NA
 #'   values of all variables at all time points.
 #'
-#' @param idvar A character string that gives that gives the variable in
+#' @param idvar A character string that gives the variable in
 #'   \code{data} that identifies multiple records from the same case.
 #'
 #' @param intvar A character string that gives the variable in \code{data} that
@@ -102,7 +102,7 @@
 #'   the first non-zero entry in \code{intvar}).
 #'
 #' @param timevar A character string that gives the variable in
-#'   \code{data} that differentiate multiple records from the same case.  Can be
+#'   \code{data} that differentiate multiple records of the same case.  Can be
 #'   set to \code{NULL} only when used with cross-sectional data (i.e., with one
 #'   observation per entry in \code{idvar}).
 #'
@@ -407,16 +407,19 @@
 #'   specific crime intervention,” \emph{Journal of the American Statistical
 #'   Association}, 112(517), 109-126.
 #'
+#' @importFrom utils capture.output
+#'
 #' @examples
-#' set.seed(99199) # for reproducibility
-#'
 #' # Use seattledmi, block-level panel data, to evaluate a crime intervention.
-#'
 #' # Declare time-variant (outcome) and time-invariant variables for matching
 #' cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
 #'        'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
+#'
+#' \dontrun{
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
-
+#'
+#' set.seed(99199) # for reproducibility
+#'
 #' # Perform matching and estimation, without permutations or jackknife
 #' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
@@ -467,8 +470,12 @@
 #'          plot.var=names(match.out), perm=250, jack = TRUE, test='lower',
 #'          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
 #'
+#' }
+#'
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+#'
+#' \dontrun{
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
@@ -493,15 +500,17 @@
 #'
 #' # View results (including previously-found weights)
 #' summary(sea7)
+#' }
 #'
 #' # Apply microsynth in the traditional setting of Synth
 #' # Create macro-level (small n) data, with 1 treatment unit
 #' set.seed(86872)
 #' ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
 #' ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
-#' ids.synth <- c(sample(ids.t, 1), sample(ids.c, 100))
+#' ids.synth <- c(base::sample(ids.t, 1), base::sample(ids.c, 100))
 #' seattledmi.one <- seattledmi[is.element(seattledmi$ID,
 #'            as.numeric(ids.synth)), ]
+#'
 #'
 #' # Apply microsynth to the new macro-level data
 #' sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
@@ -512,6 +521,7 @@
 #'            plot.var=match.out[4], test='lower', perm=250, jack=FALSE,
 #'            check.feas=TRUE, use.backup=TRUE)
 #'
+#' \dontrun{
 #' # Use microsynth to calculate propensity score-type weights
 #' # Prepare cross-sectional data at time of intervention
 #' seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]#'
@@ -523,7 +533,7 @@
 #'
 #' # View results
 #' summary(sea9)
-#'
+#' }
 #'
 #' @export
 
@@ -537,6 +547,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                         calfun = "linear", bounds = c(0, Inf), result.file = NULL,
                         plot.file = NULL, sep = FALSE, legend.spot = "bottomleft")
 {
+  data <- as.data.frame(data)
   all.tmp <- proc.time()
   if (length(timevar) == 0) {
     if (length(table(data[, idvar])) < NROW(data)) {
@@ -1418,19 +1429,19 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       message("Matching summary for main weights:\n", appendLF = FALSE)
       if (use.model.i == 1) {
         printstuff <- mses$printstuff
-        message(paste0(capture.output(round(printstuff,
+        message(paste0(utils::capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 2) {
         printstuff <- msesa$printstuff
-        message(paste0(capture.output(round(printstuff,
+        message(paste0(utils::capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 3) {
         printstuff <- msesb$printstuff
-        message(paste0(capture.output(round(printstuff,
+        message(paste0(utils::capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
@@ -1511,7 +1522,6 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
   return(out)
 }
 
-
 get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL,
                       end.pre, samp, use, n = NROW(newdat), maxit = 500, calfun = "raking", bounds = c(-Inf, Inf), epsilon = 1e-04, trim = NULL, qpmeth = "LowRankQP",
                       scale.var = "Intercept") {
@@ -1553,7 +1563,11 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
 
   usevars <- colnames(condat)
 
-  rem <- find.sing(t(as.matrix(condat)) %*% as.matrix(condat))
+  if (NCOL(as.matrix(condat)) <= NROW(as.matrix(condat))) {
+    rem <- find.sing(t(as.matrix(condat)) %*% as.matrix(condat))
+  } else {
+    rem <- NULL
+  }
   keep <- !is.element(1:NCOL(condat), rem)
 
   form <- paste("~", paste(usevars[keep], collapse = "+", sep = ""), "-1", sep = "")
@@ -2146,7 +2160,7 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, end.pre, period = 1, end.
         keep <- !is.na(dum.tmp)
         if (sum(!keep) > 0) {
           message("\nThe following variables yield survey statistics with value NA. \nThese will be removed from the omnibus statistic: \n", appendLF=FALSE)
-          message(paste0(capture.output(omnibus.var[!keep]), collapse='\n'))
+          message(paste0(utils::capture.output(omnibus.var[!keep]), collapse='\n'))
           message("\n", appendLF=FALSE)
         }
         omnibus.var <- omnibus.var[keep]
@@ -2312,7 +2326,11 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
   } else if (qpmeth == "LowRankQP") {
     requireNamespace("LowRankQP", quietly = TRUE)
 
-    rem <- find.sing(Y %*% t(Y))
+    if (NROW(Y) <= NCOL(Y)) {
+      rem <- find.sing(Y %*% t(Y))
+    } else {
+      rem <- NULL
+    }
     leave <- setdiff(1:NROW(Y), rem)
     sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = t(X), dvec = -t(X) %*% a, Amat = Y[leave, , drop = FALSE],
                                                                       bvec = c[leave], uvec = rep(M, q), method = "SMW", verbose = FALSE, niter = maxit))
@@ -2670,7 +2688,13 @@ find.sing <- function(X) {
 
 
 check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
-  rem <- find.sing(A %*% t(A))
+  maxit <- NULL # for R CMD check ("no visible binding for global variable 'maxit'")
+
+  if (NROW(A) <= NCOL(A)) {
+    rem <- find.sing(A %*% t(A))
+  } else {
+    rem <- NULL
+  }
   leave <- setdiff(1:NROW(A), rem)
   A <- A[leave, ]
   b <- b[leave]
@@ -2813,9 +2837,9 @@ rref <- function(A, tol = sqrt(.Machine$double.eps), verbose = FALSE, fractions 
       A[y.position, ] <- row  # restore current row
       if (verbose)
         if (fractions) {
-          message(paste0(capture.output(fractions(A)), collapse="\n"), appendLF=FALSE)
+          message(paste0(utils::capture.output(fractions(A)), collapse="\n"), appendLF=FALSE)
         } else {
-          message(paste0(capture.output(round(A, round(abs(log(tol, 10))))), collapse="\n"), appendLF=FALSE)
+          message(paste0(utils::capture.output(round(A, round(abs(log(tol, 10))))), collapse="\n"), appendLF=FALSE)
         }
       x.position <- x.position + 1
       y.position <- y.position + 1
