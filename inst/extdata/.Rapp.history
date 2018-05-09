@@ -1,0 +1,3 @@
+load("/Users/sdavenpo/GDrive/Projects/Synthetic Controls/microsynth/inst/extdata/sea4mini.rds")
+load("/Users/sdavenpo/GDrive/Projects/Synthetic Controls/microsynth/inst/extdata/sea3mini.rds")
+load("/Users/sdavenpo/GDrive/Projects/Synthetic Controls/microsynth/sea3micro.rds")

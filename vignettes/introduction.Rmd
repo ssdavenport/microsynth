@@ -369,7 +369,7 @@ two different follow-up periods, ending at t=14 and t=16 respectively. One
 results table will be calculated for each.
 
 ```{r, eval = TRUE, echo = FALSE}
-a <- readRDS("../inst/extdata/sea2mini.Rds")
+a <- readRDS("../inst/extdata/sea2micro.Rds")
 summary(a)
 ```
 
@@ -418,7 +418,7 @@ sea3 <- microsynth(seattledmi,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea3m <- readRDS("../inst/extdata/sea3mini.Rds")
+sea3m <- readRDS("../inst/extdata/sea3micro.Rds")
 summary(sea3m)
 ```
 
@@ -486,7 +486,7 @@ sea4 <- microsynth(seattledmi,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea4m <- readRDS("../inst/extdata/sea4mini.Rds")
+sea4m <- readRDS("../inst/extdata/sea4micro.Rds")
 summary(sea4m)
 ```
 
@@ -538,7 +538,7 @@ Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
 
 ```{r, eval = TRUE, echo = FALSE}
-sea5m <- readRDS("../inst/extdata/sea5mini.Rds")
+sea5m <- readRDS("../inst/extdata/sea5micro.Rds")
 summary(sea5m)
 ```
 
@@ -586,7 +586,7 @@ file, this requires the file be saved as an XLSX rather than a CSV; each table
 will be saved to a different XLSX tab.
 
 ```{r, eval = TRUE, echo = FALSE}
-sea7m <- readRDS("../inst/extdata/sea7mini.Rds")
+sea7m <- readRDS("../inst/extdata/sea7micro.Rds")
 sea7m
 ```
 
@@ -628,7 +628,7 @@ sea8 <- microsynth(seattledmi.one,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea8m <- readRDS("../inst/extdata/sea8mini.Rds")
+sea8m <- readRDS("../inst/extdata/sea8micro.Rds")
 summary(sea8m)
 ```
 
@@ -662,7 +662,7 @@ sea9 <- microsynth(seattledmi.cross,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea9m <- readRDS("../inst/extdata/sea9mini.Rds")
+sea9m <- readRDS("../inst/extdata/sea9micro.Rds")
 sea9m
 ```
 
