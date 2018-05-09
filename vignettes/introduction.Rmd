@@ -369,12 +369,12 @@ two different follow-up periods, ending at t=14 and t=16 respectively. One
 results table will be calculated for each.
 
 ```{r, eval = TRUE, echo = FALSE}
-a <- readRDS("../data/sea2mini.Rds")
+a <- readRDS("../inst/extdata/sea2mini.Rds")
 summary(a)
 ```
 
 ```{r out.width = "100%", echo=F}
-knitr::include_graphics("../data/sea2-min.png")
+knitr::include_graphics("../inst/extdata/sea2-min.png")
 ```
 
 ### Example 3:  Model feasibility while matching on more variables
@@ -418,22 +418,22 @@ sea3 <- microsynth(seattledmi,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea3m <- readRDS("../data/sea3mini.Rds")
+sea3m <- readRDS("../inst/extdata/sea3mini.Rds")
 summary(sea3m)
 ```
 
 The results file now shows additional rows for the new outcome variables.  
 
 ```{r out.width = "100%", echo=F}
-knitr::include_graphics("../data/sea3a-min.png")
+knitr::include_graphics("../inst/extdata/sea3a-min.png")
 ```
 
 ```{r out.width = "100%", echo=F}
-knitr::include_graphics("../data/sea3b-min.png")
+knitr::include_graphics("../inst/extdata/sea3b-min.png")
 ```
 
 ```{r out.width = "100%", echo=F}
-knitr::include_graphics("../data/sea3c-min.png")
+knitr::include_graphics("../inst/extdata/sea3c-min.png")
 ```
 
 ### Example 4: Provide match.out as a list (time-aggregating matching variables)
@@ -486,7 +486,7 @@ sea4 <- microsynth(seattledmi,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea4m <- readRDS("../data/sea4mini.Rds")
+sea4m <- readRDS("../inst/extdata/sea4mini.Rds")
 summary(sea4m)
 ```
 
@@ -495,15 +495,15 @@ the results table, though the estimates have changed as a consequence of the
 aggregation.
 
 ```{r out.width = "100%", echo=F}
-knitr::include_graphics("../data/sea4a-min.png")
+knitr::include_graphics("../inst/extdata/sea4a-min.png")
 ```
 
 ```{r out.width = "100%", echo=F}
-knitr::include_graphics("../data/sea4b-min.png")
+knitr::include_graphics("../inst/extdata/sea4b-min.png")
 ```
 
 ```{r out.width = "100%", echo=F}
-knitr::include_graphics("../data/sea4c-min.png")
+knitr::include_graphics("../inst/extdata/sea4c-min.png")
 ```
 
 ## Partial calls to microsynth
@@ -538,7 +538,7 @@ Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
 
 ```{r, eval = TRUE, echo = FALSE}
-sea5m <- readRDS("../data/sea5mini.Rds")
+sea5m <- readRDS("../inst/extdata/sea5mini.Rds")
 summary(sea5m)
 ```
 
@@ -560,7 +560,7 @@ sea6 <- microsynth(seattledmi,
 ```
 
 ```{r out.width = "100%", echo=F}
-knitr::include_graphics("../data/sea6c-min.png")
+knitr::include_graphics("../inst/extdata/sea6c-min.png")
 ```
 
 ### Example 7:  Results only
@@ -586,7 +586,7 @@ file, this requires the file be saved as an XLSX rather than a CSV; each table
 will be saved to a different XLSX tab.
 
 ```{r, eval = TRUE, echo = FALSE}
-sea7m <- readRDS("../data/sea7mini.Rds")
+sea7m <- readRDS("../inst/extdata/sea7mini.Rds")
 sea7m
 ```
 
@@ -628,12 +628,12 @@ sea8 <- microsynth(seattledmi.one,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea8m <- readRDS("../data/sea8mini.Rds")
+sea8m <- readRDS("../inst/extdata/sea8mini.Rds")
 summary(sea8m)
 ```
 
 ```{r out.width = "100%", echo=F}
-knitr::include_graphics("../data/sea8-min.png")
+knitr::include_graphics("../inst/extdata/sea8-min.png")
 ```
 
 ### Example 9: Cross-sectional data for propensity score-type weights
@@ -662,7 +662,7 @@ sea9 <- microsynth(seattledmi.cross,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea9m <- readRDS("../data/sea9mini.Rds")
+sea9m <- readRDS("../inst/extdata/sea9mini.Rds")
 sea9m
 ```
 
