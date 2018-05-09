@@ -1,0 +1,149 @@
+--- 
+title: "MicroSynth: A Tutorial - computing plots" 
+author: "Michael Robbins and Steven Davenport" 
+date: "`r Sys.Date()`" 
+output: rmarkdown::html_vignette 
+vignette: >
+  %\VignetteIndexEntry{MicroSynth: A Tutorial} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8} 
+---
+
+```{r load, echo=F}
+library(microsynth)
+library(knitr)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.height=3.1, fig.width=7.2, fig.show = "hold")
+load("../objects_for_vignettes.Rdata")
+```
+
+```{r ex0_load} 
+colnames(seattledmi)
+set.seed(99199)
+
+cov.var <- c("TotalPop", "BLACK", "HISPANIC", "Males_1521", "HOUSEHOLDS", 
+             "FAMILYHOUS", "FEMALE_HOU", "RENTER_HOU", "VACANT_HOU")
+match.out <- c("i_felony", "i_misdemea", "i_drugs", "any_crime")
+# 
+# sea1c <- microsynth(seattledmi,
+#                    idvar="ID", timevar="time", intvar="Intervention",
+#                    start.pre=1, end.pre=12, end.post=16,
+#                    match.out=match.out, match.covar=cov.var,
+#                    result.var=match.out, omnibus.var=match.out, plot.var=match.out,
+#                    test="lower", sep = TRUE, plot.file="sea1c.pdf")
+
+sea2 <- microsynth(seattledmi, 
+                   idvar="ID", timevar="time", intvar="Intervention", 
+                   start.pre=1, end.pre=12, end.post=c(14, 16),
+                   match.out=match.out, match.covar=cov.var, 
+                   result.var=match.out, omnibus.var=match.out, 
+                   plot.var=match.out, 
+                   test="lower", 
+                   perm=250, jack=TRUE, plot.file="sea2.pdf")
+
+sea2m <- sea2
+
+
+```
+
+
+```{r}
+match.out <- c("i_robbery", "i_aggassau", "i_burglary", "i_larceny", "i_felony", 
+               "i_misdemea", "i_drugsale", "i_drugposs", "any_crime")
+
+sea3 <- microsynth(seattledmi, 
+                   idvar="ID", timevar="time", intvar="Intervention", 
+                   end.pre=12,
+                   match.out=match.out, match.covar=cov.var, 
+                   result.var=match.out, plot.var=match.out, 
+                   perm=250, jack=0, 
+                   test="lower", check.feas=TRUE, use.backup = TRUE,
+                   plot.file="sea3c.pdf")
+```
+
+```{r ex4, eval = FALSE, echo=TRUE} 
+match.out <- list( 'i_robbery'=rep(2, 6), 
+                   'i_aggassau'=rep(2, 6), 
+                   'i_burglary'=rep(1, 12), 
+                   'i_larceny'=rep(1, 12), 
+                   'i_felony'=rep(2, 6), 
+                   'i_misdemea'=rep(2, 6), 
+                   'i_drugsale'=rep(4, 3), 
+                   'i_drugposs'=rep(4, 3), 
+                   'any_crime'=rep(1, 12))
+
+sea4 <- microsynth(seattledmi, 
+                   idvar="ID", timevar="time",intvar="Intervention",
+                   match.out=match.out, match.covar=cov.var, 
+                   result.var=names(match.out), omnibus.var=names(match.out), 
+                   plot.var=names(match.out),
+                   end.pre=12,
+                   perm=250, jack = TRUE,
+                   test="lower",
+                   plot.file="ExPlots4.pdf", result.file="ExResults4.xlsx")
+# TODO: show summary()
+# DONE: Added plots
+```
+
+### Example 5:  Weights only
+
+
+```{r ex5, eval = FALSE, echo=TRUE, results='hide'}
+match.out <- c("i_felony", "i_misdemea", "i_drugs", "any_crime")
+sea5 <- microsynth(seattledmi, 
+                   idvar="ID", timevar="time",intvar="Intervention",
+                   end.pre=12,
+                   match.out=match.out, match.covar=cov.var,
+                   result.var=FALSE, plot.var=FALSE,
+                   perm=250, jack=TRUE)
+
+#TODO: Show summary()
+summary(sea5)
+```
+
+### Example 6:  Plots only
+
+```{r ex6, eval = FALSE, echo=TRUE}
+sea6 <- microsynth(seattledmi, 
+                   idvar="ID", timevar="time", intvar="Intervention",
+                   end.pre=12,
+                   result.var=FALSE, plot.var=match.out[1:2], sep = FALSE,
+                   w=sea5$w,
+                   plot.file="sea6c.pdf")
+# TODO: Show chart (code running)
+
+sea7 <- microsynth(seattledmi, 
+                   idvar="ID", timevar="time", intvar="Intervention",
+                   end.pre=12, end.post=c(14, 16),
+                   result.var=match.out, plot.var=FALSE,
+                   test="lower", 
+                   w=sea5$w)
+#TODO: save summary() call
+```
+
+```{r ex8prep, eval = FALSE, echo=TRUE}
+set.seed(86872)
+ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
+ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
+ids.synth <- c(sample(ids.t, 1), sample(ids.c, 100))
+seattledmi.one <- seattledmi[is.element(seattledmi$ID, as.numeric(ids.synth)), ]
+
+sea8 <- microsynth(seattledmi.one, 
+                   idvar="ID", timevar="time", intvar="Intervention", 
+                   match.out=match.out[4], match.covar=cov.var, 
+                   result.var=match.out[4], plot.var=match.out[4],
+                   test="lower", perm=250, jack=FALSE, 
+                   check.feas=TRUE, use.backup=TRUE,
+                   sep = TRUE,
+                   plot.file="sea8.pdf")
+
+seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]
+# DONE: Show chart 
+
+sea9 <- microsynth(seattledmi.cross, 
+                   idvar="ID", intvar="Intervention",
+                   match.out=FALSE, match.covar=cov.var,
+                   result.var=match.out, 
+                   test="lower",
+                   perm=1, jack=F)
+# TODO: Add summary()
+```
