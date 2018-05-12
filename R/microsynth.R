@@ -415,12 +415,13 @@
 #' cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
 #'        'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
 #'
-#' \dontrun{
+#' \donttest{
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 #'
 #' set.seed(99199) # for reproducibility
 #'
 #' # Perform matching and estimation, without permutations or jackknife
+#' # runtime: < 1 min
 #' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
 #'        match.out=match.out, match.covar=cov.var, result.var=match.out,
@@ -432,11 +433,13 @@
 #' # Repeat matching and estimation, with permutations and jackknife
 #' # Set permutations and jack-knife to very few groups (2) for
 #' # quick demonstration only.
+#' # runtime: ~30 min
 #' sea2 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'         intvar='Intervention', start.pre=1, end.pre=12, end.post=c(14, 16),
 #'         match.out=match.out, match.covar=cov.var, result.var=match.out,
 #'         omnibus.var=match.out, plot.var=match.out, test='lower', perm=250,
-#'         jack=TRUE, plot.file=NULL, sep = TRUE, result.file='ExResults2.xlsx')
+#'         jack=TRUE, plot.file=NULL, sep = TRUE,
+#'         result.file=file.path(tempdir(), 'ExResults2.xlsx'))
 #'
 #' # View results
 #' summary(sea2)
@@ -448,12 +451,13 @@
 #'
 #' # Perform matching, setting check.feas = T and use.backup = T
 #' # to ensure model feasibility
+#' # runtime: ~40 minutes
 #' sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'         intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'         start.pre=1, end.pre=12, end.post=16,
 #'         result.var=match.out, plot.var=match.out, perm=250, jack=0,
 #'         test='lower', check.feas=TRUE, use.backup = TRUE,
-#'         plot.file=NULL, result.file='ExResults3.xlsx')
+#'         plot.file=NULL, result.file=file.path(tempdir(), 'ExResults3.xlsx'))
 #'
 #' # Aggregate outcome variables before matching, to boost model feasibility
 #' match.out <- list( 'i_robbery'=rep(2, 6), 'i_aggassau'=rep(2, 6),
@@ -463,40 +467,45 @@
 #'          'any_crime'=rep(1, 12))
 #'
 #' # After aggregation, use.backup and cheack.feas no longer needed
+#' # runtime: ~40 minutes
 #' sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
 #'          plot.var=names(match.out), perm=250, jack = TRUE, test='lower',
-#'          plot.file='ExPlots4.pdf', result.file='ExResults4.xlsx')
+#'          plot.file='ExPlots4.pdf', result.file=file.path(tempdir(), 'ExResults4.xlsx'))
 #'
 #' }
 #'
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 #'
-#' \dontrun{
+#' \donttest{
+#' # runtime: ~ 20 minutes
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
 #'          result.var=FALSE, plot.var=FALSE, perm=250, jack=TRUE)
 #'
+#'
 #' # View weights
 #' summary(sea5)
 #'
 #' # Generate plots only using previous weights
-#' sea6 <- microsynth(seattledmi,  idvar='ID', timevar='time',
-#'           intvar='Intervention',
-#'           start.pre=1, end.pre=12, end.post=16,
-#'           result.var=FALSE, plot.var=match.out[1:2],
-#'           w=sea5$w)
+#' # runtime: ~ 1 min
+# sea6 <- microsynth(seattledmi,  idvar='ID', timevar='time',
+#           intvar='Intervention',
+#           start.pre=1, end.pre=12, end.post=16,
+#           result.var=FALSE, plot.var=match.out[1:2],
+#           w=sea5$w)
 #'
 #' # Generate results only
+#' # runtime: < 5 minutes
 #' sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'           intvar='Intervention',
 #'           start.pre=1, end.pre=12, end.post=c(14, 16),
 #'           result.var=match.out, plot.var=FALSE, test='lower',
-#'           w=sea5$w, result.file='ExResults7.xlsx')
+#'           w=sea5$w, result.file=file.path(tempdir(), 'ExResults7.xlsx'))
 #'
 #' # View results (including previously-found weights)
 #' summary(sea7)
@@ -513,6 +522,7 @@
 #'
 #'
 #' # Apply microsynth to the new macro-level data
+#' # runtime: < 5 minutes
 #' sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
 #'            intvar='Intervention',
 #'            start.pre=1, end.pre=12, end.post=16,
@@ -527,6 +537,7 @@
 #' seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]#'
 #'
 #' # Apply microsynth to find propensity score-type weights
+#' # runtime: ~5 minutes
 #' sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
 #'              match.out=FALSE, match.covar=cov.var, result.var=match.out,
 #'              test='lower', perm=250, jack=TRUE)
@@ -2668,7 +2679,7 @@ is.feasible <- function(bigdat, covar.var, dum, Int, int.val = 1, end.pre, eps =
 
 
 find.sing <- function(X) {
-  Z <- rref(X)
+  Z <- pracma::rref(X)
 
   rem <- NULL
   cont <- TRUE
@@ -2800,55 +2811,6 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
   }
 
   return(list(mse = mse, mse1 = mse1, printstuff = printstuff))
-}
-
-
-rref <- function(A, tol = sqrt(.Machine$double.eps), verbose = FALSE, fractions = FALSE) {
-  ## A: coefficient matrix tol: tolerance for checking for 0 pivot verbose: if TRUE, print intermediate steps fractions: try to
-  ## express nonintegers as rational numbers Written by John Fox Modified by Geoffrey Brent 2014-12-17 to fix a bug
-  if (fractions) {
-    mass <- requireNamespace("MASS", quietly = TRUE)
-    if (!mass)
-      stop("fractions=TRUE needs MASS package")
-  }
-  if ((!is.matrix(A)) || (!is.numeric(A)))
-    stop("argument must be a numeric matrix")
-  n <- nrow(A)
-  m <- ncol(A)
-  x.position <- 1
-  y.position <- 1
-  # change loop:
-  while ((x.position <= m) & (y.position <= n)) {
-    col <- A[, x.position]
-    col[1:n < y.position] <- 0
-    # find maximum pivot in current column at or below current row
-    which <- which.max(abs(col))
-    pivot <- col[which]
-    if (abs(pivot) <= tol)
-      x.position <- x.position + 1  # check for 0 pivot
-    else {
-      if (which > y.position)
-      {
-        A[c(y.position, which), ] <- A[c(which, y.position), ]
-      }  # exchange rows
-      A[y.position, ] <- A[y.position, ]/pivot  # pivot
-      row <- A[y.position, ]
-      A <- A - outer(A[, x.position], row)  # sweep
-      A[y.position, ] <- row  # restore current row
-      if (verbose)
-        if (fractions) {
-          message(paste0(utils::capture.output(fractions(A)), collapse="\n"), appendLF=FALSE)
-        } else {
-          message(paste0(utils::capture.output(round(A, round(abs(log(tol, 10))))), collapse="\n"), appendLF=FALSE)
-        }
-      x.position <- x.position + 1
-      y.position <- y.position + 1
-    }
-  }
-  for (i in 1:n) if (max(abs(A[i, 1:m])) <= tol)
-    A[c(i, n), ] <- A[c(n, i), ]  # 0 rows to bottom
-  if (fractions)
-    fractions(A) else round(A, round(abs(log(tol, 10))))
 }
 
 
