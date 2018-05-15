@@ -2679,7 +2679,12 @@ is.feasible <- function(bigdat, covar.var, dum, Int, int.val = 1, end.pre, eps =
 
 
 find.sing <- function(X) {
-  Z <- pracma::rref(X)
+  if (NROW(X) == 1) {
+    Z <- X/X[1,1]
+  } else {
+    Z <- pracma::rref(X)
+  }
+  dimnames(Z) <- dimnames(X)
 
   rem <- NULL
   cont <- TRUE
@@ -2696,6 +2701,7 @@ find.sing <- function(X) {
   }
   return(rem)
 }
+
 
 
 check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {

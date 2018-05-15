@@ -419,7 +419,7 @@ match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 set.seed(99199) # for reproducibility
 
 # Perform matching and estimation, without permutations or jackknife
-# (runtime: ~ 20s)
+# runtime: < 1 min
 sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
        match.out=match.out, match.covar=cov.var, result.var=match.out,
@@ -490,10 +490,10 @@ sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 summary(sea5)
 
 # Generate plots only using previous weights
-runtime: ~ 1 min
+# runtime: ~ 1 min
 
 # Generate results only
-runtime: < 5 minutes
+# runtime: < 5 minutes
 sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
           intvar='Intervention',
           start.pre=1, end.pre=12, end.post=c(14, 16),
@@ -515,7 +515,7 @@ seattledmi.one <- seattledmi[is.element(seattledmi$ID,
 
 
 # Apply microsynth to the new macro-level data
-runtime: < 5 minutes
+# runtime: < 5 minutes
 sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
            intvar='Intervention',
            start.pre=1, end.pre=12, end.post=16,
@@ -530,7 +530,7 @@ sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
 seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]#'
 
 # Apply microsynth to find propensity score-type weights
-runtime: ~5 minutes
+# runtime: ~5 minutes
 sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
              match.out=FALSE, match.covar=cov.var, result.var=match.out,
              test='lower', perm=250, jack=TRUE)
