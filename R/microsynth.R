@@ -16,9 +16,10 @@
 #' that exactly match a treatment group to a synthetic control group across
 #' a number of variables while also minimizing the discrepancy between the
 #' synthetic control group and the treatment group across a set second set of
-#' variables.  \code{microsynth} works in three primary steps: 1) calculation of
-#' weights, 2) plotting of treatment vs. synthetic control for pertinent
-#' outcomes, and 3) calculation of results.
+#' variables.  \code{microsynth} works in two primary steps: 1) calculation of
+#' weights and 2) calculation of results.  Time series plots of treatment
+#' vs. synthetic control for pertinent outcomes may be performed using the
+#' function \code{plot.microsynth()}.
 #'
 #' The time range over which data are observed is segmented into pre- and
 #' post-intervention periods.  Treatment is matched to synthetic control
@@ -58,9 +59,7 @@
 #' and \code{match.out} (i.e., an exact solution is infeasible or nearly
 #' infeasible), it is recommended that the jackknife not be used for inference.
 #'
-#' The software provides the user the option to create time series plots of
-#' outcomes for both the treatment and outcome groups during the pre- and
-#' post-intervention time periods and to output overall findings in an Excel
+#' The software provides the user the option to output overall findings in an Excel
 #' file.  For each outcome variable, the results list the estimated treatment
 #' effect, as well as confidence intervals of the effect and p-values of a
 #' hypothesis test that assesses whether the effect is zero.   Such results are
@@ -85,8 +84,8 @@
 #'   each case).  Missingness is not allowed.  All individuals must have non-NA
 #'   values of all variables at all time points.
 #'
-#' @param idvar A character string that gives the variable in
-#'   \code{data} that identifies multiple records from the same case.
+#' @param idvar A character string that gives the variable in \code{data} that
+#'   identifies multiple records from the same case.
 #'
 #' @param intvar A character string that gives the variable in \code{data} that
 #'   corresponds to the intervention variable.  The intervention variable
@@ -102,13 +101,14 @@
 #'   the first non-zero entry in \code{intvar}).
 #'
 #' @param timevar A character string that gives the variable in
-#'   \code{data} that differentiate multiple records of the same case.  Can be
+#'   \code{data} that differentiates multiple records from the same case.  Can be
 #'   set to \code{NULL} only when used with cross-sectional data (i.e., with one
 #'   observation per entry in \code{idvar}).
 #'
-#' @param w A list of the form as returned by a prior application of
-#'   \code{microsynth}.  If \code{w = NULL}, weights are calculated from
-#'   scratch.  Entering a \code{non-NULL} value affords the user the ability to
+#' @param w A \code{microsynth} object or a list of the form as returned
+#'   by a prior application of \code{microsynth}.
+#'   If \code{w = NULL}, weights are calculated from scratch.
+#'   Entering a \code{non-NULL} value affords the user the ability to
 #'   use previously calculated  weights.
 #'
 #' @param end.pre An integer that gives the final time point of the
@@ -236,6 +236,7 @@
 #'   (the default), \code{result.var} is set as being equal to all time-varying
 #'   variables that appear in \code{data}.  If \code{result.var = NULL} or
 #'   \code{result.var = FALSE}, results are not tabulated.
+#'
 #' @param omnibus.var A vector of variable names that indicates the outcome
 #'   variables that are to be used within the calculation of the omnibus
 #'   statistic.  Can also be a logical indicator.  When \code{omnibus.var =
@@ -244,7 +245,7 @@
 #'   is calculated.
 #'
 #' @param period An integer that gives the granularity of the data that will be
-#'   used for plotting and compiling results; if \code{match.out} and
+#'   used for plotting and compiling results.  If \code{match.out} and
 #'   \code{match.out.min} are provided a vector of variable names, it will also
 #'   affect the calculation of weights used for matching. In this case, matching
 #'   of treatment and synthetic control is performed at a temporal granularity
@@ -253,13 +254,21 @@
 #'   (and weighting unless otherwise specified). If \code{match.out} and
 #'   \code{match.out.min} are provided a list, \code{period} only affects plots
 #'   and how results are displayed.
+#'
+#'   Note that plotting is performed with
+#'   \code{plot.microsynth()}; however, a \code{microsynth} object is required as
+#'   input for that function and \code{period} should be specified in the creation
+#'   of that object.
+#'
 #' @param cut.mse The maximum error (given as mean-squared error) permissible
 #'   for permutation groups.  Permutation groups with a larger than permissible
 #'   error are dropped when calculating results.  The mean-squared error is only
 #'   calculated over constraints that are to be exactly satisfied.
+#'
 #' @param test The type of hypothesis test (one-sided lower, one-sided upper, or
 #'   two-sided) that is used when calculating p-values.  Entries of
 #'   \code{'lower'}, \code{'upper'}, and \code{'twosided'} are recognized.
+#'
 #' @param result.file A character string giving the name of a file that will be
 #'   created in the home directory containing results.  If \code{result.file =
 #'   NULL} (the default), no file is created.  If \code{end.post} has length 1,
@@ -269,6 +278,7 @@
 #'   \code{.xls}) extension (e.g., the last five characters of result.file are
 #'   '.xlsx'), an \code{.xlsx} file is created regardless of the length of
 #'   \code{end.post}.
+#'
 #' @param use.survey If \code{use.survey = TRUE}, Taylor series linearization is
 #'   applied to the estimated treatment effect within each permutation group.
 #'   Setting \code{use.survey = TRUE} makes for better inference but increases
@@ -277,28 +287,12 @@
 #'
 #' @param confidence The level of confidence for confidence intervals.
 #'
-#' @param plot.var A vector of variable names giving the outcome variables that
-#'   are shown in plots.  If \code{plot.var = NULL} or \code{plot.var = FALSE}, no
-#'   plots are generated.  If \code{plot.var = TRUE}, it is reset as equaling all
-#'   time variant variables in \code{data}.
-#' @param plot.file A character string giving the name of file that will be
-#'   created in the home directory containing plots (if \code{plot.var} is
-#'   non-\code{NULL}).  The name should have a \code{.pdf} extension.
-#'
 #' @param start.pre An integer indicating the time point that corresponds to the
 #'   beginning of the pre-intervention period used for
 #'   matching.  When \code{start.pre = NULL} (default), it is reset to the
 #'   minimum time appearing in the column given by \code{timevar}.  If
 #'   \code{match.out} (and \code{match.out.min}) are given in list format,
 #'   \code{start.pre} is ignored except for plotting.
-#'
-#' @param sep If \code{sep = TRUE}, separate plots will be generated for each
-#'   outcome.  Applicable only if plotting variables are specified (
-#'   \code{plot.var} is \code{non-NULL}) and plots are saved to file (
-#'   \code{plot.file} is \code{non-NULL}). To change display of plots produced
-#'   as output, use \code{\link[graphics]{par}}.
-#'
-#' @param legend.spot The location of the legend in the plots.
 #'
 #' @param scale.var  A variable name.  When comparing the treatment group to all
 #'   cases, the latter is scaled to the size of the former with respect to the
@@ -330,8 +324,7 @@
 #'
 #' @return \code{microsynth} returns a list with up to four elements: a)
 #'   \code{w}, b) \code{Results}, c) \code{svyglm.stats},
-#'   and c) \code{Plot.Stats}.  The fourth element is returned only if
-#'   \code{plot.var} is not \code{NULL} or \code{FALSE}.
+#'   and c) \code{Plot.Stats}.
 #'
 #'   \code{w} is a list with five elements: a) \code{Weights}, b)
 #'   \code{Intervention},
@@ -369,7 +362,8 @@
 #'   one row per variable in \code{result.var}.
 #'
 #'   Lastly, \code{Plot.Stats} contains the data that are displayed in the
-#'   plots.  \code{Plot.Stats} is a list with four elements (Treatment, Control,
+#'   plots which may be generated using \code{plot.microsynth()}.
+#'   \code{Plot.Stats} is a list with four elements (Treatment, Control,
 #'   All, Difference).  The first three elements are matrices with one row per
 #'   outcome variable and one column per time point.  The last element (which
 #'   gives the treatment minus control values) is an array that contains data
@@ -407,10 +401,10 @@
 #'   specific crime intervention,” \emph{Journal of the American Statistical
 #'   Association}, 112(517), 109-126.
 #'
-#' @importFrom utils capture.output
-#'
 #' @examples
+#'
 #' # Use seattledmi, block-level panel data, to evaluate a crime intervention.
+#'
 #' # Declare time-variant (outcome) and time-invariant variables for matching
 #' cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
 #'        'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
@@ -425,7 +419,7 @@
 #' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
 #'        match.out=match.out, match.covar=cov.var, result.var=match.out,
-#'        omnibus.var=match.out, plot.var=match.out, test='lower')
+#'        omnibus.var=match.out, test='lower')
 #'
 #' # View results
 #' summary(sea1)
@@ -437,8 +431,7 @@
 #' sea2 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'         intvar='Intervention', start.pre=1, end.pre=12, end.post=c(14, 16),
 #'         match.out=match.out, match.covar=cov.var, result.var=match.out,
-#'         omnibus.var=match.out, plot.var=match.out, test='lower', perm=250,
-#'         jack=TRUE, plot.file=NULL, sep = TRUE,
+#'         omnibus.var=match.out, test='lower', perm=250, jack=TRUE,
 #'         result.file=file.path(tempdir(), 'ExResults2.xlsx'))
 #'
 #' # View results
@@ -455,9 +448,9 @@
 #' sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'         intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'         start.pre=1, end.pre=12, end.post=16,
-#'         result.var=match.out, plot.var=match.out, perm=250, jack=0,
+#'         result.var=match.out, perm=250, jack=0,
 #'         test='lower', check.feas=TRUE, use.backup = TRUE,
-#'         plot.file=NULL, result.file=file.path(tempdir(), 'ExResults3.xlsx'))
+#'         result.file=file.path(tempdir(), 'ExResults3.xlsx'))
 #'
 #' # Aggregate outcome variables before matching, to boost model feasibility
 #' match.out <- list( 'i_robbery'=rep(2, 6), 'i_aggassau'=rep(2, 6),
@@ -472,43 +465,32 @@
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
-#'          plot.var=names(match.out), perm=250, jack = TRUE, test='lower',
-#'          plot.file='ExPlots4.pdf', result.file=file.path(tempdir(), 'ExResults4.xlsx'))
+#'          perm=250, jack = TRUE, test='lower',
+#'          result.file=file.path(tempdir(), 'ExResults4.xlsx'))
 #'
 #' }
 #'
-#' # Generate weights only (for four variables)
-#' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
-#'
 #' \donttest{
 #' # runtime: ~ 20 minutes
+#' # Generate weights only (for four variables)
+#' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
-#'          result.var=FALSE, plot.var=FALSE, perm=250, jack=TRUE)
-#'
+#'          result.var=FALSE, perm=250, jack=TRUE)
 #'
 #' # View weights
 #' summary(sea5)
 #'
-#' # Generate plots only using previous weights
-#' # runtime: ~ 1 min
-# sea6 <- microsynth(seattledmi,  idvar='ID', timevar='time',
-#           intvar='Intervention',
-#           start.pre=1, end.pre=12, end.post=16,
-#           result.var=FALSE, plot.var=match.out[1:2],
-#           w=sea5$w)
-#'
 #' # Generate results only
-#' # runtime: < 5 minutes
-#' sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
+#' sea6 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'           intvar='Intervention',
 #'           start.pre=1, end.pre=12, end.post=c(14, 16),
-#'           result.var=match.out, plot.var=FALSE, test='lower',
-#'           w=sea5$w, result.file=file.path(tempdir(), 'ExResults7.xlsx'))
+#'           result.var=match.out, test='lower',
+#'           w=sea5, result.file=file.path(tempdir(), 'ExResults6.xlsx'))
 #'
 #' # View results (including previously-found weights)
-#' summary(sea7)
+#' summary(sea6)
 #' }
 #'
 #' # Apply microsynth in the traditional setting of Synth
@@ -520,45 +502,41 @@
 #' seattledmi.one <- seattledmi[is.element(seattledmi$ID,
 #'            as.numeric(ids.synth)), ]
 #'
-#'
 #' # Apply microsynth to the new macro-level data
 #' # runtime: < 5 minutes
-#' sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
+#' sea7 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
 #'            intvar='Intervention',
 #'            start.pre=1, end.pre=12, end.post=16,
 #'            match.out=match.out[4],
 #'            match.covar=cov.var, result.var=match.out[4],
-#'            plot.var=match.out[4], test='lower', perm=250, jack=FALSE,
+#'            test='lower', perm=250, jack=FALSE,
 #'            check.feas=TRUE, use.backup=TRUE)
 #'
-#' \dontrun{
 #' # Use microsynth to calculate propensity score-type weights
 #' # Prepare cross-sectional data at time of intervention
 #' seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]#'
 #'
 #' # Apply microsynth to find propensity score-type weights
 #' # runtime: ~5 minutes
-#' sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
+#' sea8 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
 #'              match.out=FALSE, match.covar=cov.var, result.var=match.out,
 #'              test='lower', perm=250, jack=TRUE)
 #'
 #' # View results
-#' summary(sea9)
-#' }
+#' summary(sea8)
+#'
 #'
 #' @export
 
 microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                         end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE,
                         match.out.min = NULL, match.covar.min = NULL, result.var = TRUE,
-                        omnibus.var = result.var, plot.var = TRUE, period = 1, scale.var = "Intercept",
+                        omnibus.var = result.var, period = 1, scale.var = "Intercept",
                         confidence = 0.9, test = "twosided", perm = 0, jack = 0,
                         use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, use.backup = FALSE,
                         w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04,
-                        calfun = "linear", bounds = c(0, Inf), result.file = NULL,
-                        plot.file = NULL, sep = FALSE, legend.spot = "bottomleft")
+                        calfun = "linear", bounds = c(0, Inf), result.file = NULL)
 {
-  data <- as.data.frame(data)
   all.tmp <- proc.time()
   if (length(timevar) == 0) {
     if (length(table(data[, idvar])) < NROW(data)) {
@@ -631,21 +609,6 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   else {
     reset.result.var <- FALSE
   }
-  if (is.logical(plot.var)) {
-    if (!plot.var) {
-      reset.plot.var <- TRUE
-    }
-    else {
-      reset.plot.var <- FALSE
-    }
-    plot.var <- NULL
-  }
-  else if (length(plot.var) == 0) {
-    reset.plot.var <- TRUE
-  }
-  else {
-    reset.plot.var <- FALSE
-  }
   match.out <- remove.vars(match.out, dimnames(data)[[2]],
                            "match.out")
   match.out.min <- remove.vars(match.out.min, dimnames(data)[[2]],
@@ -659,10 +622,6 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   if (!is.logical(omnibus.var)) {
     omnibus.var <- remove.vars(omnibus.var, dimnames(data)[[2]],
                                "omnibus.var")
-  }
-  if (!is.logical(plot.var)) {
-    plot.var <- remove.vars(plot.var, dimnames(data)[[2]],
-                            "plot.var")
   }
   nv.names <- union(match.covar, match.covar.min)
   v.names <- result.var
@@ -695,14 +654,6 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
       message("result.var = TRUE.  Resetting: \n", appendLF = FALSE)
       message("result.var = c(\"", paste(result.var, collapse = "\",\"",
                                          sep = ""), "\")\n\n", sep = "", appendLF = FALSE)
-    }
-  }
-  if (length(plot.var) == 0) {
-    plot.var <- data[[4]]
-    if (!reset.plot.var) {
-      message("plot.var = TRUE.  Resetting: \n", appendLF = FALSE)
-      message("plot.var = c(\"", paste(plot.var, collapse = "\",\"",
-                                       sep = ""), "\")\n\n", sep = "", appendLF = FALSE)
     }
   }
   if (length(match.covar) == 0) {
@@ -822,9 +773,6 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   if (reset.match.out) {
     match.out <- NULL
   }
-  if (reset.plot.var) {
-    plot.var <- NULL
-  }
   if (length(rm.col) > 0) {
     for (i in 1:length(rm.col)) {
       if (is.element(rm.col[i], result.var)) {
@@ -878,6 +826,9 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   else {
     message("Weights have been provided.  Will not calculate weights.\n",
             appendLF = FALSE)
+    if (class(w) == "microsynth") {
+      w <- w$w
+    }
     is.correct.w <- is.list(w)
     if (is.correct.w) {
       is.correct.w <- is.correct.w & sum(names(w) != c("Weights",
@@ -901,24 +852,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     message("Setting perm = ", perm, "\n\n", sep = "", appendLF = FALSE)
   }
   not.jack <- !grepl("Jack", colnames(w$Weights))
-  if (is.logical(plot.var)) {
-    if (plot.var) {
-      plot.var <- result.var
-    }
-    else {
-      plot.var <- NULL
-    }
-  }
-  else {
-    plot.var <- intersect(plot.var, dimnames(data)[[2]])
-  }
   end.post <- end.post - (end.post - end.pre)%%period
-  if (length(plot.var) > 0 & length(times) == 1) {
-    plot.var <- NULL
-    message("There is only one time point in the data.\n            Will not generate plots.\n\n",
-            appendLF = FALSE)
-  }
-  if (!reset.result.var | !reset.plot.var) {
+  if (!reset.result.var) {
     stats <- list()
     stats1 <- list()
     stats2 <- list()
@@ -928,27 +863,16 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     results <- list()
     for (i in 1:length(end.post)) {
       tmp <- proc.time()
-      is.graph <- is.graph1 <- ""
-      if (!reset.plot.var & !reset.result.var) {
-        is.graph <- "Making graphs and calculating basic statistics"
-        is.graph1 <- "Completed graphs and calculation of basic statistics"
-      }
-      else if (reset.plot.var & !reset.result.var) {
-        is.graph <- "Calculating basic statistics"
-        is.graph1 <- "Completed calculation of basic statistics"
-      }
-      else if (!reset.plot.var & reset.result.var) {
-        is.graph <- "Making graphs"
-        is.graph1 <- "Completed graphs"
-      }
+      is.graph <- "Calculating basic statistics"
+      is.graph1 <- "Completed calculation of basic statistics"
       message(is.graph, " for end.post = ", time.names[end.post[i]],
               "...", "\n", sep = "", appendLF = FALSE)
       stats[[i]] <- get.stats(data, w$Weights, w$Intervention,
                               w$MSE[1, ], result.var, end.pre = end.pre,
-                              period = period, plot.it = plot.var, end.post = end.post[i],
-                              file = plot.file, omnibus.var = omnibus.var,
-                              sep = sep, start.pre = start.pre, legend.spot = legend.spot,
-                              cut.mse = cut.mse, twosided = twosided, time.names = time.names)
+                              period = period, end.post = end.post[i],
+                              omnibus.var = omnibus.var,
+                              start.pre = start.pre, cut.mse = cut.mse,
+                              twosided = twosided, time.names = time.names)
       if (i == which.max(end.post)) {
         plot.stats <- stats[[i]][[5]]
       }
@@ -1096,17 +1020,12 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
       }
     }
   }
-  if (reset.plot.var) {
-    message("No plotting variables specified (e.g., plot.var = NULL).\n",
-            appendLF = FALSE)
-    message("Plots will not be created.\n", appendLF = FALSE)
-  }
   if (reset.result.var) {
     message("No outcome variables specified (e.g., result.var = NULL).\n",
             appendLF = FALSE)
     message("Results will not be tabulated.\n", appendLF = FALSE)
   }
-  if (reset.result.var & reset.plot.var) {
+  if (reset.result.var) {
     message("Returning weights only.\n", appendLF = FALSE)
   }
   out <- list()
@@ -1121,6 +1040,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     names(out)[i + 1] <- "svyglm.stats"
     i <- i + 2
   }
+  reset.plot.var <- FALSE
   if (!reset.plot.var) {
     out[[i]] <- plot.stats
     names(out)[i] <- "Plot.Stats"
@@ -1222,7 +1142,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       is.trt.area <- which(apply(boots, 2, check.combn,
                                  x = which(Int == int.val)) == 0)
       boots <- boots[, base::sample((1:NCOL(boots))[-is.trt.area],
-                                    boot), drop = FALSE]
+                              boot), drop = FALSE]
       fin.boots <- TRUE
     }
   }
@@ -1329,7 +1249,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       g <- as.numeric(gsub("Perm", "", colnam[i]))
       if (!fin.boots) {
         samp <- base::sample(1:n, sum(Int == int.val), replace = FALSE,
-                             prob = NULL)
+                       prob = NULL)
         samp <- is.element(1:n, samp)
       }
       else {
@@ -1533,6 +1453,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
   return(out)
 }
 
+
 get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL,
                       end.pre, samp, use, n = NROW(newdat), maxit = 500, calfun = "raking", bounds = c(-Inf, Inf), epsilon = 1e-04, trim = NULL, qpmeth = "LowRankQP",
                       scale.var = "Intercept") {
@@ -1616,7 +1537,7 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
     ws <- stats::weights(cali2)
   }
 
-  mse1 <- mean((colSums(ws * condat[, keep, drop = FALSE]) - targets[keep])^2)
+  mse1 <- mean((colSums(ws * condat[, , drop = FALSE]) - targets)^2)
   wghts1 <- rep(NA, n)
   wghts1[!samp & use] <- ws
   wghts1[samp & use] <- mult
@@ -1754,8 +1675,8 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
 
 
 get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
-                       end.pre, period = 1, plot.it = result.var, end.post = 80,
-                       plot.first = 100, file = NULL, sep = TRUE, start.pre = 25,
+                       end.pre, period = 1, end.post = 80,
+                       file = NULL, sep = TRUE, start.pre = 25,
                        legend.spot = "bottomleft", omnibus.var = result.var, cut.mse = 1,
                        scale.var = "Intercept", twosided = FALSE, time.names = NULL)
 {
@@ -1765,8 +1686,8 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
   }
 
   use.omnibus <- length(omnibus.var) > 0
-  all.var <- union(result.var, plot.it)
-  all.var <- union(all.var, omnibus.var)
+  all.var <- union(result.var, omnibus.var)
+  plot.it <- all.var
   stat5 <- stat4 <- stat2 <- stat1 <- mu <- matrix(NA, NCOL(w),
                                                    length(result.var) + sum(use.omnibus))
   rownames(stat5) <- rownames(stat4) <- rownames(stat2) <- rownames(stat1) <- rownames(mu) <- colnames(w)
@@ -1822,7 +1743,6 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
       }
       if (length(plot.it) > 0) {
         no.jack <- which(!grepl("Jack", colnames(w)))
-        plot.first <- min(plot.first, NCOL(w) - 1)
         keep1 <- keep[no.jack]
         plotdat.d <- array(NA, c(length(plot.it), length(no.jack),
                                  length(xnams)))
@@ -1879,135 +1799,16 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
       }
     }
   }
-  if (length(plot.it) > 0) {
-    plotdat.d <- plotdat.d[, keep1, , drop = FALSE]
-    mu <- mu[no.jack, , drop = FALSE]
-    mu <- mu[keep1, , drop = FALSE]
-    if (length(file) == 0) {
-      graphics::par(mfrow = c(1, 2), ask = FALSE)
-    }
-    else {
-      if (substr(file, nchar(file) - 3, nchar(file)) ==
-          ".pdf") {
-        file <- substr(file, 1, nchar(file) - 4)
-      }
-      if (!sep) {
-        file <- paste(file, ".pdf", sep = "")
-        grDevices::pdf(file = file, width = 8, height = 10.5)
-        graphics::par(mfrow = c(3, 2), ask = FALSE)
-      }
-    }
-    for (j in 1:length(plot.it)) {
-      ylab1 <- main1 <- main <- plot.it[j]
-      ylab2 <- "Treatment - Control"
-      use.mu <- which(mu[, plot.it[j]] > 0)
-      for (i in 1:dim(plotdat.d)[2]) {
-        tmp <- plotdat.d[plot.it[j], i, ]
-        if (i == 1) {
-          if (sep & length(file) > 0) {
-            grDevices::pdf(file = paste(file, "_", main1,
-                                        "_TC.pdf", sep = ""), width = 5, height = 5)
-          }
-          tmp1 <- plotdat.t[plot.it[j], ]
-          tmp2 <- plotdat.c[plot.it[j], ]
-          tmp3 <- scale.by * plotdat.a[plot.it[j], ]
-          lty <- c(1, 2, 4)
-          col <- c(2, 1, 3)
-          lwd <- c(2, 2, 2)
-          ylim <- c(min(tmp1, tmp2), max(tmp1, tmp2))
-          ylim <- c(min(ylim, tmp3), max(ylim, tmp3))
-          ylim[2] <- 1.2 * ylim[2]
-          xxnams1 <- as.numeric(as.character(time.names[xnams[tuse]]))
-          xxnams2 <- as.numeric(as.character(time.names[xnams[tuse & use]]))
-          xxnams3 <- as.numeric(as.character(time.names[xnams[tuse & nuse]]))
-          iend.pre <- as.numeric(as.character(time.names[end.pre]))
-          if (sum(is.na(xxnams1)) > 0) {
-            xxnams1 <- xnams[tuse]
-            xxnams2 <- xnams[tuse & use]
-            xxnams3 <- xnams[tuse & nuse]
-            iend.pre <- end.pre
-          }
-          xlim <- c(min(xxnams1), max(xxnams1))
-          graphics::plot(xxnams1, tmp1[tuse], type = "l",
-                         lty = lty[1], col = col[1], lwd = lwd[1],
-                         xlim = xlim, xlab = "", ylab = ylab1, main = main,
-                         ylim = ylim)
-          graphics::abline(v = iend.pre, lty = 2, col = 2)
-          graphics::lines(xxnams1, tmp2[tuse], type = "l",
-                          lty = lty[2], col = col[2], lwd = lwd[2])
-          graphics::lines(xxnams1, tmp3[tuse], type = "l",
-                          lty = lty[3], col = col[3], lwd = lwd[3])
-          leg <- c("Treatment", "Synthetic Control",
-                   "All blocks (scaled)")
-          graphics::legend(legend.spot, legend = leg,
-                           col = col, lty = lty, lwd = lwd, cex = 0.8,
-                           bty = "n")
-          if (sep & length(file) > 0) {
-            grDevices::dev.off()
-          }
-          if (is.element(i, use.mu)) {
-            if (sep & length(file) > 0) {
-              grDevices::pdf(file = paste(file, "_",
-                                          main1, "_Diff.pdf", sep = ""), width = 5,
-                             height = 5)
-            }
-            ylim1 <- c(min(tmp), max(tmp))
-            bigtmp <- plotdat.d[plot.it[j], use.mu, ]
-            ylim2 <- 2 * c(stats::quantile(bigtmp, 0.05,
-                                           na.rm = TRUE), stats::quantile(bigtmp,
-                                                                          0.95, na.rm = TRUE))
-            ylim <- c(min(ylim1[1], ylim2[1], na.rm = TRUE),
-                      max(ylim1[2], ylim2[2], na.rm = TRUE))
-            xlim <- c(min(xxnams1), max(xxnams1))
-            graphics::plot(xxnams2, tmp[tuse &
-                                          use], type = "l", ylim = ylim, xlim = xlim,
-                           col = 2, lty = 2, main = main, xlab = "",
-                           ylab = ylab2)
-          }
-          else {
-            if (!sep & length(file) > 0) {
-              graphics::plot(1, 1, main = plot.it[j])
-            }
-          }
-        }
-        else {
-          if (i <= min((dim(plotdat.d)[2]), plot.first)) {
-            if (is.element(i, use.mu) & is.element(1,
-                                                   use.mu)) {
-              graphics::lines(xxnams1, tmp[tuse],
-                              col = "azure3")
-            }
-          }
-        }
-        if (i == dim(plotdat.d)[2] & is.element(1, use.mu)) {
-          tmp <- plotdat.d[plot.it[j], 1, ]
-          graphics::lines(xxnams2, tmp[tuse &
-                                         use], lty = 1, col = 1, lwd = 2)
-          graphics::lines(xxnams3, tmp[tuse &
-                                         nuse], col = 2, lwd = 2)
-          graphics::abline(v = iend.pre, col = 2, lwd = 1,
-                           lty = 2)
-          graphics::abline(h = 0, lwd = 1, lty = 2)
-          if (sep & length(file) > 0) {
-            grDevices::dev.off()
-          }
-        }
-      }
-    }
-    if (!sep & length(file) > 0) {
-      grDevices::dev.off()
-    }
-  }
   stats <- list(stat1[keep, , drop = FALSE],
                 stat2[keep, , drop = FALSE],
                 stat4[keep, , drop = FALSE],
                 stat5[keep, , drop = FALSE],
-                list(Treatment = plotdat.t, Control = plotdat.c, All = plotdat.a, Difference = plotdat.d))
+                list(Treatment = plotdat.t, Control = plotdat.c, All = plotdat.a, Difference = plotdat.d, end.pre = end.pre, scale.by = scale.by))
   return(stats)
 }
 
 
-get.stats1 <- function(bigdat, w, inter, mse, all.var, end.pre, period = 1, end.post = 80, mfrow = c(1, 3), plot.first = 100, omnibus.var = NULL,
+get.stats1 <- function(bigdat, w, inter, mse, all.var, end.pre, period = 1, end.post = 80, mfrow = c(1, 3), omnibus.var = NULL,
                        cut.mse = 1, G = 25, twosided = FALSE) {
   use.omnibus <- length(omnibus.var) > 0
   dof <- NA
@@ -2679,9 +2480,14 @@ is.feasible <- function(bigdat, covar.var, dum, Int, int.val = 1, end.pre, eps =
 
 
 find.sing <- function(X) {
+  ### X must be a square matrix
+  X <- as.matrix(X)
   if (NROW(X) == 1) {
     Z <- X/X[1,1]
   } else {
+    ### Scale the matrix to avoid computational issues when applying rref
+    D <- diag((diag(X)^-.5))
+    X <- D %*% X %*% D
     Z <- pracma::rref(X)
   }
   dimnames(Z) <- dimnames(X)
@@ -2703,10 +2509,7 @@ find.sing <- function(X) {
 }
 
 
-
 check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
-  maxit <- NULL # for R CMD check ("no visible binding for global variable 'maxit'")
-
   if (NROW(A) <= NCOL(A)) {
     rem <- find.sing(A %*% t(A))
   } else {
@@ -2741,6 +2544,7 @@ check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
   }
   return(out)
 }
+
 
 
 assign.groups <- function(strata = NULL, n = length(strata), G = min(table(strata))) {

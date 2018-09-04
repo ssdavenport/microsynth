@@ -7,13 +7,12 @@
 microsynth(data, idvar, intvar, timevar = NULL, start.pre = NULL,
   end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE,
   match.out.min = NULL, match.covar.min = NULL, result.var = TRUE,
-  omnibus.var = result.var, plot.var = TRUE, period = 1,
-  scale.var = "Intercept", confidence = 0.9, test = "twosided",
-  perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf,
-  check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01,
-  maxit = 250, cal.epsilon = 1e-04, calfun = "linear", bounds = c(0,
-  Inf), result.file = NULL, plot.file = NULL, sep = FALSE,
-  legend.spot = "bottomleft")
+  omnibus.var = result.var, period = 1, scale.var = "Intercept",
+  confidence = 0.9, test = "twosided", perm = 0, jack = 0,
+  use.survey = TRUE, cut.mse = Inf, check.feas = FALSE,
+  use.backup = FALSE, w = NULL, max.mse = 0.01, maxit = 250,
+  cal.epsilon = 1e-04, calfun = "linear", bounds = c(0, Inf),
+  result.file = NULL)
 }
 \arguments{
 \item{data}{A data frame.  If longitudinal, the data must be entered in tall
@@ -21,8 +20,8 @@ format (e.g., at the case/time-level with one row for each time period for
 each case).  Missingness is not allowed.  All individuals must have non-NA
 values of all variables at all time points.}
 
-\item{idvar}{A character string that gives the variable in
-\code{data} that identifies multiple records from the same case.}
+\item{idvar}{A character string that gives the variable in \code{data} that
+identifies multiple records from the same case.}
 
 \item{intvar}{A character string that gives the variable in \code{data} that
 corresponds to the intervention variable.  The intervention variable
@@ -38,7 +37,7 @@ In this case, the evaluation period is considered to begin at the time of
 the first non-zero entry in \code{intvar}).}
 
 \item{timevar}{A character string that gives the variable in
-\code{data} that differentiate multiple records of the same case.  Can be
+\code{data} that differentiates multiple records from the same case.  Can be
 set to \code{NULL} only when used with cross-sectional data (i.e., with one
 observation per entry in \code{idvar}).}
 
@@ -147,21 +146,21 @@ TRUE}, it is reset as being equal to \code{result.var}.  When
 \code{omnibus.var = NULL} or \code{omnibus = FALSE}, no omnibus statistic
 is calculated.}
 
-\item{plot.var}{A vector of variable names giving the outcome variables that
-are shown in plots.  If \code{plot.var = NULL} or \code{plot.var = FALSE}, no
-plots are generated.  If \code{plot.var = TRUE}, it is reset as equaling all
-time variant variables in \code{data}.}
-
 \item{period}{An integer that gives the granularity of the data that will be
-used for plotting and compiling results; if \code{match.out} and
-\code{match.out.min} are provided a vector of variable names, it will also
-affect the calculation of weights used for matching. In this case, matching
-of treatment and synthetic control is performed at a temporal granularity
-defined by \code{period}. For instance, if monthly data are provided and
-\code{period = 3}, data are aggregated to quarters for plots and results
-(and weighting unless otherwise specified). If \code{match.out} and
-\code{match.out.min} are provided a list, \code{period} only affects plots
-and how results are displayed.}
+  used for plotting and compiling results.  If \code{match.out} and
+  \code{match.out.min} are provided a vector of variable names, it will also
+  affect the calculation of weights used for matching. In this case, matching
+  of treatment and synthetic control is performed at a temporal granularity
+  defined by \code{period}. For instance, if monthly data are provided and
+  \code{period = 3}, data are aggregated to quarters for plots and results
+  (and weighting unless otherwise specified). If \code{match.out} and
+  \code{match.out.min} are provided a list, \code{period} only affects plots
+  and how results are displayed.
+
+  Note that plotting is performed with
+  \code{plot.microsynth()}; however, a \code{microsynth} object is required as
+  input for that function and \code{period} should be specified in the creation
+  of that object.}
 
 \item{scale.var}{A variable name.  When comparing the treatment group to all
 cases, the latter is scaled to the size of the former with respect to the
@@ -215,9 +214,10 @@ unsatisfactory if they do not sufficiently satisfy the constraints imposed
 by \code{match.out} and \code{match.covar}.  Different backup models may be
 used for each of the main, jackknife or permutation weights as needed.}
 
-\item{w}{A list of the form as returned by a prior application of
-\code{microsynth}.  If \code{w = NULL}, weights are calculated from
-scratch.  Entering a \code{non-NULL} value affords the user the ability to
+\item{w}{A \code{microsynth} object or a list of the form as returned
+by a prior application of \code{microsynth}.
+If \code{w = NULL}, weights are calculated from scratch.
+Entering a \code{non-NULL} value affords the user the ability to
 use previously calculated  weights.}
 
 \item{max.mse}{The maximum error (given as mean-squared error) permissible
@@ -249,24 +249,11 @@ of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
 \code{.xls}) extension (e.g., the last five characters of result.file are
 '.xlsx'), an \code{.xlsx} file is created regardless of the length of
 \code{end.post}.}
-
-\item{plot.file}{A character string giving the name of file that will be
-created in the home directory containing plots (if \code{plot.var} is
-non-\code{NULL}).  The name should have a \code{.pdf} extension.}
-
-\item{sep}{If \code{sep = TRUE}, separate plots will be generated for each
-outcome.  Applicable only if plotting variables are specified (
-\code{plot.var} is \code{non-NULL}) and plots are saved to file (
-\code{plot.file} is \code{non-NULL}). To change display of plots produced
-as output, use \code{\link[graphics]{par}}.}
-
-\item{legend.spot}{The location of the legend in the plots.}
 }
 \value{
 \code{microsynth} returns a list with up to four elements: a)
   \code{w}, b) \code{Results}, c) \code{svyglm.stats},
-  and c) \code{Plot.Stats}.  The fourth element is returned only if
-  \code{plot.var} is not \code{NULL} or \code{FALSE}.
+  and c) \code{Plot.Stats}.
 
   \code{w} is a list with five elements: a) \code{Weights}, b)
   \code{Intervention},
@@ -304,7 +291,8 @@ as output, use \code{\link[graphics]{par}}.}
   one row per variable in \code{result.var}.
 
   Lastly, \code{Plot.Stats} contains the data that are displayed in the
-  plots.  \code{Plot.Stats} is a list with four elements (Treatment, Control,
+  plots which may be generated using \code{plot.microsynth()}.
+  \code{Plot.Stats} is a list with four elements (Treatment, Control,
   All, Difference).  The first three elements are matrices with one row per
   outcome variable and one column per time point.  The last element (which
   gives the treatment minus control values) is an array that contains data
@@ -332,9 +320,10 @@ level (e.g., micro-level). For more details see the help vignette:
 that exactly match a treatment group to a synthetic control group across
 a number of variables while also minimizing the discrepancy between the
 synthetic control group and the treatment group across a set second set of
-variables.  \code{microsynth} works in three primary steps: 1) calculation of
-weights, 2) plotting of treatment vs. synthetic control for pertinent
-outcomes, and 3) calculation of results.
+variables.  \code{microsynth} works in two primary steps: 1) calculation of
+weights and 2) calculation of results.  Time series plots of treatment
+vs. synthetic control for pertinent outcomes may be performed using the
+function \code{plot.microsynth()}.
 
 The time range over which data are observed is segmented into pre- and
 post-intervention periods.  Treatment is matched to synthetic control
@@ -374,9 +363,7 @@ are not easily matched based upon the model outlined in \code{match.covar}
 and \code{match.out} (i.e., an exact solution is infeasible or nearly
 infeasible), it is recommended that the jackknife not be used for inference.
 
-The software provides the user the option to create time series plots of
-outcomes for both the treatment and outcome groups during the pre- and
-post-intervention time periods and to output overall findings in an Excel
+The software provides the user the option to output overall findings in an Excel
 file.  For each outcome variable, the results list the estimated treatment
 effect, as well as confidence intervals of the effect and p-values of a
 hypothesis test that assesses whether the effect is zero.   Such results are
@@ -408,7 +395,9 @@ specified) as proposed by Hainmueller (2012).
   \code{use.backup = FALSE}.
 }
 \examples{
+
 # Use seattledmi, block-level panel data, to evaluate a crime intervention.
+
 # Declare time-variant (outcome) and time-invariant variables for matching
 cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
        'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
@@ -423,7 +412,7 @@ set.seed(99199) # for reproducibility
 sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
        match.out=match.out, match.covar=cov.var, result.var=match.out,
-       omnibus.var=match.out, plot.var=match.out, test='lower')
+       omnibus.var=match.out, test='lower')
 
 # View results
 summary(sea1)
@@ -435,8 +424,7 @@ summary(sea1)
 sea2 <- microsynth(seattledmi, idvar='ID', timevar='time',
         intvar='Intervention', start.pre=1, end.pre=12, end.post=c(14, 16),
         match.out=match.out, match.covar=cov.var, result.var=match.out,
-        omnibus.var=match.out, plot.var=match.out, test='lower', perm=250,
-        jack=TRUE, plot.file=NULL, sep = TRUE,
+        omnibus.var=match.out, test='lower', perm=250, jack=TRUE,
         result.file=file.path(tempdir(), 'ExResults2.xlsx'))
 
 # View results
@@ -453,9 +441,9 @@ match.out <- c('i_robbery','i_aggassau','i_burglary','i_larceny',
 sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
         intvar='Intervention', match.out=match.out, match.covar=cov.var,
         start.pre=1, end.pre=12, end.post=16,
-        result.var=match.out, plot.var=match.out, perm=250, jack=0,
+        result.var=match.out, perm=250, jack=0,
         test='lower', check.feas=TRUE, use.backup = TRUE,
-        plot.file=NULL, result.file=file.path(tempdir(), 'ExResults3.xlsx'))
+        result.file=file.path(tempdir(), 'ExResults3.xlsx'))
 
 # Aggregate outcome variables before matching, to boost model feasibility
 match.out <- list( 'i_robbery'=rep(2, 6), 'i_aggassau'=rep(2, 6),
@@ -470,38 +458,32 @@ sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
          intvar='Intervention', match.out=match.out, match.covar=cov.var,
          start.pre=1, end.pre=12, end.post=16,
          result.var=names(match.out), omnibus.var=names(match.out),
-         plot.var=names(match.out), perm=250, jack = TRUE, test='lower',
-         plot.file='ExPlots4.pdf', result.file=file.path(tempdir(), 'ExResults4.xlsx'))
+         perm=250, jack = TRUE, test='lower',
+         result.file=file.path(tempdir(), 'ExResults4.xlsx'))
 
 }
 
-# Generate weights only (for four variables)
-match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
-
 \donttest{
 # runtime: ~ 20 minutes
+# Generate weights only (for four variables)
+match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
          intvar='Intervention', match.out=match.out, match.covar=cov.var,
          start.pre=1, end.pre=12, end.post=16,
-         result.var=FALSE, plot.var=FALSE, perm=250, jack=TRUE)
-
+         result.var=FALSE, perm=250, jack=TRUE)
 
 # View weights
 summary(sea5)
 
-# Generate plots only using previous weights
-# runtime: ~ 1 min
-
 # Generate results only
-# runtime: < 5 minutes
-sea7 <- microsynth(seattledmi, idvar='ID', timevar='time',
+sea6 <- microsynth(seattledmi, idvar='ID', timevar='time',
           intvar='Intervention',
           start.pre=1, end.pre=12, end.post=c(14, 16),
-          result.var=match.out, plot.var=FALSE, test='lower',
-          w=sea5$w, result.file=file.path(tempdir(), 'ExResults7.xlsx'))
+          result.var=match.out, test='lower',
+          w=sea5, result.file=file.path(tempdir(), 'ExResults6.xlsx'))
 
 # View results (including previously-found weights)
-summary(sea7)
+summary(sea6)
 }
 
 # Apply microsynth in the traditional setting of Synth
@@ -513,31 +495,29 @@ ids.synth <- c(base::sample(ids.t, 1), base::sample(ids.c, 100))
 seattledmi.one <- seattledmi[is.element(seattledmi$ID,
            as.numeric(ids.synth)), ]
 
-
 # Apply microsynth to the new macro-level data
 # runtime: < 5 minutes
-sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
+sea7 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
            intvar='Intervention',
            start.pre=1, end.pre=12, end.post=16,
            match.out=match.out[4],
            match.covar=cov.var, result.var=match.out[4],
-           plot.var=match.out[4], test='lower', perm=250, jack=FALSE,
+           test='lower', perm=250, jack=FALSE,
            check.feas=TRUE, use.backup=TRUE)
 
-\dontrun{
 # Use microsynth to calculate propensity score-type weights
 # Prepare cross-sectional data at time of intervention
 seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]#'
 
 # Apply microsynth to find propensity score-type weights
 # runtime: ~5 minutes
-sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
+sea8 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
              match.out=FALSE, match.covar=cov.var, result.var=match.out,
              test='lower', perm=250, jack=TRUE)
 
 # View results
-summary(sea9)
-}
+summary(sea8)
+
 
 }
 \references{

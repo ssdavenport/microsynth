@@ -173,8 +173,10 @@ of crime: felony arrests, misdemeanor arrests, drug arrests, and any criminal
 arrest. Passing these variables to `match.out` instructs microsynth to calculate
 weights that provide exact matches on these variables; assigning `result.var =
 match.out` identifies them as outcome variables for which we would like effects
-estimated; `omnibus.var` will include them in the omnibus statistic; and 
-`plot.var=match.out` indicates they should appear on plots.
+estimated; `omnibus.var` will include them in the omnibus statistic. After the 
+`microsynth` object is created, we can plot results with \code{plot.microsynth} 
+with the argument set to `plot.var = match.out` to indicate variables to appear 
+on plots.  
 
 Treatment and synthetic control will also be matched on block-level Census 
 demographic data: each block's population, black residents, hispanic residents,
@@ -291,9 +293,9 @@ causal effect of the program (i.e., the red synthetic control line is treated as
 the counterfactual to the black treatment line). This difference is charted on
 the right plot column.
 
-Note that `match.out = match.out`, `result.var = match.out`, `omnibus.var =
-match.out`, and `plot.var=match.out`. This means that the outcome variables that
-we declared as `match.out` will all be matched on
+Note that `match.out = match.out`, `result.var = match.out`, 
+`omnibus.var =match.out`, and `plot.var=match.out`. This means that the outcome 
+variables that we declared as `match.out` will all be matched on
 exactly, will be used to report results, will feature in the omnibus p-value,
 and will appear in the plots. `match.covar` indicates that the specified 
 covariates will also be matched on exactly.
@@ -303,8 +305,10 @@ sea1 <- microsynth(seattledmi,
                    idvar="ID", timevar="time", intvar="Intervention", 
                    start.pre=1, end.pre=12, end.post=16, 
                    match.out=match.out, match.covar=cov.var, 
-                   result.var=match.out, omnibus.var=match.out, plot.var=match.out,
-                   test="lower", sep = TRUE)
+                   result.var=match.out, omnibus.var=match.out,
+                   test="lower")
+
+plot(sea1, plot.var=match.out)
 ```
 
 After the call to microsynth has been made, the \code{summary} function
@@ -356,9 +360,8 @@ sea2 <- microsynth(seattledmi,
                    start.pre=1, end.pre=12, end.post=c(14, 16),
                    match.out=match.out, match.covar=cov.var, 
                    result.var=match.out, omnibus.var=match.out, 
-                   plot.var=match.out, 
                    test="lower", 
-                   perm=250, jack=TRUE, sep = TRUE)
+                   perm=250, jack=TRUE)
 ```
 
 Calling \code{summary} identifies other new changes to the results.
@@ -369,12 +372,13 @@ two different follow-up periods, ending at t=14 and t=16 respectively. One
 results table will be calculated for each.
 
 ```{r, eval = TRUE, echo = FALSE}
-a <- readRDS("../inst/extdata/sea2micro.rds")
-summary(a)
+sea2 <- readRDS("../inst/extdata/sea2micro.rds")
+summary(sea2)
 ```
 
-```{r out.width = "100%", echo=F}
-knitr::include_graphics("../inst/extdata/sea2-min.png")
+TODO: add explainers about plot()
+```{r}
+plot(sea2, plot.var=match.out, start.pre=1, end.pre=12, end.post=c(14, 16))
 ```
 
 ### Example 3:  Model feasibility while matching on more variables
@@ -412,29 +416,22 @@ sea3 <- microsynth(seattledmi,
                    idvar="ID", timevar="time", intvar="Intervention", 
                    end.pre=12,
                    match.out=match.out, match.covar=cov.var, 
-                   result.var=match.out, plot.var=match.out, 
-                   perm=250, jack=0, 
+                   result.var=match.out, perm=250, jack=0, 
                    test="lower", check.feas=TRUE, use.backup = TRUE)
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea3m <- readRDS("../inst/extdata/sea3micro.rds")
-summary(sea3m)
+sea3 <- readRDS("../inst/extdata/sea3micro.rds")
+summary(sea3)
 ```
 
-The results file now shows additional rows for the new outcome variables.  
+The results file now shows additional rows for the new outcome variables, and 
+these are also displayed in plots.
 
-```{r out.width = "100%", echo=F}
-knitr::include_graphics("../inst/extdata/sea3a-min.png")
+```{r}
+plot(sea3, plot.var = match.out)
 ```
 
-```{r out.width = "100%", echo=F}
-knitr::include_graphics("../inst/extdata/sea3b-min.png")
-```
-
-```{r out.width = "100%", echo=F}
-knitr::include_graphics("../inst/extdata/sea3c-min.png")
-```
 
 ### Example 4: Provide match.out as a list (time-aggregating matching variables)
 
@@ -478,32 +475,24 @@ sea4 <- microsynth(seattledmi,
                    idvar="ID", timevar="time",intvar="Intervention",
                    match.out=match.out, match.covar=cov.var, 
                    result.var=names(match.out), omnibus.var=names(match.out), 
-                   plot.var=names(match.out),
                    end.pre=12,
                    perm=250, jack = TRUE,
                    test="lower",
                    plot.file="ExPlots4.pdf", result.file="ExResults4.xlsx")
+
 ```
 
-```{r, eval = TRUE, echo = FALSE}
-sea4m <- readRDS("../inst/extdata/sea4micro.rds")
-summary(sea4m)
+```{r ex4load, eval = TRUE, echo = FALSE}
+sea4 <- readRDS("../inst/extdata/sea4micro.rds")
+summary(sea4)
 ```
 
 The aggregation of the outcome variables over time is not directly reflected in
 the results table, though the estimates have changed as a consequence of the
 aggregation.
 
-```{r out.width = "100%", echo=F}
-knitr::include_graphics("../inst/extdata/sea4a-min.png")
-```
-
-```{r out.width = "100%", echo=F}
-knitr::include_graphics("../inst/extdata/sea4b-min.png")
-```
-
-```{r out.width = "100%", echo=F}
-knitr::include_graphics("../inst/extdata/sea4c-min.png")
+```{r ex4plot}
+plot(sea4, plot.var = names(match.out))
 ```
 
 ## Partial calls to microsynth
@@ -517,8 +506,8 @@ repeating the matching process.
 
 ### Example 5:  Weights only
 
-This setting represses reporting of results and generating of charts, by setting
-`result.var = FALSE` and `plot.var = FALSE`. Only weights will be calculated.
+This setting represses reporting of results by setting
+`result.var = FALSE. Only weights will be calculated.
 Note that settings for permutation groups (`perm`) and jackknife replication
 groups (`jack`) are considered when calculating weights, and then will not be
 referred to again in calls that only produce plots or display results.
@@ -530,53 +519,42 @@ sea5 <- microsynth(seattledmi,
                    idvar="ID", timevar="time",intvar="Intervention",
                    end.pre=12,
                    match.out=match.out, match.covar=cov.var,
-                   result.var=FALSE, plot.var=FALSE,
-                   perm=250, jack=TRUE)
+                   result.var=FALSE, perm=250, jack=TRUE)
 ```
 
 Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
 
 ```{r, eval = TRUE, echo = FALSE}
-sea5m <- readRDS("../inst/extdata/sea5micro.rds")
-summary(sea5m)
+sea5 <- readRDS("../inst/extdata/sea5micro.rds")
+summary(sea5)
 ```
 
 ### Example 6:  Plots only
+TODO: update this section (ex6) for changes in code.
 
-If weights have already been calculated, then microsynth() can be configured to 
-reproduce the charts anew, by setting `result.var = FALSE` (suppressing any
-results) and specifying weights calculated earlier (`w = sea5$w`). Because we
-are not repeating the matching procedure, many arguments can be left
-unspecified. Further, plots can be limited to a subset of time-variant variables
-(`plot.var=match.out[1:2]`).
+If weights have already been calculated, then plot() can be used to 
+display plots from the original microsynth object. In this case, we limit plots 
+to a subset of time-variant variables (`plot.var=match.out[1:2]`).
 
 ```{r ex6, eval = FALSE, echo=TRUE}
-sea6 <- microsynth(seattledmi, 
-                   idvar="ID", timevar="time", intvar="Intervention",
-                   end.pre=12,
-                   result.var=FALSE, plot.var=match.out[1:2],
-                   w=sea5$w)
+plot(sea5, plot.var=match.out[1:2])
 ```
 
-```{r out.width = "100%", echo=F}
-knitr::include_graphics("../inst/extdata/sea6c-min.png")
-```
 
 ### Example 7:  Results only
 
 If weights have already been calculated, then microsynth() can also be
 configured to only reproduce results. Results are displayed for all outcome
-variables used for exact matches (`result.var = match.out`) but none are plotted
-(`plot.var = FALSE`). Further, results can now be calculated for any single or
-group of follow-up periods (`end.post=c(14,16)`) without having to re-calculate
-weights.
+variables used for exact matches (`result.var = match.out`). Further, results 
+can now be calculated for any single or group of follow-up periods 
+(`end.post=c(14,16)`) without having to re-calculate weights.
 
 ```{r ex7, eval = FALSE, echo=TRUE}
 sea7 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
                    end.pre=12, end.post=c(14, 16),
-                   result.var=match.out, plot.var=FALSE,
+                   result.var=match.out,
                    test="lower", 
                    w=sea5$w)
 ```
@@ -622,19 +600,17 @@ will be less reliable.
 sea8 <- microsynth(seattledmi.one, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    match.out=match.out[4], match.covar=cov.var, 
-                   result.var=match.out[4], plot.var=match.out[4],
+                   result.var=match.out[4],
                    test="lower", perm=250, jack=FALSE, 
                    check.feas=TRUE, use.backup=TRUE)
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
 sea8m <- readRDS("../inst/extdata/sea8micro.rds")
+plot(sea8, plot.var=match.out[4])
 summary(sea8m)
 ```
 
-```{r out.width = "100%", echo=F}
-knitr::include_graphics("../inst/extdata/sea8-min.png")
-```
 
 ### Example 9: Cross-sectional data for propensity score-type weights
 
@@ -647,8 +623,8 @@ seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"
 ```
 
 By setting `match.out = FALSE`, no outcome variables will be used to calculate
-weights, only (time-invariant) covariates (`match.covar`). No plot variables
-(`plot.var = NULL`) or outcome-reporting variables (`result.var = NULL`) need be
+weights, only (time-invariant) covariates (`match.covar`). No outcome-reporting 
+variables (`result.var = NULL`) need be
 reported. Plots are therefore inappropriate, but results (i.e., a summary of
 weights only) can be saved to file or viewed using `summary`.
 
