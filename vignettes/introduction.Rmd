@@ -308,7 +308,7 @@ sea1 <- microsynth(seattledmi,
                    result.var=match.out, omnibus.var=match.out,
                    test="lower")
 
-plot(sea1, plot.var=match.out)
+plot(sea1)
 ```
 
 After the call to microsynth has been made, the \code{summary} function
@@ -378,7 +378,8 @@ summary(sea2)
 
 TODO: add explainers about plot()
 ```{r}
-plot(sea2, plot.var=match.out, start.pre=1, end.pre=12, end.post=c(14, 16))
+#TODO: re-save sea2micro.Rds with v2.0 before this line will work. Then repeat for other loaded objects.
+plot(sea2)
 ```
 
 ### Example 3:  Model feasibility while matching on more variables
@@ -429,7 +430,7 @@ The results file now shows additional rows for the new outcome variables, and
 these are also displayed in plots.
 
 ```{r}
-plot(sea3, plot.var = match.out)
+plot(sea3)
 ```
 
 
@@ -492,7 +493,7 @@ the results table, though the estimates have changed as a consequence of the
 aggregation.
 
 ```{r ex4plot}
-plot(sea4, plot.var = names(match.out))
+plot(sea4)
 ```
 
 ## Partial calls to microsynth
@@ -531,7 +532,7 @@ summary(sea5)
 ```
 
 ### Example 6:  Plots only
-TODO: update this section (ex6) for changes in code.
+
 
 If weights have already been calculated, then plot() can be used to 
 display plots from the original microsynth object. In this case, we limit plots 
@@ -607,7 +608,7 @@ sea8 <- microsynth(seattledmi.one,
 
 ```{r, eval = TRUE, echo = FALSE}
 sea8m <- readRDS("../inst/extdata/sea8micro.rds")
-plot(sea8, plot.var=match.out[4])
+plot(sea8)
 summary(sea8m)
 ```
 

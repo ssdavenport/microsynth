@@ -271,7 +271,7 @@ else {
     grDevices::dev.off()
   }
 }
-=======
+
 #' @title
 #' Plotting for microsynth objects.
 #'
