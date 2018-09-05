@@ -2,14 +2,8 @@
 % Please edit documentation in R/plot.microsynth.R
 \name{plot.microsynth}
 \alias{plot.microsynth}
-\alias{plot.microsynth}
 \title{Plotting for microsynth objects.}
 \usage{
-\method{plot}{microsynth}(ms, plot.var = NULL, start.pre = NULL,
-  end.pre = NULL, end.post = NULL, file = NULL, sep = TRUE,
-  plot.first = NULL, legend.spot = "bottomleft", height = NULL,
-  width = NULL)
-
 \method{plot}{microsynth}(ms, plot.var = NULL, start.pre = NULL,
   end.pre = NULL, end.post = NULL, file = NULL, sep = TRUE,
   plot.first = NULL, legend.spot = "bottomleft", height = NULL,
@@ -22,7 +16,7 @@
 are shown in plots.  If \code{plot.var = NULL}, all outcome variables that
 are included in \code{ms} are plotted.  Only variables contained in
 the input \code{result.var} as used in the creation of \code{ms} can
-be plotted using \code{plot.microsynth()}.}
+be plotted using \code{plot()}.}
 
 \item{start.pre}{An integer indicating the time point that corresponds to the
 earliest time period that will be plotted.
@@ -55,52 +49,6 @@ as output, use \code{\link[graphics]{par}}.}
 \item{plot.first}{The number of permutation groups to plot.}
 
 \item{legend.spot}{The location of the legend in the plots.}
-
-\item{height}{The height of the graphics region (in inches)
-when a pdf is created.}
-
-\item{width}{The width of the graphics region (in inches)
-when a pdf is created.}
-
-\item{ms}{A microsynth object}
-
-\item{plot.var}{A vector of variable names giving the outcome variables that
-are shown in plots.  If \code{plot.var = NULL}, all outcome variables that
-are included in \code{ms} are plotted.  Only variables contained in
-the input \code{result.var} as used in the creation of \code{ms} can
-be plotted using \code{plot.microsynth()}.}
-
-\item{file}{A character string giving the name of file that will be
- created in the home directory containing plots.
-The name should have a \code{.pdf} extension.}
-
-\item{start.pre}{An integer indicating the time point that corresponds to the
-earliest time period that will be plotted.
-When \code{start.pre = NULL}, it is reset to the
-minimum time appearing in \code{ms}.}
-
-\item{end.pre}{An integer that gives the final time point of the
-pre-intervention period.  That is, \code{end.pre} is the last time at
-which treatment and synthetic control will were matched to one another.
-All time points
-following \code{end.pre} are considered to be post-intervention and the
-behavior of outcomes will be compared between the treatment and synthetic
-control groups across those time periods.
-If \code{end.pre = NULL} the end of the pre-intevention period will be
-determined from the object \code{ms}.}
-
-\item{end.post}{An integer that gives final time point that will be plottd.
-When \code{end.post = NULL} (the default), it is reset
-to the maximum time that appears in \code{ms}.}
-
-\item{sep}{If \code{sep = TRUE}, separate plots will be generated for each
-outcome.  Applicable only if plots are saved to file (
-\code{plot.file} is \code{non-NULL}). To change display of plots produced
-as output, use \code{\link[graphics]{par}}.}
-
-\item{legend.spot}{The location of the legend in the plots.}
-
-\item{plot.first}{The number of permutation groups to plot.}
 
 \item{height}{The height of the graphics region (in inches)
 when a pdf is created.}
@@ -111,9 +59,6 @@ when a pdf is created.}
 \description{
 Using a \code{microsynth} object as an input, this function gives time
 series plots of selected outcomes.
-
-Using a \code{microsynth} object as an input, this function gives time
-series plots of selected outcomes.
 }
 \details{
 Plots are given over both pre- and
@@ -121,53 +66,35 @@ intervention time periods and shown in terms of raw outcome values or
 treatment/control differences.  Time series of permutation groups may be
 overlaid to help illustrate statistical uncertainty.
 
-Only required input is a parameter \code{ms} which is a microsythn object.
-
-Plots are given over both pre- and
-intervention time periods and shown in terms of raw outcome values or
-treatment/control differences.  Time series of permutation groups may be
-overlaid to help illustrate statistical uncertainty.
-
-Only only required input is a parameter \code{ms} which is a microsythn object.
+Only required input is a parameter \code{ms} which is a microsynth object.
 }
 \examples{
-set.seed(99199) # for reproducibility
-# create a microsynth object
-sea2 <- microsynth(seattledmi, idvar='ID', timevar='time',
-        intvar='Intervention', start.pre=1, end.pre=12, end.post=c(16),
-        match.out=match.out, match.covar=cov.var, result.var=match.out,
-        omnibus.var=match.out, test='lower', perm=250,
-        jack=TRUE, result.file='ExResults2.xlsx')
 
-# Create plots within the GUI.
+# Declare time-variant (outcome) and time-invariant variables for matching
+cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
+       'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
 
-plot.microsynth(sea2)
-
-# Create plots and output to a single file (plots.pdf).
-
-plot.microsynth(sea2, file = "plots.pdf", sep = FALSE)
-
-# Create plots for only one outcome and output to separate files.
-
-plot.microsynth(sea2, plot.var = "any_crime", file = "plots.pdf", sep = FALSE)
+match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 
 set.seed(99199) # for reproducibility
-# create a microsynth object
-sea2 <- microsynth(seattledmi, idvar='ID', timevar='time',
-        intvar='Intervention', start.pre=1, end.pre=12, end.post=c(16),
-        match.out=match.out, match.covar=cov.var, result.var=match.out,
-        omnibus.var=match.out, test='lower', perm=250,
-        jack=TRUE, result.file='ExResults2.xlsx')
 
-# Create plots within the GUI.
+# Perform matching and estimation, without permutations or jackknife
+# runtime: <1 min
+sea1 <- microsynth(seattledmi,
+                  idvar="ID", timevar="time", intvar="Intervention",
+                  start.pre=1, end.pre=12, end.post=16,
+                  match.out=match.out, match.covar=cov.var,
+                  result.var=match.out, omnibus.var=match.out,
+                  test="lower")
 
-plot.microsynth(sea2)
+# Plot with default settings in the GUI.
+plot(sea1)
 
-# Create plots and output to a single file (plots.pdf).
+# Make plots, display, and save to a single file (plots.pdf).
+plot(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 
-plot.microsynth(sea2, file = "plots.pdf", sep = FALSE)
+# Make plots for only one outcome, display, and save to a single file.
+plot(sea1, plot.var = "any_crime",
+     file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 
-# Create plots for only one outcome and output to separate files.
-
-plot.microsynth(sea2, plot.var = "any_crime", file = "plots.pdf", sep = FALSE)
 }

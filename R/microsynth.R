@@ -416,26 +416,33 @@
 #'
 #' # Perform matching and estimation, without permutations or jackknife
 #' # runtime: < 1 min
-#' sea1 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'        intvar='Intervention', start.pre=1, end.pre=12, end.post=16,
-#'        match.out=match.out, match.covar=cov.var, result.var=match.out,
-#'        omnibus.var=match.out, test='lower')
+#' sea1 <- microsynth(seattledmi,
+#'                   idvar="ID", timevar="time", intvar="Intervention",
+#'                   start.pre=1, end.pre=12, end.post=16,
+#'                   match.out=match.out, match.covar=cov.var,
+#'                   result.var=match.out, omnibus.var=match.out,
+#'                   test="lower")
 #'
 #' # View results
 #' summary(sea1)
+#' plot(sea1)
 #'
 #' # Repeat matching and estimation, with permutations and jackknife
 #' # Set permutations and jack-knife to very few groups (2) for
 #' # quick demonstration only.
 #' # runtime: ~30 min
-#' sea2 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'         intvar='Intervention', start.pre=1, end.pre=12, end.post=c(14, 16),
-#'         match.out=match.out, match.covar=cov.var, result.var=match.out,
-#'         omnibus.var=match.out, test='lower', perm=250, jack=TRUE,
-#'         result.file=file.path(tempdir(), 'ExResults2.xlsx'))
+#' sea2 <- microsynth(seattledmi,
+#'                      idvar="ID", timevar="time", intvar="Intervention",
+#'                      start.pre=1, end.pre=12, end.post=c(14, 16),
+#'                      match.out=match.out, match.covar=cov.var,
+#'                      result.var=match.out, omnibus.var=match.out,
+#'                      test="lower",
+#'                      perm=250, jack=TRUE,
+#'                      result.file=file.path(tempdir(), 'ExResults2.xlsx'))
 #'
 #' # View results
 #' summary(sea2)
+#' plot(sea2)
 #'
 #' # Specify additional outcome variables for matching, which makes
 #' # matching harder.
@@ -445,12 +452,14 @@
 #' # Perform matching, setting check.feas = T and use.backup = T
 #' # to ensure model feasibility
 #' # runtime: ~40 minutes
-#' sea3 <- microsynth(seattledmi, idvar='ID', timevar='time',
-#'         intvar='Intervention', match.out=match.out, match.covar=cov.var,
-#'         start.pre=1, end.pre=12, end.post=16,
-#'         result.var=match.out, perm=250, jack=0,
-#'         test='lower', check.feas=TRUE, use.backup = TRUE,
-#'         result.file=file.path(tempdir(), 'ExResults3.xlsx'))
+#' sea3 <- microsynth(seattledmi,
+#'                    idvar="ID", timevar="time", intvar="Intervention",
+#'                    end.pre=12,
+#'                    match.out=match.out, match.covar=cov.var,
+#'                    result.var=match.out, perm=250, jack=0,
+#'                    test="lower", check.feas=TRUE, use.backup = TRUE,
+#'                    result.file=file.path(tempdir(), 'ExResults3.xlsx'))
+#'
 #'
 #' # Aggregate outcome variables before matching, to boost model feasibility
 #' match.out <- list( 'i_robbery'=rep(2, 6), 'i_aggassau'=rep(2, 6),
@@ -461,6 +470,7 @@
 #'
 #' # After aggregation, use.backup and cheack.feas no longer needed
 #' # runtime: ~40 minutes
+#' # TODO: re-run sea4 as it was infeasible for the first time (use.backup=TRUE?)
 #' sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
@@ -468,7 +478,11 @@
 #'          perm=250, jack = TRUE, test='lower',
 #'          result.file=file.path(tempdir(), 'ExResults4.xlsx'))
 #'
+#' # View results
+#' summary(sea4)
+#' plot(sea4)
 #' }
+#'
 #'
 #' \donttest{
 #' # runtime: ~ 20 minutes
@@ -491,6 +505,9 @@
 #'
 #' # View results (including previously-found weights)
 #' summary(sea6)
+#'
+#' # Generate plots only
+#' plot(sea6, plot.var=match.out[1:2])
 #' }
 #'
 #' # Apply microsynth in the traditional setting of Synth
@@ -504,7 +521,7 @@
 #'
 #' # Apply microsynth to the new macro-level data
 #' # runtime: < 5 minutes
-#' sea7 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
+#' sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
 #'            intvar='Intervention',
 #'            start.pre=1, end.pre=12, end.post=16,
 #'            match.out=match.out[4],
@@ -512,18 +529,23 @@
 #'            test='lower', perm=250, jack=FALSE,
 #'            check.feas=TRUE, use.backup=TRUE)
 #'
+#' # View results
+#' summary(sea8)
+#' plot(sea8)
+#'
 #' # Use microsynth to calculate propensity score-type weights
 #' # Prepare cross-sectional data at time of intervention
 #' seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]#'
 #'
 #' # Apply microsynth to find propensity score-type weights
 #' # runtime: ~5 minutes
-#' sea8 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
+#' sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
 #'              match.out=FALSE, match.covar=cov.var, result.var=match.out,
 #'              test='lower', perm=250, jack=TRUE)
 #'
 #' # View results
-#' summary(sea8)
+#' summary(sea9)
+#' plot(sea9)
 #'
 #'
 #' @export

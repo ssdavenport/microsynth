@@ -9,11 +9,27 @@ vignette: >
   %\VignetteEncoding{UTF-8} 
 ---
 
-```{r load, echo=F}
-library(microsynth)
-library(knitr)
+```{r load, echo=F, warning=FALSE}
+library("microsynth")
+library("knitr")
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.height=3.1, fig.width=7.2, fig.show = "hold")
-# load("../objects_for_vignettes.Rdata")
+
+# For fast vignette-compiling (needed for CRAN), declare function to save reduced microsynth object.
+# (Microsynth chunks with long run-times are set to eval=TRUE to create objects for the first time,
+# but these chunks are set to eval=FALSE in the package for fast vignette compiling.)
+# This reduces microsynth files to <1MB instead of >10 MB
+
+saveReducedMicrosynth <- function(msobject, filename) {
+  
+  # Proceed only if object exists (so it is always safe to run the code)
+  if(exists(deparse(substitute(msobject)))) {
+    
+    # Strip data-heavy objects and save
+    msobject$w$Weights <- NULL
+    msobject$w$Intervention <- NULL
+    saveRDS(msobject, filename)
+  }
+}
 ```
 
 ## Introduction to Synthetic Controls
@@ -251,10 +267,12 @@ mechanics of calculating weights, plotting options, and the calculation of
 variance estimators through permutation tests and jackknife replication groups. 
 These aspects will be discussed in the later examples below.
 
+## Basic estimation and plotting
+
 ### Example 1:  Barebones results
 
-In this minimal example, we will calculate results in the simplest way possible.
-This includes:
+In this minimal example, we will calculate and display results in the simplest 
+way possible. This includes:
 
 * calculating weights to match treatment to synthetic control on the variables
 specified 
@@ -263,10 +281,9 @@ only, and based on that, running a one-sided lower significance test
 (`test=lower`) 
 * calculating an omnibus statistic to test joint significance
 across all outcome variables (`result.var = match.out`) 
-* creating a plot and
-displaying it as output (`plot.file=NULL`); to save to file, specify a .csv or
-.xlsx. 
-* estimating results but not saving it to file (`results.file=NULL`); instead, 
+* creating a plot and displaying it as output (`plot()`); to save to file, 
+specify a .csv or .xlsx as the `file` argument in `plot()`. 
+* estimating results but not saving it to file (`result.file=NULL`); instead, 
 results can be viewed by inspecting the `microsynth` object.
 
 As microsynth runs, it will display output relating to the calculation of
@@ -275,30 +292,17 @@ survey statistics (e.g., the variance estimator). The first table to display
 summarizes the matching properties after applying the main weights. It shows
 three columns: 1) characteristics of the treated areas for the time-variant and
 time-invariant variables, 2) characteristics of the synthetic control, and 3)
-characteristics of the entire population. Because this examples is successful in
+characteristics of the entire population. Because this example is successful in
 creating a matching synthetic control, the first column and the second column
 will be nearly equal.
 
-Below are produced plots, one row for each variable passed to `result.var`. (By
-setting `result.var = match.out`, there is provided one chart per time-variant
-outcome variable for which we calculate results.) The first plot column compares
-the observed outcomes among the treatment, synthetic control, and population
-during the pre-intervention and post-intervention periods. Outcomes are scaled
-by default (`scale.var = "Intercept"`) to the number of treatment units, to
-facilitate comparison. The dotted red line indicates the last time period of the
-pre-intervention period (`end.pre`). Because matching was successful, the treatment 
-and synthetic control lines track closely during the pre-intervention period; their
-divergence during the post-intervention period represents an estimate of the
-causal effect of the program (i.e., the red synthetic control line is treated as
-the counterfactual to the black treatment line). This difference is charted on
-the right plot column.
-
-Note that `match.out = match.out`, `result.var = match.out`, 
-`omnibus.var =match.out`, and `plot.var=match.out`. This means that the outcome 
+Note that `match.out = match.out`, `result.var = match.out`, and 
+`omnibus.var =match.out`. This means that the outcome 
 variables that we declared as `match.out` will all be matched on
-exactly, will be used to report results, will feature in the omnibus p-value,
-and will appear in the plots. `match.covar` indicates that the specified 
-covariates will also be matched on exactly.
+exactly, will be used to report results, and will feature in the omnibus p-value. 
+`match.covar` indicates that the specified covariates will also be matched on 
+exactly. (By setting `result.var = match.out`, there is provided one chart per 
+time-variant outcome variable for which we calculate results.) 
 
 ```{r ex1, eval = TRUE, echo=TRUE} 
 sea1 <- microsynth(seattledmi, 
@@ -308,7 +312,7 @@ sea1 <- microsynth(seattledmi,
                    result.var=match.out, omnibus.var=match.out,
                    test="lower")
 
-plot(sea1)
+summary(sea1)
 ```
 
 After the call to microsynth has been made, the \code{summary} function
@@ -325,8 +329,27 @@ Note that the p-value of the omnibus statistic is smaller than any of the
 individual outcome variables.
 
 ```{r ex1b, eval = TRUE}
-summary(sea1)
+plot(sea1)
 ```
+
+Above are produced plots under default settings. By default, if no other 
+arguments are declared in the  call to `plot()`, the plots will include one row 
+for each variable passed to `result.var` in the original \code{microsynth} call. 
+Likewise, values for the duration of the pre- and post-intervention periods 
+(i.e. `start.pre`, `end.pre`, `end.post`) can also be automatically detected from 
+the original \code{microsynth} object if not specified manually.
+
+The first plot column compares
+the observed outcomes among the treatment, synthetic control, and population
+during the pre-intervention and post-intervention periods. Outcomes are scaled
+by default (`scale.var = "Intercept"`) to the number of treatment units, to
+facilitate comparison. The dotted red line indicates the last time period of the
+pre-intervention period (`end.pre`). Because matching was successful, the treatment 
+and synthetic control lines track closely during the pre-intervention period; their
+divergence during the post-intervention period represents an estimate of the
+causal effect of the program (i.e., the red synthetic control line is treated as
+the counterfactual to the black treatment line). This difference is charted on
+the right plot column.
 
 ### Example 2: Adding permutations and jackknife
 
@@ -372,13 +395,12 @@ two different follow-up periods, ending at t=14 and t=16 respectively. One
 results table will be calculated for each.
 
 ```{r, eval = TRUE, echo = FALSE}
-sea2 <- readRDS("../inst/extdata/sea2micro.rds")
+saveReducedMicrosynth(sea2, "../inst/extdata/sea2.rds")
+sea2 <- readRDS("../inst/extdata/sea2.rds")
 summary(sea2)
 ```
 
-TODO: add explainers about plot()
 ```{r}
-#TODO: re-save sea2micro.Rds with v2.0 before this line will work. Then repeat for other loaded objects.
 plot(sea2)
 ```
 
@@ -422,7 +444,8 @@ sea3 <- microsynth(seattledmi,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea3 <- readRDS("../inst/extdata/sea3micro.rds")
+saveReducedMicrosynth(sea3, "../inst/extdata/sea3.rds")
+sea3 <- readRDS("../inst/extdata/sea3.rds")
 summary(sea3)
 ```
 
@@ -478,13 +501,13 @@ sea4 <- microsynth(seattledmi,
                    result.var=names(match.out), omnibus.var=names(match.out), 
                    end.pre=12,
                    perm=250, jack = TRUE,
-                   test="lower",
-                   plot.file="ExPlots4.pdf", result.file="ExResults4.xlsx")
+                   test="lower")
 
 ```
 
 ```{r ex4load, eval = TRUE, echo = FALSE}
-sea4 <- readRDS("../inst/extdata/sea4micro.rds")
+saveReducedMicrosynth(sea4, "../inst/extdata/sea4.rds")
+sea4 <- readRDS("../inst/extdata/sea4.rds")
 summary(sea4)
 ```
 
@@ -508,7 +531,7 @@ repeating the matching process.
 ### Example 5:  Weights only
 
 This setting represses reporting of results by setting
-`result.var = FALSE. Only weights will be calculated.
+`result.var` = FALSE. Only weights will be calculated.
 Note that settings for permutation groups (`perm`) and jackknife replication
 groups (`jack`) are considered when calculating weights, and then will not be
 referred to again in calls that only produce plots or display results.
@@ -516,34 +539,24 @@ referred to again in calls that only produce plots or display results.
 ```{r ex5, eval = FALSE, echo=TRUE, results='hide'}
 match.out <- c("i_felony", "i_misdemea", "i_drugs", "any_crime")
 
+#TODO: get this to run; current it fails: "object 'plot.stats' not found"
 sea5 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time",intvar="Intervention",
                    end.pre=12,
                    match.out=match.out, match.covar=cov.var,
-                   result.var=FALSE, perm=250, jack=TRUE)
+                   result.var=FALSE, perm=0, jack=FALSE)
 ```
 
 Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
 
-```{r, eval = TRUE, echo = FALSE}
-sea5 <- readRDS("../inst/extdata/sea5micro.rds")
+```{r, eval = FALSE, echo = FALSE}
+saveReducedMicrosynth(sea5, "../inst/extdata/sea5.rds")
+sea5 <- readRDS("../inst/extdata/sea5.rds")
 summary(sea5)
 ```
 
-### Example 6:  Plots only
-
-
-If weights have already been calculated, then plot() can be used to 
-display plots from the original microsynth object. In this case, we limit plots 
-to a subset of time-variant variables (`plot.var=match.out[1:2]`).
-
-```{r ex6, eval = FALSE, echo=TRUE}
-plot(sea5, plot.var=match.out[1:2])
-```
-
-
-### Example 7:  Results only
+### Example 6:  Results only
 
 If weights have already been calculated, then microsynth() can also be
 configured to only reproduce results. Results are displayed for all outcome
@@ -552,7 +565,7 @@ can now be calculated for any single or group of follow-up periods
 (`end.post=c(14,16)`) without having to re-calculate weights.
 
 ```{r ex7, eval = FALSE, echo=TRUE}
-sea7 <- microsynth(seattledmi, 
+sea6 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
                    end.pre=12, end.post=c(14, 16),
                    result.var=match.out,
@@ -564,12 +577,23 @@ For each follow-up period, a separate results table is provided. If saving to
 file, this requires the file be saved as an XLSX rather than a CSV; each table
 will be saved to a different XLSX tab.
 
-```{r, eval = TRUE, echo = FALSE}
-sea7m <- readRDS("../inst/extdata/sea7micro.rds")
-sea7m
+```{r, eval = FALSE, echo = FALSE}
+saveReducedMicrosynth(sea6, "../inst/extdata/sea6.rds")
+sea6 <- readRDS("../inst/extdata/sea6.rds")
+sea6
 ```
 
-## Alternative Applications for microsynth
+### Example 7:  Plots only
+
+If weights have already been calculated, then plot() can be used to 
+display plots from the original microsynth object. In this case, we limit plots 
+to a subset of time-variant variables (`plot.var=match.out[1:2]`).
+
+```{r ex6, eval = FALSE, echo=TRUE}
+plot(sea6, plot.var=match.out[1:2])
+```
+
+## Alternative applications for microsynth
 
 ### Example 8: Apply microsynth in the traditional setting of Synth
 
@@ -607,9 +631,10 @@ sea8 <- microsynth(seattledmi.one,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea8m <- readRDS("../inst/extdata/sea8micro.rds")
+saveReducedMicrosynth(sea8, "../inst/extdata/sea8.rds")
+sea8 <- readRDS("../inst/extdata/sea8.rds")
 plot(sea8)
-summary(sea8m)
+summary(sea8)
 ```
 
 
@@ -633,14 +658,15 @@ weights only) can be saved to file or viewed using `summary`.
 sea9 <- microsynth(seattledmi.cross, 
                    idvar="ID", intvar="Intervention",
                    match.out=FALSE, match.covar=cov.var,
-                   result.var=match.out, 
+                   result.var=NULL, 
                    test="lower",
-                   perm=1, jack=F)
+                   perm=250, jack=TRUE)
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-sea9m <- readRDS("../inst/extdata/sea9micro.rds")
-sea9m
+saveReducedMicrosynth(sea9, "../inst/extdata/sea9.rds")
+sea9 <- readRDS("../inst/extdata/sea9.rds")
+sea9
 ```
 
 
