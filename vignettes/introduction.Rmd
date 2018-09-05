@@ -13,7 +13,6 @@ vignette: >
 library(microsynth)
 library(knitr)
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.height=3.1, fig.width=7.2, fig.show = "hold")
-# load("../objects_for_vignettes.Rdata")
 ```
 
 ## Introduction to Synthetic Controls
@@ -372,13 +371,13 @@ two different follow-up periods, ending at t=14 and t=16 respectively. One
 results table will be calculated for each.
 
 ```{r, eval = TRUE, echo = FALSE}
+# saveRDS(sea2, "../inst/extdata/sea2micro.rds") # one-time command to save RDS object
 sea2 <- readRDS("../inst/extdata/sea2micro.rds")
 summary(sea2)
 ```
 
 TODO: add explainers about plot()
 ```{r}
-#TODO: re-save sea2micro.Rds with v2.0 before this line will work. Then repeat for other loaded objects.
 plot(sea2)
 ```
 
@@ -422,6 +421,7 @@ sea3 <- microsynth(seattledmi,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
+# saveRDS(sea3, "../inst/extdata/sea3micro.rds") # one-time command to save RDS object
 sea3 <- readRDS("../inst/extdata/sea3micro.rds")
 summary(sea3)
 ```
@@ -478,12 +478,12 @@ sea4 <- microsynth(seattledmi,
                    result.var=names(match.out), omnibus.var=names(match.out), 
                    end.pre=12,
                    perm=250, jack = TRUE,
-                   test="lower",
-                   plot.file="ExPlots4.pdf", result.file="ExResults4.xlsx")
+                   test="lower")
 
 ```
 
 ```{r ex4load, eval = TRUE, echo = FALSE}
+# saveRDS(sea4, "../inst/extdata/sea4micro.rds") # one-time command to save RDS object
 sea4 <- readRDS("../inst/extdata/sea4micro.rds")
 summary(sea4)
 ```
@@ -527,23 +527,14 @@ Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
 
 ```{r, eval = TRUE, echo = FALSE}
+# saveRDS(sea5, "../inst/extdata/sea5micro.rds") # one-time command to save RDS object
 sea5 <- readRDS("../inst/extdata/sea5micro.rds")
 summary(sea5)
 ```
 
-### Example 6:  Plots only
+TODO: swap examples 6 and 7 if must show results before plots?
 
-
-If weights have already been calculated, then plot() can be used to 
-display plots from the original microsynth object. In this case, we limit plots 
-to a subset of time-variant variables (`plot.var=match.out[1:2]`).
-
-```{r ex6, eval = FALSE, echo=TRUE}
-plot(sea5, plot.var=match.out[1:2])
-```
-
-
-### Example 7:  Results only
+### Example 6:  Results only
 
 If weights have already been calculated, then microsynth() can also be
 configured to only reproduce results. Results are displayed for all outcome
@@ -552,7 +543,7 @@ can now be calculated for any single or group of follow-up periods
 (`end.post=c(14,16)`) without having to re-calculate weights.
 
 ```{r ex7, eval = FALSE, echo=TRUE}
-sea7 <- microsynth(seattledmi, 
+sea6 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
                    end.pre=12, end.post=c(14, 16),
                    result.var=match.out,
@@ -565,9 +556,23 @@ file, this requires the file be saved as an XLSX rather than a CSV; each table
 will be saved to a different XLSX tab.
 
 ```{r, eval = TRUE, echo = FALSE}
-sea7m <- readRDS("../inst/extdata/sea7micro.rds")
-sea7m
+# saveRDS(sea7, "../inst/extdata/sea7micro.rds") # one-time command to save RDS object
+sea6m <- readRDS("../inst/extdata/sea7micro.rds")
+sea6m
 ```
+
+### Example 7:  Plots only
+
+If weights have already been calculated, then plot() can be used to 
+display plots from the original microsynth object. In this case, we limit plots 
+to a subset of time-variant variables (`plot.var=match.out[1:2]`).
+
+```{r ex6, eval = FALSE, echo=TRUE}
+plot(sea6, plot.var=match.out[1:2])
+```
+
+
+
 
 ## Alternative Applications for microsynth
 
@@ -607,6 +612,7 @@ sea8 <- microsynth(seattledmi.one,
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
+# saveRDS(sea8, "../inst/extdata/sea8micro.rds") # one-time command to save RDS object
 sea8m <- readRDS("../inst/extdata/sea8micro.rds")
 plot(sea8)
 summary(sea8m)
@@ -635,10 +641,11 @@ sea9 <- microsynth(seattledmi.cross,
                    match.out=FALSE, match.covar=cov.var,
                    result.var=match.out, 
                    test="lower",
-                   perm=1, jack=F)
+                   perm=250, jack=TRUE)
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
+# saveRDS(sea9, "../inst/extdata/sea9micro.rds") # one-time command to save RDS object
 sea9m <- readRDS("../inst/extdata/sea9micro.rds")
 sea9m
 ```
