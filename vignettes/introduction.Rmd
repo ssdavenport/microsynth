@@ -550,11 +550,13 @@ sea5 <- microsynth(seattledmi,
 Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
 
-```{r, eval = FALSE, echo = FALSE}
+```{r, eval = TRUE, echo = FALSE}
 saveReducedMicrosynth(sea5, "../inst/extdata/sea5.rds")
 sea5 <- readRDS("../inst/extdata/sea5.rds")
 summary(sea5)
 ```
+
+TODO: swap examples 6 and 7 if must show results before plots?
 
 ### Example 6:  Results only
 
@@ -577,7 +579,8 @@ For each follow-up period, a separate results table is provided. If saving to
 file, this requires the file be saved as an XLSX rather than a CSV; each table
 will be saved to a different XLSX tab.
 
-```{r, eval = FALSE, echo = FALSE}
+
+```{r, eval = TRUE, echo = FALSE}
 saveReducedMicrosynth(sea6, "../inst/extdata/sea6.rds")
 sea6 <- readRDS("../inst/extdata/sea6.rds")
 sea6
