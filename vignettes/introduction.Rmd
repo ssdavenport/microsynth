@@ -550,7 +550,7 @@ sea5 <- microsynth(seattledmi,
 Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 saveReducedMicrosynth(sea5, "../inst/extdata/sea5.rds")
 sea5 <- readRDS("../inst/extdata/sea5.rds")
 summary(sea5)
@@ -580,7 +580,7 @@ file, this requires the file be saved as an XLSX rather than a CSV; each table
 will be saved to a different XLSX tab.
 
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 saveReducedMicrosynth(sea6, "../inst/extdata/sea6.rds")
 sea6 <- readRDS("../inst/extdata/sea6.rds")
 sea6
