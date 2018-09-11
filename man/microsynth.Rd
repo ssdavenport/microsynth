@@ -418,7 +418,7 @@ sea1 <- microsynth(seattledmi,
 
 # View results
 summary(sea1)
-plot(sea1)
+plot_microsynth(sea1)
 
 # Repeat matching and estimation, with permutations and jackknife
 # Set permutations and jack-knife to very few groups (2) for
@@ -435,7 +435,7 @@ sea2 <- microsynth(seattledmi,
 
 # View results
 summary(sea2)
-plot(sea2)
+plot_microsynth(sea2)
 
 # Specify additional outcome variables for matching, which makes
 # matching harder.
@@ -473,14 +473,15 @@ sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
 
 # View results
 summary(sea4)
-plot(sea4)
+plot_microsynth(sea4)
 }
 
 
-\donttest{
 # runtime: ~ 20 minutes
 # Generate weights only (for four variables)
 match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+
+\donttest{
 sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
          intvar='Intervention', match.out=match.out, match.covar=cov.var,
          start.pre=1, end.pre=12, end.post=16,
@@ -500,8 +501,7 @@ sea6 <- microsynth(seattledmi, idvar='ID', timevar='time',
 summary(sea6)
 
 # Generate plots only
-plot(sea6, plot.var=match.out[1:2])
-}
+plot_microsynth(sea6, plot.var=match.out[1:2])
 
 # Apply microsynth in the traditional setting of Synth
 # Create macro-level (small n) data, with 1 treatment unit
@@ -524,7 +524,7 @@ sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
 
 # View results
 summary(sea8)
-plot(sea8)
+plot_microsynth(sea8)
 
 # Use microsynth to calculate propensity score-type weights
 # Prepare cross-sectional data at time of intervention
@@ -538,8 +538,7 @@ sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
 
 # View results
 summary(sea9)
-plot(sea9)
-
+}
 
 }
 \references{

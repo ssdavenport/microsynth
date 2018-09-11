@@ -425,7 +425,7 @@
 #'
 #' # View results
 #' summary(sea1)
-#' plot(sea1)
+#' plot_microsynth(sea1)
 #'
 #' # Repeat matching and estimation, with permutations and jackknife
 #' # Set permutations and jack-knife to very few groups (2) for
@@ -442,7 +442,7 @@
 #'
 #' # View results
 #' summary(sea2)
-#' plot(sea2)
+#' plot_microsynth(sea2)
 #'
 #' # Specify additional outcome variables for matching, which makes
 #' # matching harder.
@@ -480,14 +480,15 @@
 #'
 #' # View results
 #' summary(sea4)
-#' plot(sea4)
+#' plot_microsynth(sea4)
 #' }
 #'
 #'
-#' \donttest{
 #' # runtime: ~ 20 minutes
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+#'
+#' \donttest{
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
@@ -507,8 +508,7 @@
 #' summary(sea6)
 #'
 #' # Generate plots only
-#' plot(sea6, plot.var=match.out[1:2])
-#' }
+#' plot_microsynth(sea6, plot.var=match.out[1:2])
 #'
 #' # Apply microsynth in the traditional setting of Synth
 #' # Create macro-level (small n) data, with 1 treatment unit
@@ -531,7 +531,7 @@
 #'
 #' # View results
 #' summary(sea8)
-#' plot(sea8)
+#' plot_microsynth(sea8)
 #'
 #' # Use microsynth to calculate propensity score-type weights
 #' # Prepare cross-sectional data at time of intervention
@@ -545,10 +545,10 @@
 #'
 #' # View results
 #' summary(sea9)
-#' plot(sea9)
-#'
+#' }
 #'
 #' @export
+
 
 microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                         end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE,
@@ -1062,8 +1062,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     names(out)[i + 1] <- "svyglm.stats"
     i <- i + 2
   }
-  reset.plot.var <- FALSE
-  if (!reset.plot.var) {
+  if (!reset.result.var) {
     out[[i]] <- plot.stats
     names(out)[i] <- "Plot.Stats"
     i <- i + 1
