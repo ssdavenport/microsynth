@@ -79,21 +79,25 @@
 #'                   test="lower")
 #'
 #' # Plot with default settings in the GUI.
-#' plot(sea1)
+#' plot_microsynth(sea1)
 #'
 #' # Make plots, display, and save to a single file (plots.pdf).
-#' plot(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
+#' plot_microsynth(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 #'
 #' # Make plots for only one outcome, display, and save to a single file.
-#' plot(sea1, plot.var = "any_crime",
+#' plot_microsynth(sea1, plot.var = "any_crime",
 #'      file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 #'
 #' @export
 
-plot.microsynth <- function (ms,
+plot_microsynth <- function (ms,
                              plot.var = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL,
                              file=NULL, sep = TRUE, plot.first = NULL, legend.spot = "bottomleft",
                              height = NULL, width = NULL) {
+
+if(!is.element("Plot.Stats",names(ms))) {
+  stop("microsynth object does not contain output regarding results (e.g., only weights were generated).")
+}
 
 plotdat.t <- ms$Plot.Stats$Treatment
 plotdat.c <- ms$Plot.Stats$Control
@@ -137,6 +141,10 @@ if (length(end.post) > 0) {
   end.post <- match(as.character(end.post), time.names)
 } else {
   end.post <- length(time.names)
+}
+
+if (start.pre == end.post) {
+stop("Do not plot:  start.pre == end.post")
 }
 
 all.vars <- rownames(plotdat.t)

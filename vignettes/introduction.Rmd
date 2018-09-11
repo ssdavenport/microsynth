@@ -281,8 +281,8 @@ only, and based on that, running a one-sided lower significance test
 (`test=lower`) 
 * calculating an omnibus statistic to test joint significance
 across all outcome variables (`result.var = match.out`) 
-* creating a plot and displaying it as output (`plot()`); to save to file, 
-specify a .csv or .xlsx as the `file` argument in `plot()`. 
+* creating a plot and displaying it as output (`plot_microsynth()`); to save to file, 
+specify a .csv or .xlsx as the `file` argument in `plot_microsynth()`. 
 * estimating results but not saving it to file (`result.file=NULL`); instead, 
 results can be viewed by inspecting the `microsynth` object.
 
@@ -329,11 +329,11 @@ Note that the p-value of the omnibus statistic is smaller than any of the
 individual outcome variables.
 
 ```{r ex1b, eval = TRUE}
-plot(sea1)
+plot_microsynth(sea1)
 ```
 
 Above are produced plots under default settings. By default, if no other 
-arguments are declared in the  call to `plot()`, the plots will include one row 
+arguments are declared in the  call to `plot_microsynth()`, the plots will include one row 
 for each variable passed to `result.var` in the original \code{microsynth} call. 
 Likewise, values for the duration of the pre- and post-intervention periods 
 (i.e. `start.pre`, `end.pre`, `end.post`) can also be automatically detected from 
@@ -401,7 +401,7 @@ summary(sea2)
 ```
 
 ```{r}
-plot(sea2)
+plot_microsynth(sea2)
 ```
 
 ### Example 3:  Model feasibility while matching on more variables
@@ -453,7 +453,7 @@ The results file now shows additional rows for the new outcome variables, and
 these are also displayed in plots.
 
 ```{r}
-plot(sea3)
+plot_microsynth(sea3)
 ```
 
 
@@ -516,7 +516,7 @@ the results table, though the estimates have changed as a consequence of the
 aggregation.
 
 ```{r ex4plot}
-plot(sea4)
+plot_microsynth(sea4)
 ```
 
 ## Partial calls to microsynth
@@ -536,27 +536,20 @@ Note that settings for permutation groups (`perm`) and jackknife replication
 groups (`jack`) are considered when calculating weights, and then will not be
 referred to again in calls that only produce plots or display results.
 
-```{r ex5, eval = FALSE, echo=TRUE, results='hide'}
+```{r ex5, eval = TRUE, echo=TRUE, results='hide'}
 match.out <- c("i_felony", "i_misdemea", "i_drugs", "any_crime")
 
-#TODO: get this to run; current it fails: "object 'plot.stats' not found"
 sea5 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time",intvar="Intervention",
                    end.pre=12,
                    match.out=match.out, match.covar=cov.var,
                    result.var=FALSE, perm=0, jack=FALSE)
+
+summary(sea5)
 ```
 
 Appropriately, the table summarizing the main weights may be viewed, but results
 are unavailable.
-
-```{r, eval = FALSE, echo = FALSE}
-saveReducedMicrosynth(sea5, "../inst/extdata/sea5.rds")
-sea5 <- readRDS("../inst/extdata/sea5.rds")
-summary(sea5)
-```
-
-TODO: swap examples 6 and 7 if must show results before plots?
 
 ### Example 6:  Results only
 
@@ -566,21 +559,22 @@ variables used for exact matches (`result.var = match.out`). Further, results
 can now be calculated for any single or group of follow-up periods 
 (`end.post=c(14,16)`) without having to re-calculate weights.
 
-```{r ex7, eval = FALSE, echo=TRUE}
+```{r ex6, eval = FALSE, echo=TRUE}
 sea6 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
                    end.pre=12, end.post=c(14, 16),
                    result.var=match.out,
                    test="lower", 
                    w=sea5$w)
+
+sea6
 ```
 
 For each follow-up period, a separate results table is provided. If saving to
 file, this requires the file be saved as an XLSX rather than a CSV; each table
 will be saved to a different XLSX tab.
 
-
-```{r, eval = FALSE, echo = FALSE}
+```{r, eval = TRUE, echo = FALSE}
 saveReducedMicrosynth(sea6, "../inst/extdata/sea6.rds")
 sea6 <- readRDS("../inst/extdata/sea6.rds")
 sea6
@@ -588,12 +582,12 @@ sea6
 
 ### Example 7:  Plots only
 
-If weights have already been calculated, then plot() can be used to 
+If weights have already been calculated, then plot_microsynth() can be used to 
 display plots from the original microsynth object. In this case, we limit plots 
 to a subset of time-variant variables (`plot.var=match.out[1:2]`).
 
-```{r ex6, eval = FALSE, echo=TRUE}
-plot(sea6, plot.var=match.out[1:2])
+```{r ex7, eval = FALSE, echo=TRUE}
+plot_microsynth(sea6, plot.var=match.out[1:2])
 ```
 
 ## Alternative applications for microsynth
@@ -610,7 +604,7 @@ this simpler case.
 To demonstrate, first we will create a reduced dataset with 1 treatment block
 and 100 control blocks.
 
-```{r ex8prep, eval = FALSE, echo=TRUE}
+```{r ex8prep, eval = TRUE, echo=TRUE}
 set.seed(86872)
 ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
 ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
@@ -624,7 +618,7 @@ Due to the small size of the reduced dataset, model feasibility may be an issue
 (so we set `use.backup = TRUE` and `check.feas = TRUE`) and variance estimators
 will be less reliable.
 
-```{r ex8, eval = FALSE, echo=TRUE}
+```{r ex8, eval = TRUE, echo=TRUE}
 sea8 <- microsynth(seattledmi.one, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    match.out=match.out[4], match.covar=cov.var, 
@@ -636,7 +630,7 @@ sea8 <- microsynth(seattledmi.one,
 ```{r, eval = TRUE, echo = FALSE}
 saveReducedMicrosynth(sea8, "../inst/extdata/sea8.rds")
 sea8 <- readRDS("../inst/extdata/sea8.rds")
-plot(sea8)
+plot_microsynth(sea8)
 summary(sea8)
 ```
 
