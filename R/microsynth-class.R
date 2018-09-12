@@ -61,7 +61,6 @@ print.microsynth <- function(x, ...) {
              "\n\tExact Match: ", paste0(x$info$covar, collapse=", "),  " (", length(x$info$covar), ")",
              "\n\tMinimized Distance: ", paste0(x$info$covar.min, collapse=", "), "(", length(x$info$covar.min), ")"))
 
-
   if(!is.null(x$Results)) {
     cat("\n\nResults:")
     print.res(x$Results)
