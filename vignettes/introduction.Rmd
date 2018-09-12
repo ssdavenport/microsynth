@@ -311,13 +311,15 @@ sea1 <- microsynth(seattledmi,
                    match.out=match.out, match.covar=cov.var, 
                    result.var=match.out, omnibus.var=match.out,
                    test="lower")
-
+sea1
 summary(sea1)
 ```
 
-After the call to microsynth has been made, the \code{summary} function
+After the call to microsynth has been made, the \code{print} function displays 
+a brief description of the parameters used in the \code{microsynth} call along 
+with the results (if available). Also, the \code{summary} function
 can be used to display a summary of the matching between treatment, synthetic
-control, and the population, and also the results. Below we reproduce the
+control, and the population, and the results table. Below we reproduce the
 results that were saved to file in the previous example, with one row for each
 of the variables entered to `result.var`, which have each been used to calculate
 an omnibus statistic (`omnibus.var = TRUE`), and two columns corresponding to
@@ -387,17 +389,17 @@ sea2 <- microsynth(seattledmi,
                    perm=250, jack=TRUE)
 ```
 
-Calling \code{summary} identifies other new changes to the results.
-Columns are added to display the confidence intervals (`confidence = 0.9`) and
-p-values (`test = "lower"`) from the jackknife and permutation tests. Note that
-`end.post=c(14,16)` in the code above, instructing results to be calculated for
-two different follow-up periods, ending at t=14 and t=16 respectively. One
-results table will be calculated for each.
+Calling \code{summary} or \code{print} identifies other new changes to the 
+results. Columns are added to display the confidence intervals 
+(`confidence = 0.9`) and p-values (`test = "lower"`) from the jackknife and 
+permutation tests. Note that `end.post=c(14,16)` in the code above, instructing 
+results to be calculated for two different follow-up periods, ending at t=14 
+and t=16 respectively. One results table will be calculated for each.
 
 ```{r, eval = TRUE, echo = FALSE}
 saveReducedMicrosynth(sea2, "../inst/extdata/sea2.rds")
 sea2 <- readRDS("../inst/extdata/sea2.rds")
-summary(sea2)
+sea2
 ```
 
 ```{r}
@@ -484,7 +486,7 @@ The aggregated variables now appear in the main weights summary table, e.g.,
 "i_robbery.11.12", representing the sum of reported robberies in time periods 11
 and 12.
 
-```{r ex4, eval = FALSE, echo=TRUE} 
+```{r ex4, eval = TRUE, echo=TRUE} 
 match.out <- list( 'i_robbery'=rep(2, 6), 
                    'i_aggassau'=rep(2, 6), 
                    'i_burglary'=rep(1, 12), 

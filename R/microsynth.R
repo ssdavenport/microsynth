@@ -563,6 +563,15 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                         calfun = "linear", bounds = c(0, Inf), result.file = NULL)
 {
 
+  # Declare metrics for print() call (1 of 3)
+  info <- list()
+  info$match <- unique(match.out)
+  info$match.min <- unique(match.out.min)
+  info$covar <- unique(match.covar)
+  info$covar.min <- unique(match.covar.min)
+  info$start.pre <- start.pre
+  info$end.pre <- end.pre
+  info$end.post <- end.post
 
   all.tmp <- proc.time()
   if (length(timevar) == 0) {
@@ -578,6 +587,12 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   time.tmp <- data[,timevar]
   time.names <- names(table(time.tmp))
   data[,timevar] <- match(as.character(time.tmp), time.names)
+
+  # Declare more metrics for print() call (2 of 3)
+  info$nUnits <- length(unique(data[[idvar]])) # num units
+  info$nTreatment <- length(unique(data[idvar][data[intvar]==1]))
+  info$nControl <- info$nUnits - info$nTreatment
+
   if (length(start.pre) > 0 & !is.logical(start.pre)) {
     start.pre <- match(as.character(start.pre), time.names)
   }
@@ -846,6 +861,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                end.pre = end.pre, cal.epsilon = cal.epsilon, maxit = maxit,
                bounds = bounds, calfun = calfun, check.feas = check.feas,
                scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup, time.names = time.names)
+
+
     tmp <- proc.time() - tmp
     message("Calculation of weights complete: Total time = ",
             round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
@@ -1090,16 +1107,15 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   message("microsynth complete: Overall time = ", round(all.tmp[3],
                                                         2), "\n\n", sep = "", appendLF = FALSE)
 
-  out$info$nMatch <- length(unique(c(match.out, match.out.min)))
-  out$info$nCovar <- length(unique(c(match.out, match.out.min)))
-  out$info$start.pre <- start.pre
-  out$info$end.pre <- end.pre
-  out$info$end.post <- end.post
-  out$info$nUnits <- length(unique(data[idvar])) # num units
-  out$info$nTreatment <- length(unique(data[idvar][data[intvar]==1])) # Num treatment units
-  out$info$nControl <- out$info$nUnits - out$info$nTreatment
+  # Declare final output for print (3 of 3)
+  info$nConstraints <- nrow(out$w$Summary) - 1
+
+
+  # Add descriptive stats to output for print() call
+  out$info <- info
 
   out <- makemicrosynth(out)
+
   return(out)
 }
 
