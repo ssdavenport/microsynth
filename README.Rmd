@@ -33,9 +33,10 @@ devtools::install_github("ssdavenport/microsynth")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to run a simple microsynth model, using block-level panel data to evaluate a crime intervention:
 
 ```{r example}
+library("microsynth")
 # Use seattledmi, block-level panel data, to evaluate a crime intervention.
 
 # Declare time-variant (outcome) and time-invariant variables for matching
@@ -57,6 +58,5 @@ sea1 <- microsynth(seattledmi,
                   test="lower")
 
 sea1 # View description of microsynth object and results
-summary(sea1) # View results and weights table
 plot_microsynth(sea1) # Plot results
 ```
