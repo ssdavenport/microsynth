@@ -39,20 +39,21 @@ summary.microsynth <- function(object, ...) {
 #' \code{summary.microsynth} display information about the microsynth
 #' fit and estimation results, if available.
 #'
-#' The output includes two parts: 1) a matching summary that compares
-#' characteristics of the treatment to the synthetic control and the
-#' population; and 2) estimated results, in a similar format as they
+#' The output includes two parts: 1) a display of key input parameters;
+#' and 2) estimated results, in a similar format as they
 #' appear when saved to .csv or .xlsx., once for each specified
 #' post-intervention evaluation time.
 #' @export
 print.microsynth <- function(x, ...) {
 
-  cat("Weight Balance Table: \n")
-  print(x$w$Summary, ...)
 
-  # Be careful about case when $Results does not exist.
+  cat(paste0("\nTime-variant outcome variables (match.out/match.out.min): ", x$info$nMatch, "\n"))
+  cat(paste0("Time-invariant covariates (match.covar/match.covar.min): ", x$info$nCovar, "\n"))
+  cat(paste0("Units:   Treated: ", x$info$nTreatment, "   Untreated: ", x$info$nControl, "\n"))
+  cat(paste0("Study Period:  Pre-period: ", x$info$start.pre, " - ", x$info$end.pre, "; Post-period: ", x$info$end.post))
+
   if(!is.null(x$Results)) {
-    cat("\nResults: \n")
+    cat("\n\nResults: \n")
     print.res(x$Results)
   }
 }

@@ -377,7 +377,7 @@ placebo treatments (gray lines) will be shown along with the estimated effect of
 the real treatment. This displays the estimated treatment effect in the context
 of the estimator's sampling distribution.
 
-```{r ex2, eval = FALSE, echo=TRUE} 
+```{r ex2, eval = TRUE, echo=TRUE} 
 sea2 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    start.pre=1, end.pre=12, end.post=c(14, 16),
@@ -434,7 +434,7 @@ trust the default values for specifying the variables for the omnibus statistic
 (`omnibus.var=result.var`) by default. This way we specify the minimum
 number of non-default arguments.
 
-```{r ex3, eval = FALSE, echo=TRUE} 
+```{r ex3, eval = TRUE, echo=TRUE} 
 sea3 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    end.pre=12,
@@ -559,7 +559,7 @@ variables used for exact matches (`result.var = match.out`). Further, results
 can now be calculated for any single or group of follow-up periods 
 (`end.post=c(14,16)`) without having to re-calculate weights.
 
-```{r ex6, eval = FALSE, echo=TRUE}
+```{r ex6, eval = TRUE, echo=TRUE}
 sea6 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
                    end.pre=12, end.post=c(14, 16),
@@ -586,7 +586,7 @@ If weights have already been calculated, then plot_microsynth() can be used to
 display plots from the original microsynth object. In this case, we limit plots 
 to a subset of time-variant variables (`plot.var=match.out[1:2]`).
 
-```{r ex7, eval = FALSE, echo=TRUE}
+```{r ex7, eval = TRUE, echo=TRUE}
 plot_microsynth(sea6, plot.var=match.out[1:2])
 ```
 
@@ -641,7 +641,7 @@ microsynth() may also be used to calculate propensity score-type weights. We
 will demonstrate this by transforming our panel data into a cross-sectional
 dataset with data corresponding to our final observed period. 
 
-```{r ex9, eval = FALSE, echo=TRUE}
+```{r ex9, eval = TRUE, echo=TRUE}
 seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]
 ```
 
@@ -651,7 +651,7 @@ variables (`result.var = NULL`) need be
 reported. Plots are therefore inappropriate, but results (i.e., a summary of
 weights only) can be saved to file or viewed using `summary`.
 
-```{r ex9results, eval = FALSE, echo=TRUE}
+```{r ex9results, eval = TRUE, echo=TRUE}
 sea9 <- microsynth(seattledmi.cross, 
                    idvar="ID", intvar="Intervention",
                    match.out=FALSE, match.covar=cov.var,
