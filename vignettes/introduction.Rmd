@@ -379,7 +379,7 @@ placebo treatments (gray lines) will be shown along with the estimated effect of
 the real treatment. This displays the estimated treatment effect in the context
 of the estimator's sampling distribution.
 
-```{r ex2, eval = TRUE, echo=TRUE} 
+```{r ex2, eval = FALSE, echo=TRUE} 
 sea2 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    start.pre=1, end.pre=12, end.post=c(14, 16),
@@ -436,7 +436,7 @@ trust the default values for specifying the variables for the omnibus statistic
 (`omnibus.var=result.var`) by default. This way we specify the minimum
 number of non-default arguments.
 
-```{r ex3, eval = TRUE, echo=TRUE} 
+```{r ex3, eval = FALSE, echo=TRUE} 
 sea3 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    end.pre=12,
@@ -486,7 +486,7 @@ The aggregated variables now appear in the main weights summary table, e.g.,
 "i_robbery.11.12", representing the sum of reported robberies in time periods 11
 and 12.
 
-```{r ex4, eval = TRUE, echo=TRUE} 
+```{r ex4, eval = FALSE, echo=TRUE} 
 match.out <- list( 'i_robbery'=rep(2, 6), 
                    'i_aggassau'=rep(2, 6), 
                    'i_burglary'=rep(1, 12), 
@@ -561,7 +561,7 @@ variables used for exact matches (`result.var = match.out`). Further, results
 can now be calculated for any single or group of follow-up periods 
 (`end.post=c(14,16)`) without having to re-calculate weights.
 
-```{r ex6, eval = TRUE, echo=TRUE}
+```{r ex6, eval = FALSE, echo=TRUE}
 sea6 <- microsynth(seattledmi, 
                    idvar="ID", timevar="time", intvar="Intervention",
                    end.pre=12, end.post=c(14, 16),
@@ -620,7 +620,7 @@ Due to the small size of the reduced dataset, model feasibility may be an issue
 (so we set `use.backup = TRUE` and `check.feas = TRUE`) and variance estimators
 will be less reliable.
 
-```{r ex8, eval = TRUE, echo=TRUE}
+```{r ex8, eval = FALSE, echo=TRUE}
 sea8 <- microsynth(seattledmi.one, 
                    idvar="ID", timevar="time", intvar="Intervention", 
                    match.out=match.out[4], match.covar=cov.var, 
@@ -653,7 +653,7 @@ variables (`result.var = NULL`) need be
 reported. Plots are therefore inappropriate, but results (i.e., a summary of
 weights only) can be saved to file or viewed using `summary`.
 
-```{r ex9results, eval = TRUE, echo=TRUE}
+```{r ex9results, eval = FALSE, echo=TRUE}
 sea9 <- microsynth(seattledmi.cross, 
                    idvar="ID", intvar="Intervention",
                    match.out=FALSE, match.covar=cov.var,

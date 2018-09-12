@@ -1109,6 +1109,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
 
   # Declare final output for print (3 of 3)
   info$nConstraints <- nrow(out$w$Summary) - 1
+
   info$num.constr <- out$w$num.constr
   out$w$num.constr <- NULL
 
