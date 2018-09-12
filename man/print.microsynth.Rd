@@ -16,9 +16,8 @@ The functions \code{print.microsynth} and
 \code{summary.microsynth} display information about the microsynth
 fit and estimation results, if available.
 
-The output includes two parts: 1) a matching summary that compares
-characteristics of the treatment to the synthetic control and the
-population; and 2) estimated results, in a similar format as they
+The output includes two parts: 1) a display of key input parameters;
+and 2) estimated results, in a similar format as they
 appear when saved to .csv or .xlsx., once for each specified
 post-intervention evaluation time.
 }

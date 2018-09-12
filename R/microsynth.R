@@ -322,9 +322,9 @@
 #'   \code{match.covar.min= NULL}, \code{check.feas = FALSE}, and
 #'   \code{use.backup = FALSE}.
 #'
-#' @return \code{microsynth} returns a list with up to four elements: a)
+#' @return \code{microsynth} returns a list with up to five elements: a)
 #'   \code{w}, b) \code{Results}, c) \code{svyglm.stats},
-#'   and c) \code{Plot.Stats}.
+#'   d) \code{Plot.Stats}, and e) \code{info}.
 #'
 #'   \code{w} is a list with five elements: a) \code{Weights}, b)
 #'   \code{Intervention},
@@ -361,7 +361,7 @@
 #'   element for each value of \code{end.post}, and the matrices each have
 #'   one row per variable in \code{result.var}.
 #'
-#'   Lastly, \code{Plot.Stats} contains the data that are displayed in the
+#'   Next, \code{Plot.Stats} contains the data that are displayed in the
 #'   plots which may be generated using \code{plot.microsynth()}.
 #'   \code{Plot.Stats} is a list with four elements (Treatment, Control,
 #'   All, Difference).  The first three elements are matrices with one row per
@@ -372,6 +372,9 @@
 #'   treatment minus control for the true intervention group;
 #'   \code{Plot.Stats$Difference[,,i+1]} contains the time series of treatment
 #'   minus control for the i^th permutation group.
+#'
+#'   Lastly, \code{info} documents some input parameters for display by
+#'   \code{print()}.
 #'
 #'   A summary of weighted matching variables and of results can be viewed
 #'   using \code{\link{summary}}
@@ -559,6 +562,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                         w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04,
                         calfun = "linear", bounds = c(0, Inf), result.file = NULL)
 {
+
+
   all.tmp <- proc.time()
   if (length(timevar) == 0) {
     if (length(table(data[, idvar])) < NROW(data)) {
@@ -1084,6 +1089,16 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   all.tmp <- proc.time() - all.tmp
   message("microsynth complete: Overall time = ", round(all.tmp[3],
                                                         2), "\n\n", sep = "", appendLF = FALSE)
+
+  out$info$nMatch <- length(unique(c(match.out, match.out.min)))
+  out$info$nCovar <- length(unique(c(match.out, match.out.min)))
+  out$info$start.pre <- start.pre
+  out$info$end.pre <- end.pre
+  out$info$end.post <- end.post
+  out$info$nUnits <- length(unique(data[idvar])) # num units
+  out$info$nTreatment <- length(unique(data[idvar][data[intvar]==1])) # Num treatment units
+  out$info$nControl <- out$info$nUnits - out$info$nTreatment
+
   out <- makemicrosynth(out)
   return(out)
 }

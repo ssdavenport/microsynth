@@ -251,9 +251,9 @@ of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
 \code{end.post}.}
 }
 \value{
-\code{microsynth} returns a list with up to four elements: a)
+\code{microsynth} returns a list with up to five elements: a)
   \code{w}, b) \code{Results}, c) \code{svyglm.stats},
-  and c) \code{Plot.Stats}.
+  d) \code{Plot.Stats}, and e) \code{info}.
 
   \code{w} is a list with five elements: a) \code{Weights}, b)
   \code{Intervention},
@@ -290,7 +290,7 @@ of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
   element for each value of \code{end.post}, and the matrices each have
   one row per variable in \code{result.var}.
 
-  Lastly, \code{Plot.Stats} contains the data that are displayed in the
+  Next, \code{Plot.Stats} contains the data that are displayed in the
   plots which may be generated using \code{plot.microsynth()}.
   \code{Plot.Stats} is a list with four elements (Treatment, Control,
   All, Difference).  The first three elements are matrices with one row per
@@ -301,6 +301,9 @@ of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
   treatment minus control for the true intervention group;
   \code{Plot.Stats$Difference[,,i+1]} contains the time series of treatment
   minus control for the i^th permutation group.
+
+  Lastly, \code{info} documents some input parameters for display by
+  \code{print()}.
 
   A summary of weighted matching variables and of results can be viewed
   using \code{\link{summary}}
