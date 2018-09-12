@@ -563,6 +563,15 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                         calfun = "linear", bounds = c(0, Inf), result.file = NULL)
 {
 
+  # Declare metrics for print() call (1 of 3)
+  info <- list()
+  info$match <- unique(match.out)
+  info$match.min <- unique(match.out.min)
+  info$covar <- unique(match.covar)
+  info$covar.min <- unique(match.covar.min)
+  info$start.pre <- start.pre
+  info$end.pre <- end.pre
+  info$end.post <- end.post
 
   all.tmp <- proc.time()
   if (length(timevar) == 0) {
@@ -578,6 +587,12 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   time.tmp <- data[,timevar]
   time.names <- names(table(time.tmp))
   data[,timevar] <- match(as.character(time.tmp), time.names)
+
+  # Declare more metrics for print() call (2 of 3)
+  info$nUnits <- length(unique(data[[idvar]])) # num units
+  info$nTreatment <- length(unique(data[idvar][data[intvar]==1]))
+  info$nControl <- info$nUnits - info$nTreatment
+
   if (length(start.pre) > 0 & !is.logical(start.pre)) {
     start.pre <- match(as.character(start.pre), time.names)
   }
@@ -846,6 +861,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                end.pre = end.pre, cal.epsilon = cal.epsilon, maxit = maxit,
                bounds = bounds, calfun = calfun, check.feas = check.feas,
                scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup, time.names = time.names)
+
+
     tmp <- proc.time() - tmp
     message("Calculation of weights complete: Total time = ",
             round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
@@ -1090,16 +1107,16 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   message("microsynth complete: Overall time = ", round(all.tmp[3],
                                                         2), "\n\n", sep = "", appendLF = FALSE)
 
-  out$info$nMatch <- length(unique(c(match.out, match.out.min)))
-  out$info$nCovar <- length(unique(c(match.out, match.out.min)))
-  out$info$start.pre <- start.pre
-  out$info$end.pre <- end.pre
-  out$info$end.post <- end.post
-  out$info$nUnits <- length(unique(data[idvar])) # num units
-  out$info$nTreatment <- length(unique(data[idvar][data[intvar]==1])) # Num treatment units
-  out$info$nControl <- out$info$nUnits - out$info$nTreatment
+  # Declare final output for print (3 of 3)
+  info$nConstraints <- nrow(out$w$Summary) - 1
+  info$num.constr <- out$w$num.constr
+  out$w$num.constr <- NULL
+
+  # Add descriptive stats to output for print() call
+  out$info <- info
 
   out <- makemicrosynth(out)
+
   return(out)
 }
 
@@ -1178,7 +1195,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       is.trt.area <- which(apply(boots, 2, check.combn,
                                  x = which(Int == int.val)) == 0)
       boots <- boots[, base::sample((1:NCOL(boots))[-is.trt.area],
-                              boot), drop = FALSE]
+                                    boot), drop = FALSE]
       fin.boots <- TRUE
     }
   }
@@ -1285,7 +1302,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       g <- as.numeric(gsub("Perm", "", colnam[i]))
       if (!fin.boots) {
         samp <- base::sample(1:n, sum(Int == int.val), replace = FALSE,
-                       prob = NULL)
+                             prob = NULL)
         samp <- is.element(1:n, samp)
       }
       else {
@@ -1395,21 +1412,39 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
               round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
       message("Matching summary for main weights:\n", appendLF = FALSE)
       if (use.model.i == 1) {
+        num.exact <- NCOL(newdat)
+        if(length(newdat1) == 0) {
+          num.prox <- 0
+        } else {
+          num.prox <- NCOL(newdat1)
+        }
         printstuff <- mses$printstuff
         message(paste0(utils::capture.output(round(printstuff,
-                                            4)), collapse = "\n"), appendLF = FALSE)
+                                                   4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 2) {
+        num.exact <- NCOL(newdata)
+        if(length(newdat1a) == 0) {
+          num.prox <- 0
+        } else {
+          num.prox <- NCOL(newdat1a)
+        }
         printstuff <- msesa$printstuff
         message(paste0(utils::capture.output(round(printstuff,
-                                            4)), collapse = "\n"), appendLF = FALSE)
+                                                   4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 3) {
+        num.exact <- NCOL(newdatb)
+        if(length(newdat1b) == 0) {
+          num.prox <- 0
+        } else {
+          num.prox <- NCOL(newdat1b)
+        }
         printstuff <- msesb$printstuff
         message(paste0(utils::capture.output(round(printstuff,
-                                            4)), collapse = "\n"), appendLF = FALSE)
+                                                   4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       if (jack > 0) {
@@ -1485,9 +1520,11 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
     }
   }
   out <- list(Weights = wghts, Intervention = Inter, MSE = mse,
-              Model = mod, Summary = printstuff)
+              Model = mod, Summary = printstuff, num.constr = c(num.exact = num.exact,
+                                                                num.prox = num.prox))
   return(out)
 }
+
 
 
 get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL,
@@ -2649,6 +2686,7 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
 
   if (length(newdat1) == 0) {
     printstuff <- cbind(Targets = targets, Weighted.Control = colSums((ws) * (condat)), All.scaled = (scale.by) * colSums(alldat))
+
   } else {
     # printstuff <- cbind(Targets = c(targets, targets1), Initial.Weighted.Control = colSums(ws.init * cbind(condat, condat1)),
     # Final.Weighted.Control = colSums(ws * cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat, alldat1)))

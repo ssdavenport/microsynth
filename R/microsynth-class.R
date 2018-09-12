@@ -18,7 +18,7 @@
 #' @export
 summary.microsynth <- function(object, ...) {
 
-  cat("Weight Balance Table: \n")
+  cat("Weight Balance Table: \n\n")
   print(object$w$Summary, ...)
 
   # Be careful about case when $Results does not exist.
@@ -46,14 +46,24 @@ summary.microsynth <- function(object, ...) {
 #' @export
 print.microsynth <- function(x, ...) {
 
+  cat(paste0("\tmicrosynth object\n\n"))
 
-  cat(paste0("\nTime-variant outcome variables (match.out/match.out.min): ", x$info$nMatch, "\n"))
-  cat(paste0("Time-invariant covariates (match.covar/match.covar.min): ", x$info$nCovar, "\n"))
-  cat(paste0("Units:   Treated: ", x$info$nTreatment, "   Untreated: ", x$info$nControl, "\n"))
-  cat(paste0("Study Period:  Pre-period: ", x$info$start.pre, " - ", x$info$end.pre, "; Post-period: ", x$info$end.post))
+  cat("Scope:\n")
+  cat(paste0("\tUnits:\t\t\tTotal: ", x$info$nUnits, "\tTreated: ", x$info$nTreatment, "\tUntreated: ", x$info$nControl, "\n"))
+  cat(paste0("\tStudy Period(s):\tPre-period: ", x$info$start.pre, " - ", x$info$end.pre, "\tPost-period: ", x$info$end.pre+1, " - ", x$info$end.post, "\n"))
+  cat(paste0("\tConstraints:\t\tExact Match: ", x$info$num.constr[1], "\t\tMinimized Distance: ", x$info$num.constr[2]))
+  cat(paste0("\nTime-variant outcomes:",
+             "\n\tExact Match: ", paste0(x$info$match, collapse=", "), " (", length(x$info$match), ")",
+             "\n\tMinimized Distance: ", paste0(x$info$match.min, collapse=", "), "(", length(x$info$match.min), ")",
+             "\n"))
+
+  cat(paste0("Time-invariant covariates:",
+             "\n\tExact Match: ", paste0(x$info$covar, collapse=", "),  " (", length(x$info$covar), ")",
+             "\n\tMinimized Distance: ", paste0(x$info$covar.min, collapse=", "), "(", length(x$info$covar.min), ")"))
+
 
   if(!is.null(x$Results)) {
-    cat("\n\nResults: \n")
+    cat("\n\nResults:")
     print.res(x$Results)
   }
 }
