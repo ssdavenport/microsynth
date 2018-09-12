@@ -58,5 +58,5 @@ sea1 <- microsynth(seattledmi,
                   test="lower")
 
 sea1 # View description of microsynth object and results
-plot_microsynth(sea1) # Plot results
+
 ```
