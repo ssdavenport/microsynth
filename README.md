@@ -107,16 +107,16 @@ sea1 <- microsynth(seattledmi,
 #> any_crime.3       236         236.0010    58.8681
 #> any_crime.2       250         250.0012    51.5429
 #> any_crime.1       242         242.0010    55.1145
-#> Calculation of weights complete: Total time = 2.04
+#> Calculation of weights complete: Total time = 2.06
 #> 
 #> Calculating basic statistics for end.post = 16...
-#> Completed calculation of basic statistics for end.post = 16.  Time = 3.85
+#> Completed calculation of basic statistics for end.post = 16.  Time = 3.76
 #> 
 #> Calculating survey statistics for end.post = 16...
-#> Completed survey statistics for main weights: Time = 8.6
-#> Completed calculation of survey statistics for end.post = 16.  Time = 8.6
+#> Completed survey statistics for main weights: Time = 9.22
+#> Completed calculation of survey statistics for end.post = 16.  Time = 9.22
 #> 
-#> microsynth complete: Overall time = 17.17
+#> microsynth complete: Overall time = 17.73
 
 sea1 # View description of microsynth object and results
 #>  microsynth object
@@ -140,7 +140,4 @@ sea1 # View description of microsynth object and results
 #> i_drugs     20  23.76   -15.8%      0.2559       -46.4%        32.1%
 #> any_crime  788 986.44   -20.1%      0.0146       -32.9%        -4.9%
 #> Omnibus     --     --       --      0.0011           --           --
-plot_microsynth(sea1) # Plot results
 ```
-
-![](README-example-1.png)<!-- -->![](README-example-2.png)<!-- -->![](README-example-3.png)<!-- -->![](README-example-4.png)<!-- -->
