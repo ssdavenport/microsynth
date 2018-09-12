@@ -1,0 +1,62 @@
+---
+output: github_document
+---
+
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# microsynth
+
+The goal of microsynth is to implement the synthetic control method for micro-level data as outlined in Robbins, Saunders, and Kilmer (2017). \code{microsynth} is designed for use
+in assessment of the effect of an intervention using longitudinal data.
+However, it may also be used to calculate propensity score-type weights in
+cross-sectional data. \code{microsynth} is a generalization
+of \code{Synth} (see Abadie and Gardeazabal (2003) and Abadie, Diamond,
+Hainmueller (2010, 2011, 2014)) that is designed for data at a more granular
+level (e.g., micro-level). For more details see the help vignette:
+\code{vignette('microsynth', package = 'microsynth')}.
+
+## Installation
+
+You can install microsynth from github with:
+
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("ssdavenport/microsynth")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+# Use seattledmi, block-level panel data, to evaluate a crime intervention.
+
+# Declare time-variant (outcome) and time-invariant variables for matching
+cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
+       'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
+
+
+match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+
+set.seed(99199) # for reproducibility
+
+# Perform matching and estimation, without permutations or jackknife
+# runtime: < 1 min
+sea1 <- microsynth(seattledmi,
+                  idvar="ID", timevar="time", intvar="Intervention",
+                  start.pre=1, end.pre=12, end.post=16,
+                  match.out=match.out, match.covar=cov.var,
+                  result.var=match.out, omnibus.var=match.out,
+                  test="lower")
+
+sea1 # View description of microsynth object and results
+summary(sea1) # View results and weights table
+plot_microsynth(sea1) # Plot results
+```
