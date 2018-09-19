@@ -79,13 +79,13 @@
 #'                   test="lower")
 #'
 #' # Plot with default settings in the GUI.
-#' plot_microsynth(sea1)
+#' plot(sea1)
 #'
 #' # Make plots, display, and save to a single file (plots.pdf).
-#' plot_microsynth(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
+#' plot(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 #'
 #' # Make plots for only one outcome, display, and save to a single file.
-#' plot_microsynth(sea1, plot.var = "any_crime",
+#' plot(sea1, plot.var = "any_crime",
 #'      file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 #'
 #' @export
@@ -96,7 +96,7 @@ plot_microsynth <- function (ms,
                              height = NULL, width = NULL) {
 
 if(!is.element("Plot.Stats",names(ms))) {
-  stop("microsynth object does not contain output regarding results (e.g., only weights were generated).")
+  stop("object ms does not contain output regarding results (e.g., only weights were generated).")
 }
 
 plotdat.t <- ms$Plot.Stats$Treatment
@@ -128,17 +128,32 @@ if(length(plot.first) == 0) {
 time.names <- colnames(plotdat.t)
 
 if (length(start.pre) > 0) {
-  start.pre <- match(as.character(start.pre), time.names)
+  if (is.element(as.character(start.pre), time.names)) {
+    start.pre <- match(as.character(start.pre), time.names)
+  } else {
+    start.pre <- which(as.numeric(time.names) >= as.numeric(start.pre))[1]
+  }
 } else {
   start.pre <- 1
 }
 if (length(end.pre) > 0) {
+  if (is.element(as.character(end.pre), time.names)) {
     end.pre <- match(as.character(end.pre), time.names)
+  } else {
+    end.pre <- which(as.numeric(time.names) <= as.numeric(end.pre))
+    end.pre <- end.pre[length(end.pre)]
+  }
 } else {
-  end.pre <- ms$Plot.Stats$end.pre
+    end.pre <- ms$Plot.Stats$end.pre
+    end.pre <- match(as.character(end.pre), time.names)
 }
 if (length(end.post) > 0) {
-  end.post <- match(as.character(end.post), time.names)
+  if (is.element(as.character(end.post), time.names)) {
+    end.post <- match(as.character(end.post), time.names)
+  } else {
+    end.post <- which(as.numeric(time.names) <= as.numeric(end.post))
+    end.post <- end.post[length(end.post)]
+  }
 } else {
   end.post <- length(time.names)
 }
