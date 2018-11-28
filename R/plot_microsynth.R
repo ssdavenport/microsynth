@@ -58,6 +58,18 @@
 #'
 #' @param width The width of the graphics region (in inches)
 #'   when a pdf is created.
+#' 
+#' @param at A vector that gives the location of user-specified x-axis labels.  
+#'   \code{at} should be a (numeric) subset of the named time points contained 
+#'   in \code{ms} (e.g., \code{colnames(ms$Plot.Stats$Treatment)}).  
+#' 
+#' @param labels A vector of the same length as \code{at} that gives the names
+#'   of the labels that will be marked at the times indicated by \code{at} in 
+#'   the plots.  
+#' 
+#' @param all A scalar character string giving the unit name for cases.  
+#'   If \code{NULL}, a third curve showing the overall outcome levels is 
+#'   not plotted. 
 #'
 #' @examples
 #'
@@ -79,13 +91,13 @@
 #'                   test="lower")
 #'
 #' # Plot with default settings in the GUI.
-#' plot(sea1)
+#' plot_microsynth(sea1)
 #'
 #' # Make plots, display, and save to a single file (plots.pdf).
-#' plot(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
+#' plot_microsynth(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 #'
 #' # Make plots for only one outcome, display, and save to a single file.
-#' plot(sea1, plot.var = "any_crime",
+#' plot_microsynth(sea1, plot.var = "any_crime",
 #'      file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 #'
 #' @export
@@ -93,7 +105,8 @@
 plot_microsynth <- function (ms,
                              plot.var = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL,
                              file=NULL, sep = TRUE, plot.first = NULL, legend.spot = "bottomleft",
-                             height = NULL, width = NULL) {
+                             height = NULL, width = NULL, at = NULL, labels = NULL, main = NULL, 
+                             all = "cases") {
 
 if(!is.element("Plot.Stats",names(ms))) {
   stop("object ms does not contain output regarding results (e.g., only weights were generated).")
@@ -101,7 +114,11 @@ if(!is.element("Plot.Stats",names(ms))) {
 
 plotdat.t <- ms$Plot.Stats$Treatment
 plotdat.c <- ms$Plot.Stats$Control
-plotdat.a <- ms$Plot.Stats$All
+if(length(all) > 0) {
+  plotdat.a <- ms$Plot.Stats$All
+} else {
+plotdat.a <- ms$Plot.Stats$Treatment
+}
 plotdat.d <- ms$Plot.Stats$Difference
 scale.by <- ms$Plot.Stats$scale.by
 
@@ -189,19 +206,35 @@ if (length(file) == 0) {
   graphics::par(mfrow = c(1, 2), ask = FALSE)
 }
 else {
+  file.type <- "pdf"
   if (substr(file, nchar(file) - 3, nchar(file)) ==
       ".pdf") {
     file <- substr(file, 1, nchar(file) - 4)
+  } else if (substr(file, nchar(file) - 3, nchar(file)) ==
+      ".png") {
+    file <- substr(file, 1, nchar(file) - 4)
+    file.type <- "png"
   }
   if (!sep) {
-    file <- paste(file, ".pdf", sep = "")
-    grDevices::pdf(file = file, width = width, height = height)
+    if (file.type == "pdf") {
+      file <- paste(file, ".pdf", sep = "")
+      grDevices::pdf(file = file, width = width, height = height)
+    } else if (file.type == "png") {
+      file <- paste(file, ".png", sep = "")
+      grDevices::png(file = file, width = width, height = height, 
+        units = "in", res = 500)
+    }
     graphics::par(mfrow = c(3, 2), ask = FALSE)
   }
 }
 
   for (j in 1:length(plot.var)) {
-    ylab1 <- main1 <- main <- plot.var[j]
+    ylab1 <- main1 <- plot.var[j]
+    if(length(main) == 0) {
+      main2 <- main1
+    } else {
+      main2 <- main
+    }
     ylab2 <- "Treatment - Control"
     #use.mu <- which(mu[, plot.var[j]] > 0)
     use.mu <- 1:dim(plotdat.d)[2]
@@ -209,8 +242,14 @@ else {
       tmp <- plotdat.d[plot.var[j], i, ]
       if (i == 1) {
         if (sep & length(file) > 0) {
-          grDevices::pdf(file = paste(file, "_", main1,
-                                      "_TC.pdf", sep = ""), width = width, height = width)
+          if (file.type == "pdf") {
+            grDevices::pdf(file = paste(file, "_", main1,
+                                      "_TC.pdf", sep = ""), width = width, height = height)
+          } else if (file.type == "png") {
+            grDevices::png(file = paste(file, "_", main1,
+                                      "_TC.png", sep = ""), width = width, height = height, 
+                                      units = "in", res = 500)
+          }
         }
         tmp1 <- plotdat.t[plot.var[j], ]
         tmp2 <- plotdat.c[plot.var[j], ]
@@ -218,31 +257,51 @@ else {
         lty <- c(1, 2, 4)
         col <- c(2, 1, 3)
         lwd <- c(2, 2, 2)
-        ylim <- c(min(tmp1, tmp2), max(tmp1, tmp2))
-        ylim <- c(min(ylim, tmp3), max(ylim, tmp3))
+        ylim <- c(min(tmp1[tuse], tmp2[tuse]), max(tmp1[tuse], tmp2[tuse]))
+        ylim <- c(min(ylim, tmp3[tuse]), max(ylim, tmp3[tuse]))
         ylim[2] <- 1.2 * ylim[2]
-        xxnams1 <- as.numeric(as.character(time.names[xnams[tuse]]))
-        xxnams2 <- as.numeric(as.character(time.names[xnams[tuse & use]]))
-        xxnams3 <- as.numeric(as.character(time.names[xnams[tuse & nuse]]))
+        xxnams1 <- as.numeric(as.character(time.names[xnams]))
         iend.pre <- as.numeric(as.character(time.names[end.pre]))
         if (sum(is.na(xxnams1)) > 0) {
-          xxnams1 <- xnams[tuse]
-          xxnams2 <- xnams[tuse & use]
-          xxnams3 <- xnams[tuse & nuse]
+          xxnams1 <- xnams
           iend.pre <- end.pre
         }
+        if(length(at) == 0) {
+          #at <- xxnams1
+          xaxt <- "s"
+        } else {
+          xaxt <- "n"
+        }
+        #if(length(labels) == 0) {
+        #  labels <- at
+        #}
+        xxnams2 <- xxnams1[tuse & use]
+        xxnams3 <- xxnams1[tuse & nuse]
+        xxnams1 <- xxnams1[tuse]
         xlim <- c(min(xxnams1), max(xxnams1))
         graphics::plot(xxnams1, tmp1[tuse], type = "l",
                        lty = lty[1], col = col[1], lwd = lwd[1],
-                       xlim = xlim, xlab = "", ylab = ylab1, main = main,
-                       ylim = ylim)
+                       xlim = xlim, xlab = "", ylab = ylab1, main = main2,
+                       ylim = ylim, xaxt = xaxt)
+        if(length(at) > 0) {
+          at1 <- intersect(at, xxnams1)
+          labels1 <- labels[is.element(at, xxnams1)]
+          graphics::axis(1, at=at1,labels=labels1)
+        }
         graphics::abline(v = iend.pre, lty = 2, col = 2)
         graphics::lines(xxnams1, tmp2[tuse], type = "l",
                         lty = lty[2], col = col[2], lwd = lwd[2])
-        graphics::lines(xxnams1, tmp3[tuse], type = "l",
-                        lty = lty[3], col = col[3], lwd = lwd[3])
-        leg <- c("Treatment", "Synthetic Control",
-                 "All blocks (scaled)")
+        if(length(all) > 0) {
+          graphics::lines(xxnams1, tmp3[tuse], type = "l",
+                          lty = lty[3], col = col[3], lwd = lwd[3])
+          leg3 <- paste("All ",all," (scaled)", sep = "")
+          leg <- c("Treatment", "Synthetic Control", leg3)
+        } else {
+          leg <- c("Treatment", "Synthetic Control")
+          col <- col[1:2]
+          lty <- lty[1:2]
+          lwd <- lwd[1:2]
+        }
         graphics::legend(legend.spot, legend = leg,
                          col = col, lty = lty, lwd = lwd, cex = 0.8,
                          bty = "n")
@@ -251,26 +310,36 @@ else {
         }
         if (is.element(i, use.mu)) {
           if (sep & length(file) > 0) {
+            if (file.type == "pdf") {
             grDevices::pdf(file = paste(file, "_",
-                                        main1, "_Diff.pdf", sep = ""), width = 5,
-                           height = 5)
+                                        main1, "_Diff.pdf", sep = ""), width = width,
+                           height = height)
+            } else if (file.type == "png") {
+            grDevices::png(file = paste(file, "_",
+                                        main1, "_Diff.png", sep = ""), width = width,
+                           height = height, units = "in", res = 500)
+            }
           }
-          ylim1 <- c(min(tmp), max(tmp))
+          ylim1 <- c(min(tmp[tuse]), max(tmp[tuse]))
           bigtmp <- plotdat.d[plot.var[j], use.mu, ]
-          ylim2 <- 2 * c(stats::quantile(bigtmp, 0.05,
-                                         na.rm = TRUE), stats::quantile(bigtmp,
-                                                                        0.95, na.rm = TRUE))
-          ylim <- c(min(ylim1[1], ylim2[1], na.rm = TRUE),
-                    max(ylim1[2], ylim2[2], na.rm = TRUE))
+          ylim2a <- 2 * min(apply(bigtmp[ ,tuse], 2, stats::quantile, probs = .05, na.rm = TRUE))
+          ylim2b <- 2 * max(apply(bigtmp[ ,tuse], 2, stats::quantile, probs = .95, na.rm = TRUE))
+          ylim <- c(min(ylim1[1], ylim2a, na.rm = TRUE),
+                    max(ylim1[2], ylim2b, na.rm = TRUE))
           xlim <- c(min(xxnams1), max(xxnams1))
           graphics::plot(xxnams2, tmp[tuse &
                                         use], type = "l", ylim = ylim, xlim = xlim,
-                         col = 2, lty = 2, main = main, xlab = "",
-                         ylab = ylab2)
+                         col = 2, lty = 2, main = main2, xlab = "",
+                         ylab = ylab2, xaxt = xaxt)
+          if(length(at) > 0) {
+            at1 <- intersect(at, xxnams1)
+            labels1 <- labels[is.element(at, xxnams1)]
+            graphics::axis(1, at=at1,labels=labels1)
+          }
         }
         else {
           if (!sep & length(file) > 0) {
-            graphics::plot(1, 1, main = plot.var[j])
+            graphics::plot(1, 1, main = main2)
           }
         }
       }
@@ -302,3 +371,6 @@ else {
     grDevices::dev.off()
   }
 }
+
+
+

@@ -302,14 +302,23 @@
 #' @param maxit The maximum number of iterations used within the calibration
 #'   routine (\code{calibrate()} from the \code{survey} package) for
 #'   calculating weights.
+#'
 #' @param cal.epsilon The tolerance used within the calibration routine
 #'   (\code{calibrate()} from the \code{survey} package) for calculating
 #'   weights.
+#'
 #' @param calfun The calibration function used within the calibration routine
 #'   (\code{calibrate()} from the \code{survey} package) for calculating
 #'   weights.
+#'
 #' @param bounds Bounds for calibration weighting (fed into the
 #'   \code{calibrate()} from the \code{survey} package).
+#'
+#' @param shape A shape file of class \code{sf} that may be used to ensure that
+#'   permutation groups are (nearly) contiguous blocks.
+#'
+#' @param shape.id A character string that indicates the column name in
+#'   \code{shape} that gives the region IDs.
 #'
 #' @details \code{microsynth} calculates weights using
 #'   \code{survey::calibrate()} from the \code{survey} package in circumstances
@@ -324,11 +333,12 @@
 #'
 #' @return \code{microsynth} returns a list with up to five elements: a)
 #'   \code{w}, b) \code{Results}, c) \code{svyglm.stats},
-#'   d) \code{Plot.Stats}, and e) \code{info}.
+#'   and d) \code{Plot.Stats}, and e) \code{info}.
 #'
-#'   \code{w} is a list with five elements: a) \code{Weights}, b)
+#'   \code{w} is a list with six elements: a) \code{Weights}, b)
 #'   \code{Intervention},
-#'   c) \code{MSE}, d) \code{Model}, and e) \code{Summary}.  Assume there are
+#'   c) \code{MSE}, d) \code{Model}, e) \code{Summary}, and f) \code{keep.groups}.
+#'   Assume there are
 #'   C total sets of weights calculated, where C = \code{1 + jack + perm}, and
 #'   there are N total cases across the treatment and control groups.
 #'   \code{w$Weights} is an N x C matrix, where each column provides a set of
@@ -341,7 +351,10 @@
 #'   MSEs are listed for the primary and secondary constraints for the first,
 #'   second, and third models.  \code{w$Model} is a length-C vector that
 #'   indicates whether backup models were used in the calculation of each set of
-#'   weights.  \code{w$Summary} is a three-column matrix that (for treatment,
+#'   weights.  \code{w$keep.groups} is a logical vector indicating which groups
+#'   are to be used in analysis (groups that are not used have pre-intervention
+#'   MSE greater than \code{cut.mse}.  \code{w$Summary} is a three-column matrix
+#'   that (for treatment,
 #'   synthetic control, and the full dataset), shows aggregate values
 #'   of the variables across which treatment and synthetic control are matched.
 #'   The summary, which is tabulated only for the primary weights, is also
@@ -373,11 +386,9 @@
 #'   \code{Plot.Stats$Difference[,,i+1]} contains the time series of treatment
 #'   minus control for the i^th permutation group.
 #'
-#'   Lastly, \code{info} documents some input parameters for display by
-#'   \code{print()}.
-#'
-#'   A summary of weighted matching variables and of results can be viewed
-#'   using \code{\link{summary}}
+#' 	 Lastly, \code{info} documents some input parameters for display by
+#'   \code{print()}. A summary of weighted matching variables and of results
+#'   can be viewed using \code{\link{summary}}
 #'
 #' @references Abadie A, Diamond A, Hainmueller J (2010). “Synthetic control
 #'   methods for comparative case studies: Estimating the effect of California’s
@@ -487,11 +498,10 @@
 #' }
 #'
 #'
+#' \donttest{
 #' # runtime: ~ 20 minutes
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
-#'
-#' \donttest{
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
@@ -512,6 +522,7 @@
 #'
 #' # Generate plots only
 #' plot_microsynth(sea6, plot.var=match.out[1:2])
+#' }
 #'
 #' # Apply microsynth in the traditional setting of Synth
 #' # Create macro-level (small n) data, with 1 treatment unit
@@ -548,10 +559,9 @@
 #'
 #' # View results
 #' summary(sea9)
-#' }
+#'
 #'
 #' @export
-
 
 microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                         end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE,
@@ -560,7 +570,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                         confidence = 0.9, test = "twosided", perm = 0, jack = 0,
                         use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, use.backup = FALSE,
                         w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04,
-                        calfun = "linear", bounds = c(0, Inf), result.file = NULL)
+                        calfun = "linear", bounds = c(0, Inf), result.file = NULL,
+                        shape = NULL, shape.id = 5)
 {
 
   # Declare metrics for print() call (1 of 3)
@@ -860,9 +871,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                                                                            as.character(end.pre)], int.val = int.num, trim = NULL,
                end.pre = end.pre, cal.epsilon = cal.epsilon, maxit = maxit,
                bounds = bounds, calfun = calfun, check.feas = check.feas,
-               scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup, time.names = time.names)
-
-
+               scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup, time.names = time.names,
+               shape = shape, shape.id = shape.id)
     tmp <- proc.time() - tmp
     message("Calculation of weights complete: Total time = ",
             round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
@@ -912,7 +922,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
       message(is.graph, " for end.post = ", time.names[end.post[i]],
               "...", "\n", sep = "", appendLF = FALSE)
       stats[[i]] <- get.stats(data, w$Weights, w$Intervention,
-                              w$MSE[1, ], result.var, end.pre = end.pre,
+                              w$keep.groups, result.var, end.pre = end.pre,
                               period = period, end.post = end.post[i],
                               omnibus.var = omnibus.var,
                               start.pre = start.pre, cut.mse = cut.mse,
@@ -928,7 +938,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
       if (!reset.result.var) {
         w.tmp <- w$Weights
         Inter.tmp <- w$Intervention
-        mse.tmp <- w$MSE[1, ]
+        mse.tmp <- w$keep.groups
         if (!use.survey) {
           keep.surv <- !grepl("Perm", colnames(w.tmp))
           w.tmp <- w.tmp[, keep.surv, drop = FALSE]
@@ -1107,9 +1117,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   message("microsynth complete: Overall time = ", round(all.tmp[3],
                                                         2), "\n\n", sep = "", appendLF = FALSE)
 
-  # Declare final output for print (3 of 3)
+                                                        # Declare final output for print (3 of 3)
   info$nConstraints <- nrow(out$w$Summary) - 1
-
   info$num.constr <- out$w$num.constr
   out$w$num.constr <- NULL
 
@@ -1117,7 +1126,6 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   out$info <- info
 
   out <- makemicrosynth(out)
-
   return(out)
 }
 
@@ -1175,28 +1183,41 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
                    boot = 0, jack = 0, Int, int.val = 1, trim = NULL, maxit = 500,
                    cal.epsilon = 1e-04, end.pre, bounds = c(-Inf, Inf), calfun = "raking",
                    qpmeth = "LowRankQP", check.feas = FALSE, use.backup = TRUE,
-                   scale.var = "Intercept", cut.mse = 1, time.names = NULL)
+                   scale.var = "Intercept", cut.mse = 1, time.names = NULL,
+                   shape = NULL, shape.id = 5, keep.int = FALSE)
 {
   n <- dim(bigdat)[1]
   n.int <- sum(Int == int.val)
   back.state <- back.state1 <- back.state2 <- back.state3 <- ""
   fin.boots <- FALSE
   if (boot > 0) {
-    n.choose <- choose(n, n.int)
-    if (boot > n.choose - 1) {
-      boot <- n.choose - 1
-      message("Resetting perm = ", boot, "\n", sep = "",
-              appendLF = FALSE)
-    }
-    if (n.choose - 1 <= max(1e+06, boot)) {
-      boots <- utils::combn(1:n, n.int)
-      check.combn <- function(x, y) {
-        return(sum(!is.element(x, y)))
+    if (length(shape) == 0) {
+      n.choose <- choose(n, n.int)
+      if (boot > n.choose - 1) {
+        boot <- n.choose - 1
+        message("Resetting perm = ", boot, "\n", sep = "",
+                appendLF = FALSE)
       }
-      is.trt.area <- which(apply(boots, 2, check.combn,
-                                 x = which(Int == int.val)) == 0)
-      boots <- boots[, base::sample((1:NCOL(boots))[-is.trt.area],
-                                    boot), drop = FALSE]
+      if (n.choose - 1 <= max(1e+06, boot)) {
+        boots <- utils::combn(1:n, n.int)
+        check.combn <- function(x, y) {
+          return(sum(!is.element(x, y)))
+        }
+        is.trt.area <- which(apply(boots, 2, check.combn,
+                                   x = which(Int == int.val)) == 0)
+        boots <- boots[, base::sample((1:NCOL(boots))[-is.trt.area],
+                                boot), drop = FALSE]
+        fin.boots <- TRUE
+      }
+    } else {
+      if (boot > n - n.int * as.numeric(!keep.int)) {
+        boot <- n - n.int * as.numeric(!keep.int)
+        message("Resetting perm = ", boot, "\n", sep = "",
+                appendLF = FALSE)
+      }
+      dat.ids = dimnames(bigdat)[[1]]
+      boots <- samp.shape (shape, dat.ids = dat.ids, shape.id = shape.id,
+         boot = boot, int.nams = dat.ids[Int == int.val], keep.int = keep.int)
       fin.boots <- TRUE
     }
   }
@@ -1303,7 +1324,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       g <- as.numeric(gsub("Perm", "", colnam[i]))
       if (!fin.boots) {
         samp <- base::sample(1:n, sum(Int == int.val), replace = FALSE,
-                             prob = NULL)
+                       prob = NULL)
         samp <- is.element(1:n, samp)
       }
       else {
@@ -1413,39 +1434,21 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
               round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
       message("Matching summary for main weights:\n", appendLF = FALSE)
       if (use.model.i == 1) {
-        num.exact <- NCOL(newdat)
-        if(length(newdat1) == 0) {
-          num.prox <- 0
-        } else {
-          num.prox <- NCOL(newdat1)
-        }
         printstuff <- mses$printstuff
         message(paste0(utils::capture.output(round(printstuff,
-                                                   4)), collapse = "\n"), appendLF = FALSE)
+                                            4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 2) {
-        num.exact <- NCOL(newdata)
-        if(length(newdat1a) == 0) {
-          num.prox <- 0
-        } else {
-          num.prox <- NCOL(newdat1a)
-        }
         printstuff <- msesa$printstuff
         message(paste0(utils::capture.output(round(printstuff,
-                                                   4)), collapse = "\n"), appendLF = FALSE)
+                                            4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 3) {
-        num.exact <- NCOL(newdatb)
-        if(length(newdat1b) == 0) {
-          num.prox <- 0
-        } else {
-          num.prox <- NCOL(newdat1b)
-        }
         printstuff <- msesb$printstuff
         message(paste0(utils::capture.output(round(printstuff,
-                                                   4)), collapse = "\n"), appendLF = FALSE)
+                                            4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       if (jack > 0) {
@@ -1520,12 +1523,17 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       }
     }
   }
+  keep.groups <- mse[2 * (use.model - 1) + 1,] < cut.mse & !is.na(mse[2 * (use.model - 1) + 1,])
+  keep.groups[!grepl("Perm", colnames(mse))] <- TRUE
+
+  message("Removing ", sum(!keep.groups), " permutation groups with pre-intervention MSE > cut.mse.\n\n",
+    sep = "", appendLF = FALSE)
+
   out <- list(Weights = wghts, Intervention = Inter, MSE = mse,
-              Model = mod, Summary = printstuff, num.constr = c(num.exact = num.exact,
-                                                                num.prox = num.prox))
+              Model = mod, Summary = printstuff, keep.groups = keep.groups,
+              num.constr = c(num.exact = num.exact, num.prox = num.prox))
   return(out)
 }
-
 
 
 get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL,
@@ -1748,7 +1756,7 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
 }
 
 
-get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]],
+get.stats <- function (bigdat, w, inter, keep.groups, result.var = dimnames(bigdat)[[2]],
                        end.pre, period = 1, end.post = 80,
                        file = NULL, sep = TRUE, start.pre = 25,
                        legend.spot = "bottomleft", omnibus.var = result.var, cut.mse = 1,
@@ -1773,11 +1781,10 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
     colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var)
   }
   bigdat1 <- make.quarter3(bigdat, period = period, end.pre = end.pre)
-  keep <- mse < cut.mse & !is.na(mse)
+  keep <- keep.groups
   keep[1] <- TRUE
   synth <- list()
   inter <- inter[, !grepl("Jack", colnames(w)), drop = FALSE]
-  mse <- mse[!grepl("Jack", colnames(w))]
   keep <- keep[!grepl("Jack", colnames(w))]
   w <- w[, !grepl("Jack", colnames(w)), drop = FALSE]
   for (i in 1:NCOL(w)) {
@@ -1882,14 +1889,14 @@ get.stats <- function (bigdat, w, inter, mse, result.var = dimnames(bigdat)[[2]]
 }
 
 
-get.stats1 <- function(bigdat, w, inter, mse, all.var, end.pre, period = 1, end.post = 80, mfrow = c(1, 3), omnibus.var = NULL,
+get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period = 1, end.post = 80, mfrow = c(1, 3), omnibus.var = NULL,
                        cut.mse = 1, G = 25, twosided = FALSE) {
   use.omnibus <- length(omnibus.var) > 0
   dof <- NA
 
   jack <- sum(grepl("Jack", colnames(w)))
   use.jack <- as.numeric(jack > 0)
-  mse <- mse[!grepl("Jack", colnames(w))]
+  keep.groups <- keep.groups[!grepl("Jack", colnames(w))]
   w.jack <- w[, grepl("Jack", colnames(w))]
   w <- w[, !grepl("Jack", colnames(w)), drop = FALSE]
   inter.jack <- inter[, grepl("Jack", colnames(inter))]
@@ -1899,13 +1906,11 @@ get.stats1 <- function(bigdat, w, inter, mse, all.var, end.pre, period = 1, end.
     G <- min(table(inter[, 1]))
   }
 
-  keep <- mse < cut.mse & !is.na(mse)
-  keep[1] <- TRUE
+  keep <- keep.groups
 
   if (sum(!keep) > 0) {
     w <- w[, keep]
     inter <- inter[, keep]
-    mse <- mse[keep]
   }
 
   boot <- sum(grepl("Perm", colnames(w)))
@@ -2687,7 +2692,6 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
 
   if (length(newdat1) == 0) {
     printstuff <- cbind(Targets = targets, Weighted.Control = colSums((ws) * (condat)), All.scaled = (scale.by) * colSums(alldat))
-
   } else {
     # printstuff <- cbind(Targets = c(targets, targets1), Initial.Weighted.Control = colSums(ws.init * cbind(condat, condat1)),
     # Final.Weighted.Control = colSums(ws * cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat, alldat1)))
@@ -2738,4 +2742,63 @@ check.matchout <- function (match.out, end.pre) {
   return(list(match.out, bad))
 }
 
+
+samp.shape <- function(shape, dat.ids, shape.id = 5, boot = 1000, int.nams = NULL, collapse = "/", keep.int = FALSE) {
+
+  my.split <- function (dat,expr="\n") {
+    dat <- as.character(dat)
+
+    tmp <- gregexpr(expr, dat)
+    lengths <- sapply(tmp, length)
+    out <- matrix(NA,length(dat), max(lengths) + 1)
+    for(i in 1:length(tmp)) {
+      if(tmp[[i]][1] != -1) {
+        tmp1 <- c(1 - nchar(expr), tmp[[i]] ,nchar(dat[i]) + 1)
+        for(j in 1:(length(tmp1) - 1)) {
+          out[i,j]  <- substr(dat[i], tmp1[j] + nchar(expr), tmp1[j + 1] - 1)
+        }
+      }
+    }
+    return(out)
+  }
+
+  requireNamespace("sf", quietly = TRUE)
+
+  shape.ids <- apply(data.frame(shape)[, shape.id, drop = FALSE], 1, paste, collapse = collapse)
+
+  if (sum(!is.element(dat.ids, shape.ids)) > 0) {
+    stop("The shape file does not contain all cases that appear in the data.")
+  }
+
+  shape <- shape[match(dat.ids, shape.ids), ]
+
+  cents <- gsub("c", "", c(st_centroid(shape)$geometry), fixed = TRUE)
+  cents <- gsub("(", "", cents, fixed = TRUE)
+  cents <- gsub(")", "", cents, fixed = TRUE)
+  cents <- my.split(cents, expr=", ")
+  cents <- cbind(as.numeric(cents[, 1]), as.numeric(cents[, 2]))
+
+  sigma <- cov(cents[is.element(dat.ids, int.nams), ])
+
+  if(!keep.int) {
+    cents <- cents[!is.element(dat.ids, int.nams), ]
+  }
+
+  heres <- sample(1:NROW(cents), boot)
+
+  mal.dist <- function(y, x, sigma = diag(2)) {
+    out <- (y - x) %*% solve(sigma) %*% (y - x)
+    return(out)
+  }
+
+  boots <- matrix(NA, length(int.nams), boot)
+
+  for(i in 1:boot) {
+    dists <- apply(cents, 1, mal.dist, x = cents[heres[i], ], sigma = sigma)
+    boots[, i] <- order(dists, decreasing = FALSE)[1:length(int.nams)]
+  }
+
+  return(boots)
+
+}
 
