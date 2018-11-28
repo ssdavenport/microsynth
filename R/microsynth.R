@@ -1434,18 +1434,36 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
               round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
       message("Matching summary for main weights:\n", appendLF = FALSE)
       if (use.model.i == 1) {
+	      num.exact <- NCOL(newdat)
+    	    if(length(newdat1) == 0) {
+        	  num.prox <- 0
+	        } else {
+	          num.prox <- NCOL(newdat1)
+	        }
         printstuff <- mses$printstuff
         message(paste0(utils::capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 2) {
+        num.exact <- NCOL(newdata)
+        if(length(newdat1a) == 0) {
+          num.prox <- 0
+        } else {
+          num.prox <- NCOL(newdat1a)
+        }
         printstuff <- msesa$printstuff
         message(paste0(utils::capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
         message("\n", appendLF = FALSE)
       }
       else if (use.model.i == 3) {
+        num.exact <- NCOL(newdatb)
+        if(length(newdat1b) == 0) {
+          num.prox <- 0
+        } else {
+          num.prox <- NCOL(newdat1b)
+        }
         printstuff <- msesb$printstuff
         message(paste0(utils::capture.output(round(printstuff,
                                             4)), collapse = "\n"), appendLF = FALSE)
