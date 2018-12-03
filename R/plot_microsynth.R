@@ -322,8 +322,9 @@ else {
           }
           ylim1 <- c(min(tmp[tuse]), max(tmp[tuse]))
           bigtmp <- plotdat.d[plot.var[j], use.mu, ]
-          ylim2a <- 2 * min(apply(bigtmp[ ,tuse], 2, stats::quantile, probs = .05, na.rm = TRUE))
-          ylim2b <- 2 * max(apply(bigtmp[ ,tuse], 2, stats::quantile, probs = .95, na.rm = TRUE))
+          bigtmp <- matrix(bigtmp, length(use.mu), dim(plotdat.d)[3])
+          ylim2a <- 2 * min(apply(bigtmp[ ,tuse, drop = FALSE], 2, stats::quantile, probs = .05, na.rm = TRUE))
+          ylim2b <- 2 * max(apply(bigtmp[ ,tuse, drop = FALSE], 2, stats::quantile, probs = .95, na.rm = TRUE))
           ylim <- c(min(ylim1[1], ylim2a, na.rm = TRUE),
                     max(ylim1[2], ylim2b, na.rm = TRUE))
           xlim <- c(min(xxnams1), max(xxnams1))
@@ -371,6 +372,7 @@ else {
     grDevices::dev.off()
   }
 }
+
 
 
 
