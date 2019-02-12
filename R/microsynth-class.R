@@ -28,6 +28,8 @@ summary.microsynth <- function(object, ...) {
   }
 }
 
+
+
 #' Displaying microsynth Fits and Results
 #'
 #' Print method for class "microsynth".
