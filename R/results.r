@@ -9,7 +9,7 @@ get.stats <- function (bigdat, w, inter, keep.groups, result.var = dimnames(bigd
   if (length(time.names) == 0) {
     time.names <- as.character(1:dim(bigdat)[3])
   }
-  
+
   use.omnibus <- length(omnibus.var) > 0
   all.var <- union(result.var, omnibus.var)
   plot.it <- all.var
@@ -137,7 +137,7 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
                        G = 25, twosided = FALSE, printFlag = TRUE, n.cores = 1) {
   use.omnibus <- length(omnibus.var) > 0
   dof <- NA
-  
+
   jack <- sum(grepl("Jack", colnames(w)))
   use.jack <- as.numeric(jack > 0)
   keep.groups <- keep.groups[!grepl("Jack", colnames(w))]
@@ -145,31 +145,31 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
   w <- w[, !grepl("Jack", colnames(w)), drop = FALSE]
   inter.jack <- inter[, grepl("Jack", colnames(inter))]
   inter <- inter[, !grepl("Jack", colnames(inter)), drop = FALSE]
-  
+
   if (length(G) == 0) {
     G <- min(table(inter[, 1]))
   }
-  
+
   keep <- keep.groups
-  
+
   if (sum(!keep) > 0) {
     w <- w[, keep]
     inter <- inter[, keep]
   }
-  
+
   boot <- sum(grepl("Perm", colnames(w)))
   boot.nams <- colnames(w)[grepl("Perm", colnames(w))]
-  
+
   if (use.jack == 1) {
     all.nams <- c(colnames(w)[1], "Jackknife", boot.nams)
   } else {
     all.nams <- colnames(w)
   }
-  
+
   tot.col <- 1 + use.jack + boot
   boot.lower <- 2 + use.jack
   boot.upper <- 1 + use.jack + boot
-  
+
   delta.out <- stat2 <- stat1 <- matrix(NA, tot.col, length(all.var) + sum(use.omnibus))
   rownames(delta.out) <- rownames(stat2) <- rownames(stat1) <- all.nams
   if (use.omnibus) {
@@ -177,12 +177,12 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
   } else {
     colnames(delta.out) <- colnames(stat2) <- colnames(stat1) <- c(all.var)
   }
-  
+
   for.max <- tot.col
   if(n.cores > 1 & tot.col > 1 + use.jack) {
     for.max <- 1 + use.jack
   }
-  
+
   for (i in 1:for.max) {
     G.tmp <- G
     if (i == 1) {
@@ -197,7 +197,7 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
     w.tmp <- w[use, i.tmp]
     is.tre <- !is.na(Inter) & Inter == TRUE
     is.tre <- is.tre[use]
-    
+
     if (i == 1) {
       test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, period = period, end.pre = end.pre)
       if (end.post > end.pre) {
@@ -234,7 +234,7 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
       treat <- rep(as.numeric(is.tre), newcol)
       treat <- treat[use.test]
     }
-    
+
     for (j in 1:length(all.var)) {
       test.tmp <- data.frame(y = test[, all.var[j]], treat = as.numeric(treat), time = factor(time))
       time.tmp <- 1
@@ -403,30 +403,30 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
       }
     }
   }
-  
+
   if(tot.col > for.max) {
     if(printFlag){message("Parallelizing with n.cores = ",n.cores,"...\n", sep = "", appendLF = FALSE)}
     requireNamespace("parallel", quietly = TRUE)
     cl <- parallel::makeCluster(n.cores)
-    
-    list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):tot.col, get.stats1.sub, G, use.jack, 
-                                    boot.upper, boot.lower, inter, w, end.post, end.pre, period, bigdat, all.var, 
-                                    use.omnibus, omnibus.var, twosided, test, use.test, time, time.tmp1, reps, 
+
+    list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):tot.col, get.stats1.sub, G, use.jack,
+                                    boot.upper, boot.lower, inter, w, end.post, end.pre, period, bigdat, all.var,
+                                    use.omnibus, omnibus.var, twosided, test, use.test, time, time.tmp1, reps,
                                     keep.var, twosided, printFlag = FALSE, tmp.boot, all.nams1 = colnames(delta.out))
-    
+
     parallel::stopCluster(cl)
-    
+
     tmp.boot <- proc.time() - tmp.boot
     if(printFlag){message("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 2), "\n",
                           sep = "", appendLF = FALSE)}
-    
+
     for(index in (for.max + 1):tot.col) {
       delta.out[index, ] <- list.out[[index - for.max]][[1]]
       stat1[index, ] <- list.out[[index - for.max]][[2]]
       stat2[index, ] <- list.out[[index - for.max]][[3]]
     }
   }
-  
+
   stat2[stat2 == -Inf | stat2 == Inf] <- NA
   return(list(stat1, stat2, delta.out, dof, out.coefs))
 }
@@ -434,11 +434,11 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
 
 
 # Sub-function of get.stats1()
-get.stats1.sub <- function (X, G, use.jack, boot.upper, boot.lower, inter, w, 
+get.stats1.sub <- function (X, G, use.jack, boot.upper, boot.lower, inter, w,
                             end.post, end.pre, period, bigdat, all.var, use.omnibus, omnibus.var, two.sided,
-                            test, use.test, time, time.tmp1, reps, keep.var, twosided, printFlag, 
+                            test, use.test, time, time.tmp1, reps, keep.var, twosided, printFlag,
                             tmp.boot, all.nams1) {
-  
+
   i <- X
   G.tmp <- G
   if (i == 1) {
@@ -453,7 +453,7 @@ get.stats1.sub <- function (X, G, use.jack, boot.upper, boot.lower, inter, w,
   w.tmp <- w[use, i.tmp]
   is.tre <- !is.na(Inter) & Inter == TRUE
   is.tre <- is.tre[use]
-  
+
   if (i == 1) {
     test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, period = period, end.pre = end.pre)
     if (end.post > end.pre) {
@@ -490,7 +490,7 @@ get.stats1.sub <- function (X, G, use.jack, boot.upper, boot.lower, inter, w,
     treat <- rep(as.numeric(is.tre), newcol)
     treat <- treat[use.test]
   }
-  
+
   delta.out.out <- stat2.out <- stat1.out <- rep(NA, length(all.var) + sum(use.omnibus))
   names(delta.out.out) <- names(stat2.out) <- names(stat1.out) <- all.nams1
   for (j in 1:length(all.var)) {
@@ -550,7 +550,7 @@ get.stats1.sub <- function (X, G, use.jack, boot.upper, boot.lower, inter, w,
     } else {
       stat2.out[j] <- NA
     }
-    delta.out.out[j] <- microsynth:::my.delta(mu = coefs[, "Estimate"], Sigma = stats::vcov(mod))
+    delta.out.out[j] <- my.delta(mu = coefs[, "Estimate"], Sigma = stats::vcov(mod))
   }
   if (use.omnibus) {
     if (i == 1) {
@@ -671,12 +671,12 @@ make.quarter3 <- function(dat, period = 1, end.pre) {
   p <- dim(dat)[2]
   q <- dim(dat)[3]
   add.back <- min(as.numeric(dimnames(dat)[[3]]))
-  
+
   remain <- end.pre%%period
   newcol <- (q - remain)%/%period
   times <- period * (1:newcol) + remain
   times <- times + add.back - 1
-  
+
   out <- array(NA, c(n, p, newcol))
   dimnames(out) <- list(dimnames(dat)[[1]], dimnames(dat)[[2]], times)
   start <- remain + 1
@@ -700,7 +700,7 @@ make.quarter2 <- function(dat, tre, w, period = 1, end.pre) {
   newcol <- (q - remain)%/%period
   times <- period * (1:newcol) + remain
   times <- times + add.back - 1
-  
+
   out <- matrix(NA, n * length(times), p + 3)
   colnames(out) <- c("Time", "Treatment", "w", dimnames(dat)[[2]])
   start <- remain + 1
@@ -714,7 +714,7 @@ make.quarter2 <- function(dat, tre, w, period = 1, end.pre) {
     out[here, 4:NCOL(out)] <- apply(tmp, c(1, 2), sum)
     start <- stop + 1
   }
-  
+
   return(out)
 }
 

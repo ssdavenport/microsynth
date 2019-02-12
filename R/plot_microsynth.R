@@ -58,18 +58,21 @@
 #'
 #' @param width The width of the graphics region (in inches)
 #'   when a pdf is created.
-#' 
-#' @param at A vector that gives the location of user-specified x-axis labels.  
-#'   \code{at} should be a (numeric) subset of the named time points contained 
-#'   in \code{ms} (e.g., \code{colnames(ms$Plot.Stats$Treatment)}).  
-#' 
+#'
+#' @param at A vector that gives the location of user-specified x-axis labels.
+#'   \code{at} should be a (numeric) subset of the named time points contained
+#'   in \code{ms} (e.g., \code{colnames(ms$Plot.Stats$Treatment)}).
+#'
 #' @param labels A vector of the same length as \code{at} that gives the names
-#'   of the labels that will be marked at the times indicated by \code{at} in 
-#'   the plots.  
-#' 
-#' @param all A scalar character string giving the unit name for cases.  
-#'   If \code{NULL}, a third curve showing the overall outcome levels is 
-#'   not plotted. 
+#'   of the labels that will be marked at the times indicated by \code{at} in
+#'   the plots.
+#'
+#' @param all A scalar character string giving the unit name for cases.
+#'   If \code{NULL}, a third curve showing the overall outcome levels is
+#'   not plotted.
+#'
+#' @param mains A scalar (or vector) character string giving the title to be
+#'   used for the plots.  Defaults to the variable names.
 #'
 #' @examples
 #'
@@ -105,136 +108,138 @@
 plot_microsynth <- function (ms,
                              plot.var = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL,
                              file=NULL, sep = TRUE, plot.first = NULL, legend.spot = "bottomleft",
-                             height = NULL, width = NULL, at = NULL, labels = NULL, main = NULL, 
-                             all = "cases") {
+                             height = NULL, width = NULL, at = NULL, labels = NULL,
+                             all = "cases", mains = NULL) {
 
-if(!is.element("Plot.Stats",names(ms))) {
-  stop("object ms does not contain output regarding results (e.g., only weights were generated).")
-}
-
-plotdat.t <- ms$Plot.Stats$Treatment
-plotdat.c <- ms$Plot.Stats$Control
-if(length(all) > 0) {
-  plotdat.a <- ms$Plot.Stats$All
-} else {
-plotdat.a <- ms$Plot.Stats$Treatment
-}
-plotdat.d <- ms$Plot.Stats$Difference
-scale.by <- ms$Plot.Stats$scale.by
-
-if(length(height) == 0) {
-  if (!sep) {
-    height <- 11
-  } else {
-    height <- 5
+  if(!is.element("Plot.Stats",names(ms))) {
+    stop("object ms does not contain output regarding results (e.g., only weights were generated).")
   }
-}
 
-if(length(width) == 0) {
-  if (!sep) {
-    width <- 8.5
+  plotdat.t <- ms$Plot.Stats$Treatment
+  plotdat.c <- ms$Plot.Stats$Control
+  if(length(all) > 0) {
+    plotdat.a <- ms$Plot.Stats$All
   } else {
-    width <- 5
+    plotdat.a <- ms$Plot.Stats$Treatment
   }
-}
+  plotdat.d <- ms$Plot.Stats$Difference
+  scale.by <- ms$Plot.Stats$scale.by
 
-if(length(plot.first) == 0) {
-  plot.first <- dim(plotdat.d)[2] - 1
-}
+  if(length(height) == 0) {
+    if (!sep) {
+      height <- 11
+    } else {
+      height <- 5
+    }
+  }
 
-time.names <- colnames(plotdat.t)
+  if(length(width) == 0) {
+    if (!sep) {
+      width <- 8.5
+    } else {
+      width <- 5
+    }
+  }
 
-if (length(start.pre) > 0) {
-  if (is.element(as.character(start.pre), time.names)) {
-    start.pre <- match(as.character(start.pre), time.names)
+  if(length(plot.first) == 0) {
+    plot.first <- dim(plotdat.d)[2] - 1
+  }
+
+  time.names <- colnames(plotdat.t)
+
+  if (length(start.pre) > 0) {
+    if (is.element(as.character(start.pre), time.names)) {
+      start.pre <- match(as.character(start.pre), time.names)
+    } else {
+      start.pre <- which(as.numeric(time.names) >= as.numeric(start.pre))[1]
+    }
   } else {
-    start.pre <- which(as.numeric(time.names) >= as.numeric(start.pre))[1]
+    start.pre <- 1
   }
-} else {
-  start.pre <- 1
-}
-if (length(end.pre) > 0) {
-  if (is.element(as.character(end.pre), time.names)) {
-    end.pre <- match(as.character(end.pre), time.names)
+  if (length(end.pre) > 0) {
+    if (is.element(as.character(end.pre), time.names)) {
+      end.pre <- match(as.character(end.pre), time.names)
+    } else {
+      end.pre <- which(as.numeric(time.names) <= as.numeric(end.pre))
+      end.pre <- end.pre[length(end.pre)]
+    }
   } else {
-    end.pre <- which(as.numeric(time.names) <= as.numeric(end.pre))
-    end.pre <- end.pre[length(end.pre)]
-  }
-} else {
     end.pre <- ms$Plot.Stats$end.pre
     end.pre <- match(as.character(end.pre), time.names)
-}
-if (length(end.post) > 0) {
-  if (is.element(as.character(end.post), time.names)) {
-    end.post <- match(as.character(end.post), time.names)
-  } else {
-    end.post <- which(as.numeric(time.names) <= as.numeric(end.post))
-    end.post <- end.post[length(end.post)]
   }
-} else {
-  end.post <- length(time.names)
-}
-
-if (start.pre == end.post) {
-stop("Do not plot:  start.pre == end.post")
-}
-
-all.vars <- rownames(plotdat.t)
-
-if (length(plot.var) == 0) {
-  plot.var <- all.vars
-}
-
-plot.var <- remove.vars(plot.var, all.vars, "plot.var")
-
-#xnams <- as.numeric(colnames(test1))
-xnams <- 1:length(time.names)
-tuse <- xnams <= end.post & xnams >= start.pre
-use <- xnams <= end.pre
-nuse <- xnams >= end.pre
-if (end.post > end.pre) {
-  fuse <- !use & xnams <= end.post
-}
-else if (end.post == end.pre) {
-  fuse <- xnams >= end.pre & xnams <= end.post
-}
-else {
-  stop("end.post is less than end.pre")
-}
-
-if (length(file) == 0) {
-  graphics::par(mfrow = c(1, 2), ask = FALSE)
-}
-else {
-  file.type <- "pdf"
-  if (substr(file, nchar(file) - 3, nchar(file)) ==
-      ".pdf") {
-    file <- substr(file, 1, nchar(file) - 4)
-  } else if (substr(file, nchar(file) - 3, nchar(file)) ==
-      ".png") {
-    file <- substr(file, 1, nchar(file) - 4)
-    file.type <- "png"
-  }
-  if (!sep) {
-    if (file.type == "pdf") {
-      file <- paste(file, ".pdf", sep = "")
-      grDevices::pdf(file = file, width = width, height = height)
-    } else if (file.type == "png") {
-      file <- paste(file, ".png", sep = "")
-      grDevices::png(file = file, width = width, height = height, 
-        units = "in", res = 500)
+  if (length(end.post) > 0) {
+    if (is.element(as.character(end.post), time.names)) {
+      end.post <- match(as.character(end.post), time.names)
+    } else {
+      end.post <- which(as.numeric(time.names) <= as.numeric(end.post))
+      end.post <- end.post[length(end.post)]
     }
-    graphics::par(mfrow = c(3, 2), ask = FALSE)
+  } else {
+    end.post <- length(time.names)
   }
-}
+
+  if (start.pre == end.post) {
+    stop("Do not plot:  start.pre == end.post")
+  }
+
+  all.vars <- rownames(plotdat.t)
+
+  if (length(plot.var) == 0) {
+    plot.var <- all.vars
+  }
+
+  plot.var <- remove.vars(plot.var, all.vars, "plot.var")
+
+  if (length(mains) == 0) {
+    mains <- plot.var
+  } else if (length(mains) == 1) {
+    mains <- rep(mains, length(plot.var))
+  }
+
+  #xnams <- as.numeric(colnames(test1))
+  xnams <- 1:length(time.names)
+  tuse <- xnams <= end.post & xnams >= start.pre
+  use <- xnams <= end.pre
+  nuse <- xnams >= end.pre
+  if (end.post > end.pre) {
+    fuse <- !use & xnams <= end.post
+  }
+  else if (end.post == end.pre) {
+    fuse <- xnams >= end.pre & xnams <= end.post
+  }
+  else {
+    stop("end.post is less than end.pre")
+  }
+
+  if (length(file) == 0) {
+    graphics::par(mfrow = c(1, 2), ask = FALSE)
+  }
+  else {
+    file.type <- "pdf"
+    if (substr(file, nchar(file) - 3, nchar(file)) ==
+        ".pdf") {
+      file <- substr(file, 1, nchar(file) - 4)
+    } else if (substr(file, nchar(file) - 3, nchar(file)) ==
+               ".png") {
+      file <- substr(file, 1, nchar(file) - 4)
+      file.type <- "png"
+    }
+    if (!sep) {
+      if (file.type == "pdf") {
+        file <- paste(file, ".pdf", sep = "")
+        grDevices::pdf(file = file, width = width, height = height)
+      } else if (file.type == "png") {
+        file <- paste(file, ".png", sep = "")
+        grDevices::png(file = file, width = width, height = height,
+                       units = "in", res = 500)
+      }
+      graphics::par(mfrow = c(3, 2), ask = FALSE)
+    }
+  }
 
   for (j in 1:length(plot.var)) {
     ylab1 <- main1 <- plot.var[j]
-    if(length(main) == 0) {
-      main2 <- main1
-    } else {
-      main2 <- main
-    }
+    main2 <- mains[j]
     ylab2 <- "Treatment - Control"
     #use.mu <- which(mu[, plot.var[j]] > 0)
     use.mu <- 1:dim(plotdat.d)[2]
@@ -244,11 +249,11 @@ else {
         if (sep & length(file) > 0) {
           if (file.type == "pdf") {
             grDevices::pdf(file = paste(file, "_", main1,
-                                      "_TC.pdf", sep = ""), width = width, height = height)
+                                        "_TC.pdf", sep = ""), width = width, height = height)
           } else if (file.type == "png") {
             grDevices::png(file = paste(file, "_", main1,
-                                      "_TC.png", sep = ""), width = width, height = height, 
-                                      units = "in", res = 500)
+                                        "_TC.png", sep = ""), width = width, height = height,
+                           units = "in", res = 500)
           }
         }
         tmp1 <- plotdat.t[plot.var[j], ]
@@ -311,13 +316,13 @@ else {
         if (is.element(i, use.mu)) {
           if (sep & length(file) > 0) {
             if (file.type == "pdf") {
-            grDevices::pdf(file = paste(file, "_",
-                                        main1, "_Diff.pdf", sep = ""), width = width,
-                           height = height)
+              grDevices::pdf(file = paste(file, "_",
+                                          main1, "_Diff.pdf", sep = ""), width = width,
+                             height = height)
             } else if (file.type == "png") {
-            grDevices::png(file = paste(file, "_",
-                                        main1, "_Diff.png", sep = ""), width = width,
-                           height = height, units = "in", res = 500)
+              grDevices::png(file = paste(file, "_",
+                                          main1, "_Diff.png", sep = ""), width = width,
+                             height = height, units = "in", res = 500)
             }
           }
           ylim1 <- c(min(tmp[tuse]), max(tmp[tuse]))

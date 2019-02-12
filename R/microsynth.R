@@ -1,5 +1,5 @@
 #' @title
-#' Synthetic control methods for micro- and meso-level data.
+#' Synthetic control methods for disaggregated, micro-level data.
 #'
 #' @description
 #' Implements the synthetic control method for micro-level data as outlined in
@@ -314,6 +314,18 @@
 #' @param bounds Bounds for calibration weighting (fed into the
 #'   \code{calibrate()} from the \code{survey} package).
 #'
+#' @param printFlag If TRUE, \code{microsynth} will print history on console. Use
+#'   \code{printFlag = FALSE} for silent computation.
+#'
+#' @param n.cores The number of CPU cores to use for parallelization. If
+#'   \code{n.cores} is not specified by the user, it is guessed using the
+#'   \code{detectCores} function in the parallel package.  If \code{TRUE}
+#'   (the default), it is set as \code{detectCores()}.  If \code{NULL}, it is set as
+#'   \code{detectCores() - 1}.  If \code{FALSE}, it is set as \code{1}, in which case
+#'   parallelization is not invoked.  Note that the
+#'   documentation for \code{detectCores} makes clear that it is not failsafe and
+#'   could return a spurious number of available cores.
+#'
 #' @details \code{microsynth} calculates weights using
 #'   \code{survey::calibrate()} from the \code{survey} package in circumstances
 #'   where a feasible solution exists for all constraints, whereas
@@ -384,29 +396,29 @@
 #'   \code{print()}. A summary of weighted matching variables and of results
 #'   can be viewed using \code{\link{summary}}
 #'
-#' @references Abadie A, Diamond A, Hainmueller J (2010). “Synthetic control
-#'   methods for comparative case studies: Estimating the effect of California’s
-#'   tobacco control program.” \emph{Journal of the American Statistical
+#' @references Abadie A, Diamond A, Hainmueller J (2010). Synthetic control
+#'   methods for comparative case studies: Estimating the effect of California's
+#'   tobacco control program.? \emph{Journal of the American Statistical
 #'   Association}, 105(490), 493-505.
 #'
-#'   Abadie A, Diamond A, Hainmueller J (2011). “Synth: An R Package for
-#'   Synthetic Control Methods in Comparative Case Studies.” \emph{Journal
+#'   Abadie A, Diamond A, Hainmueller J (2011). Synth: An R Package for
+#'   Synthetic Control Methods in Comparative Case Studies.? \emph{Journal
 #'   of Statistical Software}, 42(13), 1-17.
 #'
-#'   Abadie A, Diamond A, Hainmueller J (2015). “Comparative politics and the
+#'   Abadie A, Diamond A, Hainmueller J (2015). Comparative politics and the
 #'   synthetic control method. \emph{American Journal of Political Science},
 #'   59(2), 495-510.
 #'
-#'   Abadie A, Gardeazabal J (2003). “The economic costs of conflict: A case
-#'   study of the Basque Country.” \emph{American Economic Review}, pp. 113-132.
+#'   Abadie A, Gardeazabal J (2003). The economic costs of conflict: A case
+#'   study of the Basque Country.? \emph{American Economic Review}, pp. 113-132.
 #'
-#'   Hainmueller, J. (2012), “Entropy Balancing for Causal Effects: A
+#'   Hainmueller, J. (2012), Entropy Balancing for Causal Effects: A
 #'   Multivariate Reweighting Method to Produce Balanced Samples in
-#'   Observational Studies,” \emph{Political Analysis}, 20, 25–46.
+#'   Observational Studies,? \emph{Political Analysis}, 20, 25-46.
 #'
-#'   Robbins MW, Saunders J, Kilmer B (2017). “A framework for synthetic control
+#'   Robbins MW, Saunders J, Kilmer B (2017). A framework for synthetic control
 #'   methods with high-dimensional, micro-level data: Evaluating a neighborhood-
-#'   specific crime intervention,” \emph{Journal of the American Statistical
+#'   specific crime intervention,? \emph{Journal of the American Statistical
 #'   Association}, 112(517), 109-126.
 #'
 #' @examples
@@ -1355,7 +1367,10 @@ make.ci2 <- function(stats, delta.out, alpha = 0.05) {
 
 # Sub-function of microsynth(); allow parellalization
 msCluster <- function(n) {
+
   requireNamespace("parallel", quietly = TRUE)
+  chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+
   if (is.logical(n)) {
     if(n) {
       n1 <- parallel::detectCores()
@@ -1367,7 +1382,11 @@ msCluster <- function(n) {
   } else {
     n1 <- n
   }
-  return(n1)
+
+  # use 2 cores if CRAN, otherwise, use number detected
+  cores <- ifelse(chk==TRUE, 2, n1)
+
+  return(cores)
 }
 
 
@@ -1414,3 +1433,4 @@ check.matchout <- function (match.out, end.pre) {
   }
   return(list(match.out, bad))
 }
+
