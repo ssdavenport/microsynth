@@ -117,12 +117,12 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
   jack.upper <- 1 + jack
   boot.lower <- 2 + jack
   boot.upper <- 1 + jack + boot
-  
+
   for.max <- boot + jack + 1
   if(n.cores > 1 & boot + jack  > 0) {
     for.max <- 1
   }
-  
+
   for (i in 1:for.max) {
     use.model.i <- use.model
     tmp <- proc.time()
@@ -357,27 +357,27 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       }
     }
   }
-  
+
   if(boot + jack + 1 > for.max) {
     if(printFlag){message("Parallelizing with n.cores = ",n.cores,"...\n", sep = "", appendLF = FALSE)}
     requireNamespace("parallel", quietly = TRUE)
     cl <- parallel::makeCluster(n.cores)
-    
-    list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):(boot + jack + 1), get.w.sub.par, 
-                                    use.model, Int, int.val, colnam, rep.G, n, fin.boots, 
-                                    boots, newdat, newdat1, newdata, newdat1a, newdatb, newdat1b, 
-                                    end.pre, maxit, calfun, bounds, cal.epsilon, trim, 
-                                    qpmeth, scale.var, printFlag = FALSE, cut.mse, use.backup, jack, 
-                                    back.state, back.state1, back.state2, back.state3, tmp.jack, 
+
+    list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):(boot + jack + 1), get.w.sub.par,
+                                    use.model, Int, int.val, colnam, rep.G, n, fin.boots,
+                                    boots, newdat, newdat1, newdata, newdat1a, newdatb, newdat1b,
+                                    end.pre, maxit, calfun, bounds, cal.epsilon, trim,
+                                    qpmeth, scale.var, printFlag = FALSE, cut.mse, use.backup, jack,
+                                    back.state, back.state1, back.state2, back.state3, tmp.jack,
                                     boot, boot.lower, boot.upper, jack.lower, jack.upper, rownams = rownames(wghts), rownams1 = rownames(mse))
-    
+
     parallel::stopCluster(cl)
-    
+
     if(length(tmp.jack) == 0){tmp.jack <- tmp.boot}
     tmp.boot <- proc.time() - tmp.jack
     if(printFlag){message("Completed calculation of all replication weights: Time = ",
                           round(tmp.boot[3], 2), "\n\n", sep = "", appendLF = FALSE)}
-    
+
     for(index in (for.max + 1):(boot + jack + 1)) {
       wghts[, index] <- list.out[[index - for.max]][[1]]
       Inter[, index] <- list.out[[index - for.max]][[2]]
@@ -385,14 +385,14 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
       mod[index] <- list.out[[index - for.max]][[4]]
     }
   }
-  
+
   keep.groups <- mse[2 * (use.model - 1) + 1,] < cut.mse & !is.na(mse[2 * (use.model - 1) + 1,])
   keep.groups[!grepl("Perm", colnames(mse))] <- TRUE
-  
-  if(printFlag & boot > 0){message("Removing ", sum(!keep.groups), 
+
+  if(printFlag & boot > 0){message("Removing ", sum(!keep.groups),
                                    " permutation groups with pre-intervention MSE > cut.mse.\n\n",
                                    sep = "", appendLF = FALSE)}
-  
+
   out <- list(Weights = wghts, Intervention = Inter, MSE = mse,
               Model = mod, Summary = printstuff, keep.groups = keep.groups,
               num.constr = c(num.exact = num.exact, num.prox = num.prox))
@@ -405,25 +405,25 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
 merge.dums <- function(dum, dum1) {
   nam1 <- names(dum)
   nam2 <- names(dum1)
-  
+
   if (length(nam1) > 0) {
     nam <- union(nam1, nam2)
-    
+
     dum.out <- list()
     dum.out[[length(nam)]] <- NA
     dum.new <- list()
     dum.new[[length(nam1)]] <- NA
     names(dum.new) <- nam1
-    
+
     dum[[length(nam) + 1]] <- NA
     dum1[[length(nam) + 1]] <- NA
-    
+
     max.l.dum <- 0
-    
+
     for (i in 1:length(nam)) {
       here1 <- which(nam1 == nam[i])
       here2 <- which(nam2 == nam[i])
-      
+
       if (length(here1) == 0 & length(here2) == 0) {
         dum.out[[i]] <- NULL
       } else if (length(here1) > 0 & length(here2) == 0) {
@@ -435,25 +435,25 @@ merge.dums <- function(dum, dum1) {
       } else {
         max.l.dum <- max(max.l.dum, length(dum[[here1]]))
         dum.new[[here1]] <- sum(dum[[here1]])
-        
+
         dum1c <- cumsum(dum[[here1]])
         dum2c <- cumsum(dum1[[here2]])
-        
+
         dumc <- union(dum1c, dum2c)
         dumc <- dumc[order(dumc, decreasing = FALSE)]
-        
+
         if (length(dumc) > 1) {
           dumc <- c(dumc[1], dumc[2:length(dumc)] - dumc[1:(length(dumc) - 1)])
         }
-        
+
         dum.out[[i]] <- dumc
       }
     }
-    
+
     if (max.l.dum <= 1) {
       dum.new <- list()
     }
-    
+
     names(dum.out) <- nam
   } else {
     dum.new <- dum
@@ -467,9 +467,9 @@ merge.dums <- function(dum, dum1) {
 # Sub-function of get.w(); check if a constraint model has a feasible solution
 is.feasible <- function(bigdat, covar.var, dum, Int, int.val = 1, end.pre, eps = 0.001) {
   n <- dim(bigdat)[1]
-  
+
   newdat <- get.newdat(bigdat, dum = dum, covar.var = covar.var, end.pre = end.pre)[[1]]
-  
+
   intdat <- newdat[Int == int.val, ]
   condat <- newdat[Int != int.val, ]
   targets <- colSums(intdat)
@@ -490,7 +490,7 @@ check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
   b <- b[leave]
   A3 <- cbind(A, diag(NROW(A)), (-1) * diag(NROW(A)))
   a <- c(rep(0, NCOL(A)), rep(1, 2 * NROW(A)))
-  
+
   if (meth == "LowRankQP") {
     requireNamespace("LowRankQP", quietly = TRUE)
     Vmat <- matrix(0, NCOL(A3), 1)
@@ -516,20 +516,20 @@ check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
 }
 
 
-# Sub-function of is.feasible(); reshape data inaccordance with a stated model structure 
-# Produces two data frames: 
+# Sub-function of is.feasible(); reshape data inaccordance with a stated model structure
+# Produces two data frames:
 ## newdat (data used for exact constraints) and
 ## newdat1 (data used for proximate constraints)
 get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL, end.pre, time.names = NULL) {
   n <- dim(bigdat)[1]
-  
+
   if (length(time.names) == 0) {
     time.names <- as.character(1:dim(bigdat)[3])
   }
-  
+
   result.var <- names(dum)
   newdat <- list()
-  
+
   if (length(result.var) > 0) {
     for (j in 1:length(result.var)) {
       dum.tmp <- dum[[j]]
@@ -541,7 +541,7 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
           lows[lows.neg[1]] <- 1
           lows.neg <- lows.neg[-1]
         }
-        if(length(lows.neg) > 0) { 
+        if(length(lows.neg) > 0) {
           lows <- lows[-lows.neg]
           highs <- highs[-lows.neg]
         }
@@ -558,32 +558,32 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
       }
     }
   }
-  
+
   covar.dat <- NULL
   if (length(covar.var) > 0) {
     covar.dat <- bigdat[, covar.var, 1]
     covar.dat <- as.matrix(covar.dat)
     colnames(covar.dat) <- covar.var
   }
-  
+
   if (length(newdat) == 0) {
     newdat <- NULL
   } else {
     newdat <- data.frame(newdat, check.names = FALSE)
   }
-  
+
   if (length(covar.dat) > 0 & length(newdat) > 0) {
     newdat <- data.frame(covar.dat, newdat, check.names = FALSE)
   } else if (length(covar.dat) > 0 & length(newdat) == 0) {
     newdat <- data.frame(covar.dat, check.names = FALSE)
   }
-  
+
   if (length(newdat) > 0) {
     newdat <- data.frame(Intercept = rep(1, n), newdat, check.names = FALSE)
   } else {
     newdat <- data.frame(Intercept = rep(1, n))
   }
-  
+
   newdat1 <- list()
   if (length(dum1) > 0) {
     result.var1 <- names(dum1)
@@ -597,7 +597,7 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
           lows[lows.neg[1]] <- 1
           lows.neg <- lows.neg[-1]
         }
-        if(length(lows.neg) > 0) { 
+        if(length(lows.neg) > 0) {
           lows <- lows[-lows.neg]
           highs <- highs[-lows.neg]
         }
@@ -614,34 +614,34 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
       }
     }
   }
-  
+
   covar.dat1 <- NULL
   if (length(covar.var1) > 0) {
     covar.dat1 <- bigdat[, covar.var1, 1]
     covar.dat1 <- as.matrix(covar.dat1)
     colnames(covar.dat1) <- covar.var1
   }
-  
+
   if (length(newdat1) == 0) {
     newdat1 <- NULL
   } else {
     newdat1 <- data.frame(newdat1, check.names = FALSE)
   }
-  
+
   if (length(covar.dat1) > 0 & length(newdat1) > 0) {
     newdat1 <- data.frame(covar.dat1, newdat1, check.names = FALSE)
   } else if (length(covar.dat1) > 0 & length(newdat1) == 0) {
     newdat1 <- data.frame(covar.dat1, check.names = FALSE)
   }
-  
+
   if (length(newdat1) > 0) {
     newdat1 <- data.frame(newdat1, check.names = FALSE)
   } else {
     newdat1 <- NULL
   }
-  
+
   return(list(newdat = newdat, newdat1 = newdat1))
-  
+
 }
 
 
@@ -651,32 +651,32 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
                       end.pre, samp, use, n = NROW(newdat), maxit = 500, calfun = "raking", bounds = c(-Inf, Inf), epsilon = 1e-04, trim = NULL, qpmeth = "LowRankQP",
                       scale.var = "Intercept", printFlag = TRUE) {
   tmp <- proc.time()
-  
+
   if (length(newdat) == 0) {
     newdat <- get.newdat(bigdat = bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1, end.pre = end.pre)
     newdat1 <- newdat[[2]]
     newdat <- newdat[[1]]
   }
-  
+
   mult <- sum(samp)/sum(use & samp)
   # mult <- 1
-  
+
   if (length(newdat1) > 0) {
     newdat1 <- as.matrix(newdat1)
   }
-  
+
   intdat <- newdat[samp & use, , drop = FALSE]
   scale.by <- sum(intdat[, scale.var])
   condat <- newdat[!samp & use, , drop = FALSE]
-  
+
   alldat <- newdat[, , drop = FALSE]
   scale.by <- scale.by/sum(alldat[, scale.var])
-  
+
   targets <- colSums(intdat)
   targets <- mult * targets
   # targets <- colSums(newdat[samp, , drop = FALSE])
   init <- rep(mult * NROW(intdat)/NROW(condat), NROW(condat))
-  
+
   if (length(newdat1) > 0) {
     intdat1 <- newdat1[samp & use, , drop = FALSE]
     condat1 <- newdat1[!samp & use, , drop = FALSE]
@@ -685,21 +685,21 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
     targets1 <- mult * targets1
     # targets1 <- colSums(newdat1[samp, , drop = FALSE])
   }
-  
+
   usevars <- colnames(condat)
-  
+
   if (NCOL(as.matrix(condat)) <= NROW(as.matrix(condat))) {
     rem <- find.sing(crossprod(as.matrix(condat)))
   } else {
     rem <- NULL
   }
   keep <- !is.element(1:NCOL(condat), rem)
-  
+
   form <- paste("~", paste(usevars[keep], collapse = "+", sep = ""), "-1", sep = "")
   form <- stats::formula(form)
-  
+
   ws.init <- ws <- init
-  
+
   if (NCOL(newdat) > 1) {
     tryCatch({
       caldesign <- survey::svydesign(ids = ~0, data = condat[, keep], weights = init)
@@ -710,18 +710,18 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
       if(printFlag){message("ERROR :", conditionMessage(e), "\n", appendLF = FALSE)}
     })
   }
-  
+
   if (length(newdat1) > 0) {
     tmp1 <- proc.time() - tmp
     tmp2 <- proc.time()
-    
+
     condat2 <- condat1
     targets2 <- targets1
-    
+
     ws <- my.qp(b.init = ws.init, X = t(condat2), a = targets2, Y = t(condat[, keep, drop = FALSE]), c = targets[keep], qpmeth = qpmeth, printFlag = printFlag)
     tmp2 <- proc.time() - tmp2
   }
-  
+
   if (length(trim) > 0) {
     if (length(trim) == 1) {
       trim = c(trim, 1 - trim)
@@ -729,7 +729,7 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
     cali2 <- survey::trimWeights(cali2, upper = stats::quantile(ws, max(trim)), lower = stats::quantile(ws, min(trim)))
     ws <- stats::weights(cali2)
   }
-  
+
   mse1 <- mean((colSums(ws * condat[, , drop = FALSE]) - targets)^2)
   wghts1 <- rep(NA, n)
   wghts1[!samp & use] <- ws
@@ -737,28 +737,28 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
   wghts.init1 <- rep(NA, n)
   wghts.init1[!samp & use] <- ws.init
   wghts.init1[samp & use] <- mult
-  
+
   out <- list(wghts = wghts1, wghts.init = wghts.init1, mse = mse1, scale.by = scale.by)
-  
+
   return(out)
 }
 
 
 
-get.w.sub.par <- function (X, use.model, Int, int.val, colnam, rep.G, n, fin.boots, 
-                           boots, newdat, newdat1, newdata, newdat1a, newdatb, newdat1b, 
-                           end.pre, maxit, calfun, bounds, cal.epsilon, trim, 
-                           qpmeth, scale.var, printFlag, cut.mse, use.backup, jack, 
-                           back.state, back.state1, back.state2, back.state3, tmp.jack, 
+get.w.sub.par <- function (X, use.model, Int, int.val, colnam, rep.G, n, fin.boots,
+                           boots, newdat, newdat1, newdata, newdat1a, newdatb, newdat1b,
+                           end.pre, maxit, calfun, bounds, cal.epsilon, trim,
+                           qpmeth, scale.var, printFlag, cut.mse, use.backup, jack,
+                           back.state, back.state1, back.state2, back.state3, tmp.jack,
                            boot, boot.lower, boot.upper, jack.lower, jack.upper, rownams, rownams1) {
-  
+
   tmp.boot <- tmp.jack
   i <- X
   wghts.out <- Inter.out <- rep(NA, n)
   names(wghts.out) <- names(Inter.out) <- rownams
   mse.out <- rep(NA, 6)
   names(mse.out) <- rownams1
-  
+
   use.model.i <- use.model
   tmp <- proc.time()
   if (i == 1) {
@@ -788,7 +788,7 @@ get.w.sub.par <- function (X, use.model, Int, int.val, colnam, rep.G, n, fin.boo
   Inter.out[!samp & use] <- FALSE
   if (use.model.i == 1) {
     mod.out <- "First"
-    ws <- microsynth:::get.w.sub(newdat = newdat, newdat1 = newdat1,
+    ws <- get.w.sub(newdat = newdat, newdat1 = newdat1,
                                  end.pre = end.pre, samp = samp, use = use,
                                  n = NROW(newdat), maxit = maxit, calfun = calfun,
                                  bounds = bounds, epsilon = cal.epsilon, trim = trim,
@@ -817,7 +817,7 @@ get.w.sub.par <- function (X, use.model, Int, int.val, colnam, rep.G, n, fin.boo
   }
   if (use.model.i == 2 & use.backup) {
     mod.out <- "Second"
-    ws <- microsynth:::get.w.sub(newdat = newdata, newdat1 = newdat1a,
+    ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a,
                                  end.pre = end.pre, samp = samp, use = use,
                                  n = NROW(newdat), maxit = maxit, calfun = calfun,
                                  bounds = bounds, epsilon = cal.epsilon, trim = trim,
@@ -842,7 +842,7 @@ get.w.sub.par <- function (X, use.model, Int, int.val, colnam, rep.G, n, fin.boo
   }
   if (use.model.i == 3 & use.backup) {
     mod.out <- "Third"
-    ws <- microsynth:::get.w.sub(newdat = newdatb, newdat1 = newdat1b,
+    ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b,
                                  end.pre = end.pre, samp = samp, use = use,
                                  n = NROW(newdat), maxit = maxit, calfun = calfun,
                                  bounds = bounds, epsilon = cal.epsilon, trim = trim,
@@ -862,11 +862,11 @@ get.w.sub.par <- function (X, use.model, Int, int.val, colnam, rep.G, n, fin.boo
   }
   back.state <- paste(back.state, back.state.final, sep = "")
   back.state1 <- back.state2 <- back.state3 <- ""
-  mses <- microsynth:::get.mse(newdat, newdat1, samp, use, ws$wghts,
+  mses <- get.mse(newdat, newdat1, samp, use, ws$wghts,
                                ws$wghts.init, ws$scale.by)
-  msesa <- microsynth:::get.mse(newdata, newdat1a, samp, use, ws$wghts,
+  msesa <- get.mse(newdata, newdat1a, samp, use, ws$wghts,
                                 ws$wghts.init, ws$scale.by)
-  msesb <- microsynth:::get.mse(newdatb, newdat1b, samp, use, ws$wghts,
+  msesb <- get.mse(newdatb, newdat1b, samp, use, ws$wghts,
                                 ws$wghts.init, ws$scale.by)
   mse.out[1] <- mses$mse
   mse.out[2] <- mses$mse1
@@ -998,9 +998,9 @@ get.w.sub.par <- function (X, use.model, Int, int.val, colnam, rep.G, n, fin.boo
 
 # Determine pre-intervention MSEs and create balance table
 get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
-  
+
   mult <- sum(samp)/sum(use & samp)
-  
+
   intdat <- newdat[samp & use, , drop = FALSE]
   condat <- newdat[!samp & use, , drop = FALSE]
   alldat <- newdat[, , drop = FALSE]
@@ -1008,7 +1008,7 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
   targets <- mult * targets
   ws <- ws[!samp & use]
   mse <- mean((colSums(ws * condat) - targets)^2)
-  
+
   mse1 <- NA
   if (length(newdat1) != 0) {
     intdat1 <- newdat1[samp & use, , drop = FALSE]
@@ -1019,7 +1019,7 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
     ws.init <- ws.init[!samp & use]
     mse1 <- mean((colSums(ws * condat1) - targets1)^2)
   }
-  
+
   if (length(newdat1) == 0) {
     printstuff <- cbind(Targets = targets, Weighted.Control = colSums((ws) * (condat)), All.scaled = (scale.by) * colSums(alldat))
   } else {
@@ -1028,7 +1028,7 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
     printstuff <- cbind(Targets = c(targets, targets1), Final.Weighted.Control = colSums(ws * cbind(condat, condat1)), All.scaled = scale.by *
                           colSums(cbind(alldat, alldat1)))
   }
-  
+
   return(list(mse = mse, mse1 = mse1, printstuff = printstuff))
 }
 
@@ -1037,25 +1037,25 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
 my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1000, printFlag = TRUE) {
   q <- NCOL(X)
   n <- NROW(Y)
-  
+
   a1 <- iso.nam(a, sep = ".")
   c1 <- iso.nam(c, sep = ".")
-  
+
   a1[a1 == 0] <- 1
   c1[c1 == 0] <- 1
-  
+
   a1 <- sqrt(a1)
   c1 <- sqrt(c1)
-  
+
   X <- X/a1
   Y <- Y/c1
   a <- a/a1
   c <- c/c1
-  
+
   if (qpmeth == "nleqslv") {
     requireNamespace("nleqslv", quietly = TRUE)
     XtX <- crossprod(X)
-    
+
     M <- 1/M
     jacobian <- function(all) {
       b <- all[1:q]
@@ -1067,7 +1067,7 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
       out <- rbind(cbind(upperleft, upperright), cbind(lowerleft, lowerright))
       return((out))
     }
-    
+
     f1 <- function(all) {
       b <- all[1:q]
       lambda <- all[(q + 1):(q + n)]
@@ -1078,20 +1078,20 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
     b.init[b.init < 1e-06] <- 1e-06
     lambda.init <- solve(tcrossprod(Y), Y) %*% ((M * log(b.init)) + crossprod(X, (X %*% b.init - a)))
     all.init <- c(b.init, lambda.init)
-    
+
     all.root <- nleqslv::nleqslv(all.init, fn = f1, jac = NULL, method = c("Broyden"), global = c("gline"), xscalm = c("fixed"),
                                  control = list(maxit = maxit, xtol = 1e-11, ftol = 1e-11, btol = 1e-06, cndtol = 1e-13))
-    
+
     if(printFlag){message("Number of Jacobian evaluations = ", all.root$njcnt, ". \n", sep = "", appendLF = FALSE)}
     if(printFlag){message("Number of function evaluations = ", all.root$nfcnt, ". \n", sep = "", appendLF = FALSE)}
     if(printFlag){message("Number of iterations = ", all.root$iter, ". \n", sep = "", appendLF = FALSE)}
     all.root <- all.root$x
-    
+
     b <- all.root[1:q]
     b[b < 0] <- 0
   } else if (qpmeth == "LowRankQP") {
     requireNamespace("LowRankQP", quietly = TRUE)
-    
+
     if (NROW(Y) <= NCOL(Y)) {
       rem <- find.sing(tcrossprod(Y))
     } else {
@@ -1103,18 +1103,18 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
     b <- all.root$alpha
   } else if (qpmeth == "ipop") {
     requireNamespace("kernlab", quietly = TRUE)
-    
+
     all.root <- kernlab::ipop(c = -crossprod(X, a), H = crossprod(X), b = c, A = Y, l = rep(0, q), r = rep(0, n), u = rep(M, q))
     b <- all.root$alpha
   } else {
     stop("qpmeth not recognized.")
   }
-  
+
   X <- X * a1
   Y <- Y * c1
   a <- a * a1
   c <- c * c1
-  
+
   return(b)
 }
 
@@ -1124,7 +1124,7 @@ iso.nam <- function(a, sep = "-") {
   locs <- regexpr(sep, nams, fixed = TRUE)
   outs <- nams
   outs[locs > 1] <- substr(outs[locs > 1], 1, locs[locs > 1] - 1)
-  
+
   out <- rep(NA, length(outs))
   for (i in names(table(outs))) {
     out[outs == i] <- mean(a[outs == i])

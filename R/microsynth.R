@@ -1,5 +1,5 @@
 #' @title
-#' Synthetic control methods for disaggregated, micro-level data.
+#' Synthetic control methods for micro- and meso-level data.
 #'
 #' @description
 #' Implements the synthetic control method for micro-level data as outlined in
@@ -314,18 +314,6 @@
 #' @param bounds Bounds for calibration weighting (fed into the
 #'   \code{calibrate()} from the \code{survey} package).
 #'
-#' @param printFlag If TRUE, \code{microsynth} will print history on console. Use 
-#'   \code{printFlag = FALSE} for silent computation.
-#'
-#' @param n.cores The number of CPU cores to use for parallelization. If 
-#'   \code{n.cores} is not specified by the user, it is guessed using the 
-#'   \code{detectCores} function in the parallel package.  If \code{TRUE} 
-#'   (the default), it is set as \code{detectCores()}.  If \code{NULL}, it is set as 
-#'   \code{detectCores() - 1}.  If \code{FALSE}, it is set as \code{1}, in which case
-#'   parallelization is not invoked.  Note that the 
-#'   documentation for \code{detectCores} makes clear that it is not failsafe and
-#'   could return a spurious number of available cores.
-#'
 #' @details \code{microsynth} calculates weights using
 #'   \code{survey::calibrate()} from the \code{survey} package in circumstances
 #'   where a feasible solution exists for all constraints, whereas
@@ -396,29 +384,29 @@
 #'   \code{print()}. A summary of weighted matching variables and of results
 #'   can be viewed using \code{\link{summary}}
 #'
-#' @references Abadie A, Diamond A, Hainmueller J (2010). Synthetic control
-#'   methods for comparative case studies: Estimating the effect of California's
-#'   tobacco control program.? \emph{Journal of the American Statistical
+#' @references Abadie A, Diamond A, Hainmueller J (2010). “Synthetic control
+#'   methods for comparative case studies: Estimating the effect of California’s
+#'   tobacco control program.” \emph{Journal of the American Statistical
 #'   Association}, 105(490), 493-505.
 #'
-#'   Abadie A, Diamond A, Hainmueller J (2011). Synth: An R Package for
-#'   Synthetic Control Methods in Comparative Case Studies.? \emph{Journal
+#'   Abadie A, Diamond A, Hainmueller J (2011). “Synth: An R Package for
+#'   Synthetic Control Methods in Comparative Case Studies.” \emph{Journal
 #'   of Statistical Software}, 42(13), 1-17.
 #'
-#'   Abadie A, Diamond A, Hainmueller J (2015). Comparative politics and the
+#'   Abadie A, Diamond A, Hainmueller J (2015). “Comparative politics and the
 #'   synthetic control method. \emph{American Journal of Political Science},
 #'   59(2), 495-510.
 #'
-#'   Abadie A, Gardeazabal J (2003). The economic costs of conflict: A case
-#'   study of the Basque Country.? \emph{American Economic Review}, pp. 113-132.
+#'   Abadie A, Gardeazabal J (2003). “The economic costs of conflict: A case
+#'   study of the Basque Country.” \emph{American Economic Review}, pp. 113-132.
 #'
-#'   Hainmueller, J. (2012), Entropy Balancing for Causal Effects: A
+#'   Hainmueller, J. (2012), “Entropy Balancing for Causal Effects: A
 #'   Multivariate Reweighting Method to Produce Balanced Samples in
-#'   Observational Studies,? \emph{Political Analysis}, 20, 25-46.
+#'   Observational Studies,” \emph{Political Analysis}, 20, 25–46.
 #'
-#'   Robbins MW, Saunders J, Kilmer B (2017). A framework for synthetic control
+#'   Robbins MW, Saunders J, Kilmer B (2017). “A framework for synthetic control
 #'   methods with high-dimensional, micro-level data: Evaluating a neighborhood-
-#'   specific crime intervention,? \emph{Journal of the American Statistical
+#'   specific crime intervention,” \emph{Journal of the American Statistical
 #'   Association}, 112(517), 109-126.
 #'
 #' @examples
@@ -488,13 +476,13 @@
 #'          'i_drugsale'=rep(4, 3), 'i_drugposs'=rep(4, 3),
 #'          'any_crime'=rep(1, 12))
 #'
+#' # After aggregation, use.backup and cheack.feas no longer needed
 #' # runtime: ~40 minutes
-#' # TODO: re-run sea4 as it was infeasible for the first time
 #' sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
-#'          perm=250, jack = TRUE, test='lower', use.backup = TRUE,
+#'          perm=250, jack = TRUE, test='lower',
 #'          result.file=file.path(tempdir(), 'ExResults4.xlsx'))
 #'
 #' # View results
@@ -503,10 +491,10 @@
 #' }
 #'
 #'
-#' \donttest{
-#' # runtime: ~ 20 minutes
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+#' \donttest{
+#' # runtime: ~ 20 minutes
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
@@ -709,7 +697,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   v.names <- setdiff(v.names, rm.col)
   nv.names <- setdiff(nv.names, rm.col)
 
-  # Shape panel data into 3D array, generate intervention matrix, etc. 
+  # Shape panel data into 3D array, generate intervention matrix, etc.
   data <- newreshape(data, nv.names = nv.names, v.names = v.names,
                      timevar = timevar, idvar = idvar, intvar = intvar)
   if (length(result.var) == 0) {
@@ -1100,7 +1088,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     if(printFlag){message("Returning weights only.\n", appendLF = FALSE)}
   }
 
-  # Tabulate results for output.  
+  # Tabulate results for output.
   out <- list()
   i <- 1
   out[[i]] <- w
@@ -1157,7 +1145,7 @@ get.pval <- function(stats, p = NCOL(stats[[1]]), k = length(stats), ret.na = FA
   out <- matrix(NA, k, p)
   colnames(out) <- nams
   rownames(out) <- paste("Stat", 1:k, sep = "")
-  
+
   dum <- list()
   for (i in 1:k) {
     synth <- stats[[i]][1, ]
@@ -1251,7 +1239,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
 # Sub-function of microsynth(); create results file (e.g., as CSV or XLSX)
 out.results <- function(results, end.pre, end.post = names(results), file = NULL, printFlag = TRUE) {
   use.xlsx <- length(end.post) > 1
-  
+
   if (substr(file, nchar(file) - 3, nchar(file)) == ".csv") {
     file <- substr(file, 1, nchar(file) - 4)
     if (use.xlsx) {
@@ -1265,7 +1253,7 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
     file <- substr(file, 1, nchar(file) - 5)
     use.xlsx <- TRUE
   }
-  
+
   if (use.xlsx) {
     xlsx.loaded <- is.element("xlsx", loadedNamespaces())
     file <- paste(file, ".xlsx", sep = "")
@@ -1281,16 +1269,16 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
     cspValColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0000"))
     csOtherColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.00"))
     csPercColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0%"))
-    
+
     for (i in 1:length(end.post)) {
       out <- results[[i]]
       keep <- rowMeans(is.na(out)) < 1
       out <- out[keep, , drop = FALSE]
-      
+
       is.pct <- grepl("pct", tolower(colnames(out))) | grepl("lower", tolower(colnames(out))) | grepl("upper", tolower(colnames(out)))
       is.pval <- grepl("pval", tolower(colnames(out)))
       is.oth <- !is.pct & !is.pval
-      
+
       pct.list <- rep(list(csPercColumn), sum(is.pct))
       names(pct.list) <- as.character(which(is.pct))
       pval.list <- rep(list(cspValColumn), sum(is.pval))
@@ -1305,28 +1293,28 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
       }
       p <- NCOL(out)
       n <- NROW(out)
-      
+
       nam <- paste("Max time = ", end.post[i], sep = "")
       sheet <- xlsx::createSheet(wb, sheetName = nam)
       xlsx::setColumnWidth(sheet, colIndex = 1:(p + 1), colWidth = 13)
       xlsx::addDataFrame(out, sheet, colStyle = c(pct.list, pval.list, oth.list))
-      
+
       bord1 <- xlsx::Border(color = "black", position = "BOTTOM", pen = "BORDER_THIN")
       cb <- xlsx::CellBlock(sheet, startRow = 1, startColumn = 1, noRows = (n + 1), noColumns = (p + 1), create = FALSE)
       xlsx::CB.setBorder(cb, border = bord1, rowIndex = 1, colIndex = 1:(p + 1))
-      
+
       font <- xlsx::Font(wb, isBold = TRUE)
       xlsx::CB.setFont(cb, font = font, rowIndex = 1, colIndex = 2:(p + 1))
-      
+
     }
-    
+
     xlsx::saveWorkbook(wb, file = file)
     rm(wb)
   } else {
     file <- paste(file, ".csv", sep = "")
     utils::write.csv(results[[1]], file, na = "")
   }
-  
+
 }
 
 
@@ -1334,10 +1322,10 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
 # Sub-function of microsynth(); calculate confidence intervals
 make.ci <- function(means, ses, alpha = 0.05) {
   z.score <- stats::qnorm(1 - alpha/2)
-  
+
   lower <- means - ses * z.score
   upper <- means + ses * z.score
-  
+
   out <- cbind(exp(lower) - 1, exp(upper) - 1)
   rownames(out) <- names(means)
   colnames(out) <- c("Lower", "Upper")
@@ -1350,13 +1338,13 @@ make.ci <- function(means, ses, alpha = 0.05) {
 make.ci2 <- function(stats, delta.out, alpha = 0.05) {
   means <- stats[1, ]
   sds <- sqrt(delta.out[1, ])
-  
+
   z.scores <- stats/sqrt(delta.out)
   quants <- apply(z.scores, 2, stats::quantile, probs = c(alpha/2, 1 - alpha/2), na.rm = TRUE)
-  
+
   lower <- means - sds * quants[2, ]
   upper <- means - sds * quants[1, ]
-  
+
   out <- cbind(exp(lower) - 1, exp(upper) - 1)
   rownames(out) <- colnames(stats)
   colnames(out) <- c("Lower", "Upper")
@@ -1375,7 +1363,7 @@ msCluster <- function(n) {
       n1 <- 1
     }
   } else if (length(n) == 0) {
-    n1 <- parallel::detectCores() - 1 
+    n1 <- parallel::detectCores() - 1
   } else {
     n1 <- n
   }
@@ -1391,9 +1379,9 @@ remove.vars <- function(vars, nams, objnam = "result.var", printFlag = TRUE) {
   } else {
     vars1 <- vars
   }
-  
+
   rm.vars <- setdiff(vars1, nams)
-  
+
   if (length(rm.vars) > 0) {
     rm.here <- which(is.element(vars1, rm.vars))
     vars <- vars[-rm.here]
@@ -1403,7 +1391,7 @@ remove.vars <- function(vars, nams, objnam = "result.var", printFlag = TRUE) {
     if(printFlag){message(paste(rm.vars, collapse = ", ", sep = ""), "\n\n",
                           sep = "", appendLF = FALSE)}
   }
-  
+
   return(vars)
 }
 

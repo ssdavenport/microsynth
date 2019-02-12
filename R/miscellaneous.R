@@ -6,8 +6,13 @@ makemicrosynth <- function(x) {
 }
 
 
-# Clear global variable
+# Clear global variables
 maxit <- NULL
+w.jack <- NULL
+stat1 <- NULL
+inter.jack <- NULL
+jack <- NULL
+boot <- NULL
 
 
 # Sub-function of get.w(), get.stats1(), get.stats1.sub(); Assign replication groups for jackknife procedures
