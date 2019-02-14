@@ -71,8 +71,32 @@
 #'   If \code{NULL}, a third curve showing the overall outcome levels is
 #'   not plotted.
 #'
-#' @param mains A scalar (or vector) character string giving the title to be
-#'   used for the plots.  Defaults to the variable names.
+#' @param main.tc A scalar (or a vector of the same length as \code{plot.var}) 
+#'   character string giving the title to be used for the first plots
+#'   (that show treatment and control).  Defaults to \code{plot.var}.
+#'
+#' @param main.diff A scalar (or a vector of the same length as \code{plot.var}) 
+#'   character string giving the title to be used for the second plots
+#'   (that show differences between treatment and control).  
+#'   Defaults to \code{plot.var}.
+#'
+#' @param xlab.tc A scalar (or a vector of the same length as \code{plot.var}) 
+#'   character string giving the x-axis labels to be used for the first plots
+#'   (that show treatment and control).  Defaults to \code{''}.
+#'
+#' @param xlab.diff A scalar (or a vector of the same length as \code{plot.var}) 
+#'   character string giving the x-axis labels to be used for the second plots
+#'   (that show differences between treatment and control).  
+#'   Defaults to \code{''}.
+#'
+#' @param ylab.tc A scalar (or a vector of the same length as \code{plot.var}) 
+#'   character string giving the y-axis labels to be used for the first plots
+#'   (that show treatment and control).  Defaults to \code{plot.var}.
+#'
+#' @param ylab.diff A scalar (or a vector of the same length as \code{plot.var}) 
+#'   character string giving the y-axis labels to be used for the second plots
+#'   (that show differences between treatment and control).  
+#'   Defaults to \code{'Treatment - Control'}.
 #'
 #' @examples
 #'
@@ -109,7 +133,8 @@ plot_microsynth <- function (ms,
                              plot.var = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL,
                              file=NULL, sep = TRUE, plot.first = NULL, legend.spot = "bottomleft",
                              height = NULL, width = NULL, at = NULL, labels = NULL,
-                             all = "cases", mains = NULL) {
+                             all = "cases", main.tc = NULL, main.diff = NULL, xlab.tc = NULL, 
+                             xlab.diff = NULL, ylab.tc = NULL, ylab.diff = NULL) {
 
   if(!is.element("Plot.Stats",names(ms))) {
     stop("object ms does not contain output regarding results (e.g., only weights were generated).")
@@ -190,10 +215,40 @@ plot_microsynth <- function (ms,
 
   plot.var <- remove.vars(plot.var, all.vars, "plot.var")
 
-  if (length(mains) == 0) {
-    mains <- plot.var
-  } else if (length(mains) == 1) {
-    mains <- rep(mains, length(plot.var))
+  if(length(xlab.tc) == 0) {
+    xlab.tc <- rep("", length(plot.var))
+  } else if(length(xlab.tc) == 1) {
+    xlab.tc <- rep(xlab.tc, length(plot.var))
+  }
+
+  if(length(xlab.diff) == 0) {
+    xlab.diff <- rep("", length(plot.var))
+  } else if(length(xlab.diff) == 1) {
+    xlab.diff <- rep(xlab.diff, length(plot.var))
+  }
+
+  if(length(ylab.tc) == 0) {
+    ylab.tc <- plot.var
+  } else if(length(ylab.tc) == 1) {
+    ylab.tc <- rep(ylab.tc, length(plot.var))
+  }
+
+  if(length(ylab.diff) == 0) {
+    ylab.diff <- rep("Treatment - Control", length(plot.var))
+  } else if(length(ylab.diff) == 1) {
+    ylab.diff <- rep(ylab.diff, length(plot.var))
+  }
+
+  if(length(main.tc) == 0) {
+    main.tc <- plot.var
+  } else if(length(main.tc) == 1) {
+    main.tc <- rep(main.tc, length(plot.var))
+  }
+
+  if(length(main.diff) == 0) {
+    main.diff <- plot.var
+  } else if(length(main.diff) == 1) {
+    main.diff <- rep(main.diff, length(plot.var))
   }
 
   #xnams <- as.numeric(colnames(test1))
@@ -238,9 +293,6 @@ plot_microsynth <- function (ms,
   }
 
   for (j in 1:length(plot.var)) {
-    ylab1 <- main1 <- plot.var[j]
-    main2 <- mains[j]
-    ylab2 <- "Treatment - Control"
     #use.mu <- which(mu[, plot.var[j]] > 0)
     use.mu <- 1:dim(plotdat.d)[2]
     for (i in 1:dim(plotdat.d)[2]) {
@@ -248,10 +300,10 @@ plot_microsynth <- function (ms,
       if (i == 1) {
         if (sep & length(file) > 0) {
           if (file.type == "pdf") {
-            grDevices::pdf(file = paste(file, "_", main1,
+            grDevices::pdf(file = paste(file, "_", plot.var[j],
                                         "_TC.pdf", sep = ""), width = width, height = height)
           } else if (file.type == "png") {
-            grDevices::png(file = paste(file, "_", main1,
+            grDevices::png(file = paste(file, "_", plot.var[j],
                                         "_TC.png", sep = ""), width = width, height = height,
                            units = "in", res = 500)
           }
@@ -286,7 +338,7 @@ plot_microsynth <- function (ms,
         xlim <- c(min(xxnams1), max(xxnams1))
         graphics::plot(xxnams1, tmp1[tuse], type = "l",
                        lty = lty[1], col = col[1], lwd = lwd[1],
-                       xlim = xlim, xlab = "", ylab = ylab1, main = main2,
+                       xlim = xlim, xlab = xlab.tc[j], ylab = ylab.tc[j], main = main.tc[j],
                        ylim = ylim, xaxt = xaxt)
         if(length(at) > 0) {
           at1 <- intersect(at, xxnams1)
@@ -317,11 +369,11 @@ plot_microsynth <- function (ms,
           if (sep & length(file) > 0) {
             if (file.type == "pdf") {
               grDevices::pdf(file = paste(file, "_",
-                                          main1, "_Diff.pdf", sep = ""), width = width,
+                                          plot.var[j], "_Diff.pdf", sep = ""), width = width,
                              height = height)
             } else if (file.type == "png") {
               grDevices::png(file = paste(file, "_",
-                                          main1, "_Diff.png", sep = ""), width = width,
+                                          plot.var[j], "_Diff.png", sep = ""), width = width,
                              height = height, units = "in", res = 500)
             }
           }
@@ -335,8 +387,8 @@ plot_microsynth <- function (ms,
           xlim <- c(min(xxnams1), max(xxnams1))
           graphics::plot(xxnams2, tmp[tuse &
                                         use], type = "l", ylim = ylim, xlim = xlim,
-                         col = 2, lty = 2, main = main2, xlab = "",
-                         ylab = ylab2, xaxt = xaxt)
+                         col = 2, lty = 2, main = main.diff[j], xlab = xlab.diff[j],
+                         ylab = ylab.diff[j], xaxt = xaxt)
           if(length(at) > 0) {
             at1 <- intersect(at, xxnams1)
             labels1 <- labels[is.element(at, xxnams1)]
@@ -345,7 +397,7 @@ plot_microsynth <- function (ms,
         }
         else {
           if (!sep & length(file) > 0) {
-            graphics::plot(1, 1, main = main2)
+            graphics::plot(1, 1, main = main.diff[j])
           }
         }
       }

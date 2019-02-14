@@ -259,7 +259,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
         printstuff <- mses$printstuff
         if(printFlag){message(paste0(utils::capture.output(round(printstuff,
                                                                  4)), collapse = "\n"), appendLF = FALSE)}
-        if(printFlag){message("\n", appendLF = FALSE)}
+        if(printFlag){message("\n\n", appendLF = FALSE)}
       }
       else if (use.model.i == 2) {
         num.exact <- NCOL(newdata)
@@ -271,7 +271,7 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
         printstuff <- msesa$printstuff
         if(printFlag){message(paste0(utils::capture.output(round(printstuff,
                                                                  4)), collapse = "\n"), appendLF = FALSE)}
-        if(printFlag){message("\n", appendLF = FALSE)}
+        if(printFlag){message("\n\n", appendLF = FALSE)}
       }
       else if (use.model.i == 3) {
         num.exact <- NCOL(newdatb)
@@ -283,11 +283,16 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
         printstuff <- msesb$printstuff
         if(printFlag){message(paste0(utils::capture.output(round(printstuff,
                                                                  4)), collapse = "\n"), appendLF = FALSE)}
-        if(printFlag){message("\n", appendLF = FALSE)}
+        if(printFlag){message("\n\n", appendLF = FALSE)}
       }
-      if (jack > 0) {
+      if (jack > 0 & n.cores > 1 & boot > 0) {
+        if(printFlag){message("Calculating weights for jackknife and permutation replication groups...\n",
+                appendLF = FALSE)}
+        tmp.jack <- proc.time()
+      }
+      else if (jack > 0) {
         if(printFlag){message("Calculating weights for jackknife replication groups...\n",
-                              appendLF = FALSE)}
+                appendLF = FALSE)}
         tmp.jack <- proc.time()
       }
       else if (boot > 0) {
