@@ -717,7 +717,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     if (!reset.result.var) {
       if(printFlag){message("result.var = TRUE.  Resetting: \n", appendLF = FALSE)}
       if(printFlag){message("result.var = c(\"", paste(result.var, collapse = "\",\"",
-                                         sep = ""), "\")\n\n", sep = "", appendLF = FALSE)}
+                                                       sep = ""), "\")\n\n", sep = "", appendLF = FALSE)}
     }
   }
   if (length(match.covar) == 0) {
@@ -725,8 +725,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     if (!reset.match.covar) {
       if(printFlag){message("match.covar = TRUE.  Resetting: \n", appendLF = FALSE)}
       if(printFlag){message("match.covar = c(\"", paste(match.covar,
-                                          collapse = "\",\"", sep = ""), "\")\n\n", sep = "",
-              appendLF = FALSE)}
+                                                        collapse = "\",\"", sep = ""), "\")\n\n", sep = "",
+                            appendLF = FALSE)}
     }
   }
   Intervention <- data[[2]]
@@ -743,7 +743,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     }
     end.pre <- times[end.pre]
     if(printFlag){message("Setting end.pre = ", time.names[end.pre], ".\n\n", sep = "",
-            appendLF = FALSE)}
+                          appendLF = FALSE)}
   }
   Intervention[] <- as.integer(rowSums(Intervention) != 0)
   if (length(start.pre) == 0) {
@@ -757,7 +757,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     if (!reset.match.out) {
       if(printFlag){message("match.out = TRUE.  Resetting: \n", appendLF = FALSE)}
       if(printFlag){message("match.out = c(\"", paste(match.out, collapse = "\",\"",
-                                        sep = ""), "\")\n\n", sep = "", appendLF = FALSE)}
+                                                      sep = ""), "\")\n\n", sep = "", appendLF = FALSE)}
     }
   }
   if (!is.list(match.out) & length(match.out) > 0) {
@@ -772,7 +772,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     match.out <- check.matchout(match.out, end.pre - min(times) + 1)
     if (match.out[[2]]) {
       if(printFlag){message("WARNING: match.out calls on time periods that are beyond the data range.\n",
-              sep ="", appendLF = FALSE)}
+                            sep ="", appendLF = FALSE)}
       if(printFlag){message("match.out is being reset accordingly.\n\n", sep="", appendLF = FALSE)}
     }
     match.out <- match.out[[1]]
@@ -789,7 +789,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     match.out.min <- check.matchout(match.out.min, end.pre - min(times) + 1)
     if (match.out.min[[2]]) {
       if(printFlag){message("WARNING: match.out.min calls on time periods that are beyond the data range. \n",
-              sep ="", appendLF = FALSE)}
+                            sep ="", appendLF = FALSE)}
       if(printFlag){message("match.out.min is being reset accordingly.\n\n", sep="", appendLF = FALSE)}
     }
     match.out.min <- match.out.min[[1]]
@@ -802,10 +802,10 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
       else {
         omnibus.var <- result.var
         if(printFlag){message("omnibus.var = TRUE.  Resetting: \n",
-                appendLF = FALSE)}
+                              appendLF = FALSE)}
         if(printFlag){message("omnibus.var = c(\"", paste(omnibus.var,
-                                            collapse = "\",\"", sep = ""), "\")\n\n", sep = "",
-                appendLF = FALSE)}
+                                                          collapse = "\",\"", sep = ""), "\")\n\n", sep = "",
+                              appendLF = FALSE)}
       }
     }
     else {
@@ -819,7 +819,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
               end.pre)/period)
   if (dum <= dum1 + 1) {
     if(printFlag){message("WARNING: There is a low number (", dum, ") of cases in the treatment or intervention group.\n",
-            sep = "", appendLF = FALSE)}
+                          sep = "", appendLF = FALSE)}
     if (jack > 0) {
       jack <- 0
       if(printFlag){message("setting jack = 0.\n", appendLF = FALSE)}
@@ -829,7 +829,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
       if(printFlag){message("Setting use.survey = FALSE.\n", appendLF = FALSE)}
     }
     if(printFlag){message("Be cautious of results involving linearization or confidence intervals.\n\n",
-            appendLF = FALSE)}
+                          appendLF = FALSE)}
   }
   if (reset.match.covar) {
     match.covar <- NULL
@@ -841,33 +841,33 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
     for (i in 1:length(rm.col)) {
       if (is.element(rm.col[i], result.var)) {
         if(printFlag){message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from result.var. \n",
-                sep = "", appendLF = FALSE)}
+                              sep = "", appendLF = FALSE)}
         result.var <- setdiff(result.var, rm.col[i])
       }
       if (is.element(rm.col[i], omnibus.var)) {
         if(printFlag){message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from omnibus.var. \n",
-                sep = "", appendLF = FALSE)}
+                              sep = "", appendLF = FALSE)}
         omnibus.var <- setdiff(omnibus.var, rm.col[i])
       }
       if (is.element(rm.col[i], match.covar)) {
         if(printFlag){message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar. \n",
-                sep = "", appendLF = FALSE)}
+                              sep = "", appendLF = FALSE)}
         match.covar <- setdiff(match.covar, rm.col[i])
       }
       if (is.element(rm.col[i], match.covar.min)) {
         if(printFlag){message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar.min. \n",
-                sep = "", appendLF = FALSE)}
+                              sep = "", appendLF = FALSE)}
         match.covar.min <- setdiff(match.covar.min, rm.col[i])
       }
       if (is.element(rm.col[i], names(match.out))) {
         if(printFlag){message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out. \n",
-                sep = "", appendLF = FALSE)}
+                              sep = "", appendLF = FALSE)}
         rm.li <- which(is.element(names(match.out), rm.col[i]))
         match.out <- match.out[-rm.li]
       }
       if (is.element(rm.col[i], names(match.out.min))) {
         if(printFlag){message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out.min. \n",
-                sep = "", appendLF = FALSE)}
+                              sep = "", appendLF = FALSE)}
         rm.li1 <- which(is.element(names(match.out.min),
                                    rm.col[i]))
         match.out.min <- match.out.min[-rm.li1]
@@ -888,18 +888,18 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                printFlag = printFlag, n.cores = n.cores)
     tmp <- proc.time() - tmp
     if(printFlag){message("Calculation of weights complete: Total time = ",
-            round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)}
+                          round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)}
   }
   else {
     if(printFlag){message("Weights have been provided.  Will not calculate weights.\n",
-            appendLF = FALSE)}
+                          appendLF = FALSE)}
     if (class(w) == "microsynth") {
       w <- w$w
     }
     is.correct.w <- is.list(w)
     if (is.correct.w) {
       is.correct.w <- is.correct.w & sum(names(w) != c("Weights",
-                                                       "Intervention", "MSE", "Model", "Summary")) ==
+                                                       "Intervention", "MSE", "Model", "Summary", "keep.groups")) ==
         0
     }
     if (is.correct.w) {
@@ -933,7 +933,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
       is.graph <- "Calculating basic statistics"
       is.graph1 <- "Completed calculation of basic statistics"
       if(printFlag){message(is.graph, " for end.post = ", time.names[end.post[i]],
-              "...", "\n", sep = "", appendLF = FALSE)}
+                            "...", "\n", sep = "", appendLF = FALSE)}
 
       # Calculate basic statistics
       stats[[i]] <- get.stats(data, w$Weights, w$Intervention,
@@ -948,8 +948,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
       stats[[i]] <- stats[[i]][-5]
       tmp <- proc.time() - tmp
       if(printFlag){message(is.graph1, " for end.post = ", time.names[end.post[i]],
-              ".  Time = ", round(tmp[3], 2), "\n\n", sep = "",
-              appendLF = FALSE)}
+                            ".  Time = ", round(tmp[3], 2), "\n\n", sep = "",
+                            appendLF = FALSE)}
       if (!reset.result.var) {
         w.tmp <- w$Weights
         Inter.tmp <- w$Intervention
@@ -962,7 +962,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
         }
         tmp <- proc.time()
         if(printFlag){message("Calculating survey statistics for end.post = ",
-                time.names[end.post[i]], "...", "\n", sep = "", appendLF = FALSE)}
+                              time.names[end.post[i]], "...", "\n", sep = "", appendLF = FALSE)}
 
         # Calculate complex (i.e., survey) statistics
         stats.tmp <- get.stats1(data, w.tmp, Inter.tmp,
@@ -976,8 +976,8 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
         out.coefs[[i]] <- stats.tmp[[5]]
         tmp <- proc.time() - tmp
         if(printFlag){message("Completed calculation of survey statistics for end.post = ",
-                time.names[end.post[i]], ".  Time = ", round(tmp[3], 2),
-                "\n\n", sep = "", appendLF = FALSE)}
+                              time.names[end.post[i]], ".  Time = ", round(tmp[3], 2),
+                              "\n\n", sep = "", appendLF = FALSE)}
         Pct.Chng <- cbind(Pct.Chng = stats[[i]][[2]][1,
                                                      ])
         if (is.element("Omnibus", rownames(Pct.Chng))) {
@@ -1093,7 +1093,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   }
   if (reset.result.var) {
     if(printFlag){message("No outcome variables specified (e.g., result.var = NULL).\n",
-            appendLF = FALSE)}
+                          appendLF = FALSE)}
     if(printFlag){message("Results will not be tabulated.\n", appendLF = FALSE)}
   }
   if (reset.result.var) {
@@ -1134,7 +1134,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   }
   all.tmp <- proc.time() - all.tmp
   if(printFlag){message("microsynth complete: Overall time = ", round(all.tmp[3],
-                                                        2), "\n\n", sep = "", appendLF = FALSE)}
+                                                                      2), "\n\n", sep = "", appendLF = FALSE)}
 
   # Declare final output for print (3 of 3)
   info$nConstraints <- nrow(out$w$Summary) - 1
@@ -1147,6 +1147,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
   out <- makemicrosynth(out)
   return(out)
 }
+
 
 
 

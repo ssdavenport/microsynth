@@ -550,7 +550,7 @@ get.stats1.sub <- function (X, G, use.jack, boot.upper, boot.lower, inter, w,
     } else {
       stat2.out[j] <- NA
     }
-    delta.out.out[j] <- my.delta(mu = coefs[, "Estimate"], Sigma = stats::vcov(mod))
+    delta.out.out[j] <- microsynth:::my.delta(mu = coefs[, "Estimate"], Sigma = stats::vcov(mod))
   }
   if (use.omnibus) {
     if (i == 1) {
@@ -608,9 +608,9 @@ get.stats1.sub <- function (X, G, use.jack, boot.upper, boot.lower, inter, w,
     Sigma <- Sigma[keep.var, keep.var, drop = FALSE]
     if (!twosided) {
       a <- as.matrix(diag(Sigma)^-0.5)
-      stat1.out[NCOL(stat1.out)] <- crossprod(a, thetas)/sqrt(t(a) %*% Sigma %*% a)
+      stat1.out[length(stat1.out)] <- crossprod(a, thetas)/sqrt(t(a) %*% Sigma %*% a)
     } else {
-      stat1.out[NCOL(stat1.out)] <- crossprod(thetas, solve(Sigma)) %*% thetas
+      stat1.out[length(stat1.out)] <- crossprod(thetas, solve(Sigma)) %*% thetas
     }
   }
   tmp <- proc.time() - tmp

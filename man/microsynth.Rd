@@ -2,17 +2,18 @@
 % Please edit documentation in R/microsynth.R
 \name{microsynth}
 \alias{microsynth}
-\title{Synthetic control methods for micro- and meso-level data.}
+\title{Synthetic control methods for disaggregated, micro-level data.}
 \usage{
 microsynth(data, idvar, intvar, timevar = NULL, start.pre = NULL,
-  end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE,
-  match.out.min = NULL, match.covar.min = NULL, result.var = TRUE,
-  omnibus.var = result.var, period = 1, scale.var = "Intercept",
-  confidence = 0.9, test = "twosided", perm = 0, jack = 0,
-  use.survey = TRUE, cut.mse = Inf, check.feas = FALSE,
-  use.backup = FALSE, w = NULL, max.mse = 0.01, maxit = 250,
-  cal.epsilon = 1e-04, calfun = "linear", bounds = c(0, Inf),
-  result.file = NULL)
+  end.pre = NULL, end.post = NULL, match.out = TRUE,
+  match.covar = TRUE, match.out.min = NULL, match.covar.min = NULL,
+  result.var = TRUE, omnibus.var = result.var, period = 1,
+  scale.var = "Intercept", confidence = 0.9, test = "twosided",
+  perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf,
+  check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01,
+  maxit = 250, cal.epsilon = 1e-04, calfun = "linear",
+  bounds = c(0, Inf), result.file = NULL, printFlag = TRUE,
+  n.cores = TRUE)
 }
 \arguments{
 \item{data}{A data frame.  If longitudinal, the data must be entered in tall
@@ -249,15 +250,28 @@ of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
 \code{.xls}) extension (e.g., the last five characters of result.file are
 '.xlsx'), an \code{.xlsx} file is created regardless of the length of
 \code{end.post}.}
+
+\item{printFlag}{If TRUE, \code{microsynth} will print history on console. Use
+\code{printFlag = FALSE} for silent computation.}
+
+\item{n.cores}{The number of CPU cores to use for parallelization. If
+\code{n.cores} is not specified by the user, it is guessed using the
+\code{detectCores} function in the parallel package.  If \code{TRUE}
+(the default), it is set as \code{detectCores()}.  If \code{NULL}, it is set as
+\code{detectCores() - 1}.  If \code{FALSE}, it is set as \code{1}, in which case
+parallelization is not invoked.  Note that the
+documentation for \code{detectCores} makes clear that it is not failsafe and
+could return a spurious number of available cores.}
 }
 \value{
 \code{microsynth} returns a list with up to five elements: a)
   \code{w}, b) \code{Results}, c) \code{svyglm.stats},
-  d) \code{Plot.Stats}, and e) \code{info}.
+  and d) \code{Plot.Stats}, and e) \code{info}.
 
-  \code{w} is a list with five elements: a) \code{Weights}, b)
+  \code{w} is a list with six elements: a) \code{Weights}, b)
   \code{Intervention},
-  c) \code{MSE}, d) \code{Model}, and e) \code{Summary}.  Assume there are
+  c) \code{MSE}, d) \code{Model}, e) \code{Summary}, and f) \code{keep.groups}.
+  Assume there are
   C total sets of weights calculated, where C = \code{1 + jack + perm}, and
   there are N total cases across the treatment and control groups.
   \code{w$Weights} is an N x C matrix, where each column provides a set of
@@ -270,7 +284,10 @@ of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
   MSEs are listed for the primary and secondary constraints for the first,
   second, and third models.  \code{w$Model} is a length-C vector that
   indicates whether backup models were used in the calculation of each set of
-  weights.  \code{w$Summary} is a three-column matrix that (for treatment,
+  weights.  \code{w$keep.groups} is a logical vector indicating which groups
+  are to be used in analysis (groups that are not used have pre-intervention
+  MSE greater than \code{cut.mse}.  \code{w$Summary} is a three-column matrix
+  that (for treatment,
   synthetic control, and the full dataset), shows aggregate values
   of the variables across which treatment and synthetic control are matched.
   The summary, which is tabulated only for the primary weights, is also
@@ -302,11 +319,9 @@ of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
   \code{Plot.Stats$Difference[,,i+1]} contains the time series of treatment
   minus control for the i^th permutation group.
 
-  Lastly, \code{info} documents some input parameters for display by
-  \code{print()}.
-
-  A summary of weighted matching variables and of results can be viewed
-  using \code{\link{summary}}
+	 Lastly, \code{info} documents some input parameters for display by
+  \code{print()}. A summary of weighted matching variables and of results
+  can be viewed using \code{\link{summary}}
 }
 \description{
 Implements the synthetic control method for micro-level data as outlined in
@@ -466,7 +481,6 @@ match.out <- list( 'i_robbery'=rep(2, 6), 'i_aggassau'=rep(2, 6),
 
 # After aggregation, use.backup and cheack.feas no longer needed
 # runtime: ~40 minutes
-# TODO: re-run sea4 as it was infeasible for the first time (use.backup=TRUE?)
 sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
          intvar='Intervention', match.out=match.out, match.covar=cov.var,
          start.pre=1, end.pre=12, end.post=16,
@@ -480,11 +494,10 @@ plot_microsynth(sea4)
 }
 
 
-# runtime: ~ 20 minutes
 # Generate weights only (for four variables)
 match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
-
 \donttest{
+# runtime: ~ 20 minutes
 sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
          intvar='Intervention', match.out=match.out, match.covar=cov.var,
          start.pre=1, end.pre=12, end.post=16,
@@ -505,6 +518,7 @@ summary(sea6)
 
 # Generate plots only
 plot_microsynth(sea6, plot.var=match.out[1:2])
+}
 
 # Apply microsynth in the traditional setting of Synth
 # Create macro-level (small n) data, with 1 treatment unit
@@ -541,32 +555,32 @@ sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
 
 # View results
 summary(sea9)
-}
+
 
 }
 \references{
-Abadie A, Diamond A, Hainmueller J (2010). “Synthetic control
-  methods for comparative case studies: Estimating the effect of California’s
-  tobacco control program.” \emph{Journal of the American Statistical
+Abadie A, Diamond A, Hainmueller J (2010). Synthetic control
+  methods for comparative case studies: Estimating the effect of California's
+  tobacco control program.? \emph{Journal of the American Statistical
   Association}, 105(490), 493-505.
 
-  Abadie A, Diamond A, Hainmueller J (2011). “Synth: An R Package for
-  Synthetic Control Methods in Comparative Case Studies.” \emph{Journal
+  Abadie A, Diamond A, Hainmueller J (2011). Synth: An R Package for
+  Synthetic Control Methods in Comparative Case Studies.? \emph{Journal
   of Statistical Software}, 42(13), 1-17.
 
-  Abadie A, Diamond A, Hainmueller J (2015). “Comparative politics and the
+  Abadie A, Diamond A, Hainmueller J (2015). Comparative politics and the
   synthetic control method. \emph{American Journal of Political Science},
   59(2), 495-510.
 
-  Abadie A, Gardeazabal J (2003). “The economic costs of conflict: A case
-  study of the Basque Country.” \emph{American Economic Review}, pp. 113-132.
+  Abadie A, Gardeazabal J (2003). The economic costs of conflict: A case
+  study of the Basque Country.? \emph{American Economic Review}, pp. 113-132.
 
-  Hainmueller, J. (2012), “Entropy Balancing for Causal Effects: A
+  Hainmueller, J. (2012), Entropy Balancing for Causal Effects: A
   Multivariate Reweighting Method to Produce Balanced Samples in
-  Observational Studies,” \emph{Political Analysis}, 20, 25–46.
+  Observational Studies,? \emph{Political Analysis}, 20, 25-46.
 
-  Robbins MW, Saunders J, Kilmer B (2017). “A framework for synthetic control
+  Robbins MW, Saunders J, Kilmer B (2017). A framework for synthetic control
   methods with high-dimensional, micro-level data: Evaluating a neighborhood-
-  specific crime intervention,” \emph{Journal of the American Statistical
+  specific crime intervention,? \emph{Journal of the American Statistical
   Association}, 112(517), 109-126.
 }

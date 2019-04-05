@@ -4,9 +4,12 @@
 \alias{plot_microsynth}
 \title{Plotting for microsynth objects.}
 \usage{
-plot_microsynth(ms, plot.var = NULL, start.pre = NULL, end.pre = NULL,
-  end.post = NULL, file = NULL, sep = TRUE, plot.first = NULL,
-  legend.spot = "bottomleft", height = NULL, width = NULL)
+plot_microsynth(ms, plot.var = NULL, start.pre = NULL,
+  end.pre = NULL, end.post = NULL, file = NULL, sep = TRUE,
+  plot.first = NULL, legend.spot = "bottomleft", height = NULL,
+  width = NULL, at = NULL, labels = NULL, all = "cases",
+  main.tc = NULL, main.diff = NULL, xlab.tc = NULL,
+  xlab.diff = NULL, ylab.tc = NULL, ylab.diff = NULL)
 }
 \arguments{
 \item{ms}{A microsynth object}
@@ -54,6 +57,45 @@ when a pdf is created.}
 
 \item{width}{The width of the graphics region (in inches)
 when a pdf is created.}
+
+\item{at}{A vector that gives the location of user-specified x-axis labels.
+\code{at} should be a (numeric) subset of the named time points contained
+in \code{ms} (e.g., \code{colnames(ms$Plot.Stats$Treatment)}).}
+
+\item{labels}{A vector of the same length as \code{at} that gives the names
+of the labels that will be marked at the times indicated by \code{at} in
+the plots.}
+
+\item{all}{A scalar character string giving the unit name for cases.
+If \code{NULL}, a third curve showing the overall outcome levels is
+not plotted.}
+
+\item{main.tc}{A scalar (or a vector of the same length as \code{plot.var}) 
+character string giving the title to be used for the first plots
+(that show treatment and control).  Defaults to \code{plot.var}.}
+
+\item{main.diff}{A scalar (or a vector of the same length as \code{plot.var}) 
+character string giving the title to be used for the second plots
+(that show differences between treatment and control).  
+Defaults to \code{plot.var}.}
+
+\item{xlab.tc}{A scalar (or a vector of the same length as \code{plot.var}) 
+character string giving the x-axis labels to be used for the first plots
+(that show treatment and control).  Defaults to \code{''}.}
+
+\item{xlab.diff}{A scalar (or a vector of the same length as \code{plot.var}) 
+character string giving the x-axis labels to be used for the second plots
+(that show differences between treatment and control).  
+Defaults to \code{''}.}
+
+\item{ylab.tc}{A scalar (or a vector of the same length as \code{plot.var}) 
+character string giving the y-axis labels to be used for the first plots
+(that show treatment and control).  Defaults to \code{plot.var}.}
+
+\item{ylab.diff}{A scalar (or a vector of the same length as \code{plot.var}) 
+character string giving the y-axis labels to be used for the second plots
+(that show differences between treatment and control).  
+Defaults to \code{'Treatment - Control'}.}
 }
 \description{
 Using a \code{microsynth} object as an input, this function gives time

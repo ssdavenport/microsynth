@@ -485,6 +485,7 @@ is.feasible <- function(bigdat, covar.var, dum, Int, int.val = 1, end.pre, eps =
 
 # Sub-function of is.feasible(); check if a constraint model has a feasible solution
 check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
+  # Sub-function for checking to see if a constraint model has a feasible solution
   if (NROW(A) <= NCOL(A)) {
     rem <- find.sing(tcrossprod(A))
   } else {
@@ -500,6 +501,7 @@ check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
     requireNamespace("LowRankQP", quietly = TRUE)
     Vmat <- matrix(0, NCOL(A3), 1)
     uvec <- rep(M, NCOL(A3))
+    my.stuff <<- list(Vmat = Vmat, dvec = a, Amat = A3, bvec = b, uvec = uvec)
     sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = Vmat, dvec = a, Amat = A3, bvec = b, uvec = uvec,
                                                                       method = "SMW", verbose = FALSE, niter = maxit))
     sol <- all.root$alpha
@@ -512,6 +514,7 @@ check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
   # w <- sol[1:NCOL(A)]
   sol <- sol[-(1:NCOL(A))]
   sol <- sqrt(mean(sol * sol))
+  if (is.na(sol)) {sol <- Inf}
   if (sol >= eps) {
     out <- FALSE
   } else {
