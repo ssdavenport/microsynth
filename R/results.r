@@ -550,7 +550,7 @@ get.stats1.sub <- function (X, G, use.jack, boot.upper, boot.lower, inter, w,
     } else {
       stat2.out[j] <- NA
     }
-    delta.out.out[j] <- microsynth:::my.delta(mu = coefs[, "Estimate"], Sigma = stats::vcov(mod))
+    delta.out.out[j] <- my.delta(mu = coefs[, "Estimate"], Sigma = stats::vcov(mod))
   }
   if (use.omnibus) {
     if (i == 1) {
