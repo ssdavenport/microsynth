@@ -441,7 +441,8 @@
 #'                   start.pre=1, end.pre=12, end.post=16,
 #'                   match.out=match.out, match.covar=cov.var,
 #'                   result.var=match.out, omnibus.var=match.out,
-#'                   test="lower")
+#'                   test="lower",
+#'                   n.cores = min(parallel::detectCores(), 2))
 #'
 #' # View results
 #' summary(sea1)
@@ -458,7 +459,8 @@
 #'                      result.var=match.out, omnibus.var=match.out,
 #'                      test="lower",
 #'                      perm=250, jack=TRUE,
-#'                      result.file=file.path(tempdir(), 'ExResults2.xlsx'))
+#'                      result.file=file.path(tempdir(), 'ExResults2.xlsx'),
+#'                      n.cores = min(parallel::detectCores(), 2))
 #'
 #' # View results
 #' summary(sea2)
@@ -478,7 +480,8 @@
 #'                    match.out=match.out, match.covar=cov.var,
 #'                    result.var=match.out, perm=250, jack=0,
 #'                    test="lower", check.feas=TRUE, use.backup = TRUE,
-#'                    result.file=file.path(tempdir(), 'ExResults3.xlsx'))
+#'                    result.file=file.path(tempdir(), 'ExResults3.xlsx'),
+#'                    n.cores = min(parallel::detectCores(), 2))
 #'
 #'
 #' # Aggregate outcome variables before matching, to boost model feasibility
@@ -495,7 +498,8 @@
 #'          start.pre=1, end.pre=12, end.post=16,
 #'          result.var=names(match.out), omnibus.var=names(match.out),
 #'          perm=250, jack = TRUE, test='lower',
-#'          result.file=file.path(tempdir(), 'ExResults4.xlsx'))
+#'          result.file=file.path(tempdir(), 'ExResults4.xlsx'),
+#'          n.cores = min(parallel::detectCores(), 2))
 #'
 #' # View results
 #' summary(sea4)
@@ -505,12 +509,14 @@
 #'
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+#'
 #' \donttest{
 #' # runtime: ~ 20 minutes
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
 #'          start.pre=1, end.pre=12, end.post=16,
-#'          result.var=FALSE, perm=250, jack=TRUE)
+#'          result.var=FALSE, perm=250, jack=TRUE,
+#'          n.cores = min(parallel::detectCores(), 2))
 #'
 #' # View weights
 #' summary(sea5)
@@ -520,7 +526,8 @@
 #'           intvar='Intervention',
 #'           start.pre=1, end.pre=12, end.post=c(14, 16),
 #'           result.var=match.out, test='lower',
-#'           w=sea5, result.file=file.path(tempdir(), 'ExResults6.xlsx'))
+#'           w=sea5, result.file=file.path(tempdir(), 'ExResults6.xlsx'),
+#'           n.cores = min(parallel::detectCores(), 2))
 #'
 #' # View results (including previously-found weights)
 #' summary(sea6)
@@ -546,7 +553,8 @@
 #'            match.out=match.out[4],
 #'            match.covar=cov.var, result.var=match.out[4],
 #'            test='lower', perm=250, jack=FALSE,
-#'            check.feas=TRUE, use.backup=TRUE)
+#'            check.feas=TRUE, use.backup=TRUE,
+#'            n.cores = min(parallel::detectCores(), 2))
 #'
 #' # View results
 #' summary(sea8)
@@ -560,7 +568,8 @@
 #' # runtime: ~5 minutes
 #' sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
 #'              match.out=FALSE, match.covar=cov.var, result.var=match.out,
-#'              test='lower', perm=250, jack=TRUE)
+#'              test='lower', perm=250, jack=TRUE,
+#'              n.cores = min(parallel::detectCores(), 2))
 #'
 #' # View results
 #' summary(sea9)
@@ -579,7 +588,7 @@ microsynth <- function (data, idvar, intvar, timevar = NULL, start.pre = NULL,
                         printFlag = TRUE, n.cores = TRUE)
 {
 
-  # Determine the number of cores to be used
+  # Determine the number of cores to be used. CRAN tops at 2.
   n.cores <- msCluster(n.cores)
 
   # Declare metrics for print() call (1 of 3)
@@ -1370,21 +1379,23 @@ make.ci2 <- function(stats, delta.out, alpha = 0.05) {
 msCluster <- function(n) {
 
   requireNamespace("parallel", quietly = TRUE)
-  chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
 
   if (is.logical(n)) {
     if(n) {
       n1 <- parallel::detectCores()
+      # n1 <- future::availableCores()
     } else {
       n1 <- 1
     }
   } else if (length(n) == 0) {
     n1 <- parallel::detectCores() - 1
+    # n1 <- future::availableCores() - 1
   } else {
     n1 <- n
   }
 
   # use 2 cores if CRAN, otherwise, use number detected
+  chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
   cores <- ifelse(chk==TRUE, 2, n1)
 
   return(cores)

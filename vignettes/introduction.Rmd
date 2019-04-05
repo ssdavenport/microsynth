@@ -310,7 +310,8 @@ sea1 <- microsynth(seattledmi,
                    start.pre=1, end.pre=12, end.post=16, 
                    match.out=match.out, match.covar=cov.var, 
                    result.var=match.out, omnibus.var=match.out,
-                   test="lower")
+                   test="lower",
+                   n.cores = min(parallel::detectCores(), 2))
 sea1
 summary(sea1)
 ```
@@ -386,7 +387,8 @@ sea2 <- microsynth(seattledmi,
                    match.out=match.out, match.covar=cov.var, 
                    result.var=match.out, omnibus.var=match.out, 
                    test="lower", 
-                   perm=250, jack=TRUE)
+                   perm=250, jack=TRUE,
+                   n.cores = min(parallel::detectCores(), 2))
 ```
 
 Calling \code{summary} or \code{print} identifies other new changes to the 
@@ -442,7 +444,8 @@ sea3 <- microsynth(seattledmi,
                    end.pre=12,
                    match.out=match.out, match.covar=cov.var, 
                    result.var=match.out, perm=250, jack=0, 
-                   test="lower", check.feas=TRUE, use.backup = TRUE)
+                   test="lower", check.feas=TRUE, use.backup = TRUE,
+                   n.cores = min(parallel::detectCores(), 2))
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
@@ -503,7 +506,8 @@ sea4 <- microsynth(seattledmi,
                    result.var=names(match.out), omnibus.var=names(match.out), 
                    end.pre=12,
                    perm=250, jack = TRUE,
-                   test="lower")
+                   test="lower",
+                   n.cores = min(parallel::detectCores(), 2))
 
 ```
 
@@ -545,7 +549,8 @@ sea5 <- microsynth(seattledmi,
                    idvar="ID", timevar="time",intvar="Intervention",
                    end.pre=12,
                    match.out=match.out, match.covar=cov.var,
-                   result.var=FALSE, perm=0, jack=FALSE)
+                   result.var=FALSE, perm=0, jack=FALSE,
+                   n.cores = min(parallel::detectCores(), 2))
 
 summary(sea5)
 ```
@@ -567,7 +572,8 @@ sea6 <- microsynth(seattledmi,
                    end.pre=12, end.post=c(14, 16),
                    result.var=match.out,
                    test="lower", 
-                   w=sea5$w)
+                   w=sea5$w,
+                   n.cores = min(parallel::detectCores(), 2))
 
 sea6
 ```
@@ -626,7 +632,8 @@ sea8 <- microsynth(seattledmi.one,
                    match.out=match.out[4], match.covar=cov.var, 
                    result.var=match.out[4],
                    test="lower", perm=250, jack=FALSE, 
-                   check.feas=TRUE, use.backup=TRUE)
+                   check.feas=TRUE, use.backup=TRUE,
+                   n.cores = min(parallel::detectCores(), 2))
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
@@ -659,7 +666,8 @@ sea9 <- microsynth(seattledmi.cross,
                    match.out=FALSE, match.covar=cov.var,
                    result.var=NULL, 
                    test="lower",
-                   perm=250, jack=TRUE)
+                   perm=250, jack=TRUE,
+                   n.cores = min(parallel::detectCores(), 2))
 ```
 
 ```{r, eval = TRUE, echo = FALSE}

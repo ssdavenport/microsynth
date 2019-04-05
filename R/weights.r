@@ -364,6 +364,8 @@ get.w <- function (bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL,
   }
 
   if(boot + jack + 1 > for.max) {
+
+    # Note: CRAN check requires using no more than 2 cores.
     if(printFlag){message("Parallelizing with n.cores = ",n.cores,"...\n", sep = "", appendLF = FALSE)}
     requireNamespace("parallel", quietly = TRUE)
     cl <- parallel::makeCluster(n.cores)

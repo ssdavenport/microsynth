@@ -432,7 +432,8 @@ sea1 <- microsynth(seattledmi,
                   start.pre=1, end.pre=12, end.post=16,
                   match.out=match.out, match.covar=cov.var,
                   result.var=match.out, omnibus.var=match.out,
-                  test="lower")
+                  test="lower",
+                  n.cores = min(parallel::detectCores(), 2))
 
 # View results
 summary(sea1)
@@ -449,7 +450,8 @@ sea2 <- microsynth(seattledmi,
                      result.var=match.out, omnibus.var=match.out,
                      test="lower",
                      perm=250, jack=TRUE,
-                     result.file=file.path(tempdir(), 'ExResults2.xlsx'))
+                     result.file=file.path(tempdir(), 'ExResults2.xlsx'),
+                     n.cores = min(parallel::detectCores(), 2))
 
 # View results
 summary(sea2)
@@ -469,7 +471,8 @@ sea3 <- microsynth(seattledmi,
                    match.out=match.out, match.covar=cov.var,
                    result.var=match.out, perm=250, jack=0,
                    test="lower", check.feas=TRUE, use.backup = TRUE,
-                   result.file=file.path(tempdir(), 'ExResults3.xlsx'))
+                   result.file=file.path(tempdir(), 'ExResults3.xlsx'),
+                   n.cores = min(parallel::detectCores(), 2))
 
 
 # Aggregate outcome variables before matching, to boost model feasibility
@@ -486,7 +489,8 @@ sea4 <- microsynth(seattledmi, idvar='ID', timevar='time',
          start.pre=1, end.pre=12, end.post=16,
          result.var=names(match.out), omnibus.var=names(match.out),
          perm=250, jack = TRUE, test='lower',
-         result.file=file.path(tempdir(), 'ExResults4.xlsx'))
+         result.file=file.path(tempdir(), 'ExResults4.xlsx'),
+         n.cores = min(parallel::detectCores(), 2))
 
 # View results
 summary(sea4)
@@ -496,12 +500,14 @@ plot_microsynth(sea4)
 
 # Generate weights only (for four variables)
 match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+
 \donttest{
 # runtime: ~ 20 minutes
 sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
          intvar='Intervention', match.out=match.out, match.covar=cov.var,
          start.pre=1, end.pre=12, end.post=16,
-         result.var=FALSE, perm=250, jack=TRUE)
+         result.var=FALSE, perm=250, jack=TRUE,
+         n.cores = min(parallel::detectCores(), 2))
 
 # View weights
 summary(sea5)
@@ -511,7 +517,8 @@ sea6 <- microsynth(seattledmi, idvar='ID', timevar='time',
           intvar='Intervention',
           start.pre=1, end.pre=12, end.post=c(14, 16),
           result.var=match.out, test='lower',
-          w=sea5, result.file=file.path(tempdir(), 'ExResults6.xlsx'))
+          w=sea5, result.file=file.path(tempdir(), 'ExResults6.xlsx'),
+          n.cores = min(parallel::detectCores(), 2))
 
 # View results (including previously-found weights)
 summary(sea6)
@@ -537,7 +544,8 @@ sea8 <- microsynth(seattledmi.one, idvar='ID', timevar='time',
            match.out=match.out[4],
            match.covar=cov.var, result.var=match.out[4],
            test='lower', perm=250, jack=FALSE,
-           check.feas=TRUE, use.backup=TRUE)
+           check.feas=TRUE, use.backup=TRUE,
+           n.cores = min(parallel::detectCores(), 2))
 
 # View results
 summary(sea8)
@@ -551,7 +559,8 @@ seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"
 # runtime: ~5 minutes
 sea9 <- microsynth(seattledmi.cross, idvar='ID', intvar='Intervention',
              match.out=FALSE, match.covar=cov.var, result.var=match.out,
-             test='lower', perm=250, jack=TRUE)
+             test='lower', perm=250, jack=TRUE,
+             n.cores = min(parallel::detectCores(), 2))
 
 # View results
 summary(sea9)
