@@ -429,10 +429,10 @@
 #' cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
 #'        'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
 #'
-#' \donttest{
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
-#'
 #' set.seed(99199) # for reproducibility
+#'
+#'
 #'
 #' # Perform matching and estimation, without permutations or jackknife
 #' # runtime: < 1 min
@@ -447,6 +447,8 @@
 #' # View results
 #' summary(sea1)
 #' plot_microsynth(sea1)
+#'
+#' \dontrun{
 #'
 #' # Repeat matching and estimation, with permutations and jackknife
 #' # Set permutations and jack-knife to very few groups (2) for
@@ -510,7 +512,7 @@
 #' # Generate weights only (for four variables)
 #' match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 #'
-#' \donttest{
+#' \dontrun{
 #' # runtime: ~ 20 minutes
 #' sea5 <- microsynth(seattledmi,  idvar='ID', timevar='time',
 #'          intvar='Intervention', match.out=match.out, match.covar=cov.var,
@@ -536,6 +538,7 @@
 #' plot_microsynth(sea6, plot.var=match.out[1:2])
 #' }
 #'
+#' \dontrun{
 #' # Apply microsynth in the traditional setting of Synth
 #' # Create macro-level (small n) data, with 1 treatment unit
 #' set.seed(86872)
@@ -558,6 +561,8 @@
 #'
 #' # View results
 #' summary(sea8)
+#'
+#'
 #' plot_microsynth(sea8)
 #'
 #' # Use microsynth to calculate propensity score-type weights
@@ -573,7 +578,7 @@
 #'
 #' # View results
 #' summary(sea9)
-#'
+#' }
 #'
 #' @export
 
