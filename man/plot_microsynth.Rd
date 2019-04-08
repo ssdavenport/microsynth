@@ -70,31 +70,31 @@ the plots.}
 If \code{NULL}, a third curve showing the overall outcome levels is
 not plotted.}
 
-\item{main.tc}{A scalar (or a vector of the same length as \code{plot.var}) 
+\item{main.tc}{A scalar (or a vector of the same length as \code{plot.var})
 character string giving the title to be used for the first plots
 (that show treatment and control).  Defaults to \code{plot.var}.}
 
-\item{main.diff}{A scalar (or a vector of the same length as \code{plot.var}) 
+\item{main.diff}{A scalar (or a vector of the same length as \code{plot.var})
 character string giving the title to be used for the second plots
-(that show differences between treatment and control).  
+(that show differences between treatment and control).
 Defaults to \code{plot.var}.}
 
-\item{xlab.tc}{A scalar (or a vector of the same length as \code{plot.var}) 
+\item{xlab.tc}{A scalar (or a vector of the same length as \code{plot.var})
 character string giving the x-axis labels to be used for the first plots
 (that show treatment and control).  Defaults to \code{''}.}
 
-\item{xlab.diff}{A scalar (or a vector of the same length as \code{plot.var}) 
+\item{xlab.diff}{A scalar (or a vector of the same length as \code{plot.var})
 character string giving the x-axis labels to be used for the second plots
-(that show differences between treatment and control).  
+(that show differences between treatment and control).
 Defaults to \code{''}.}
 
-\item{ylab.tc}{A scalar (or a vector of the same length as \code{plot.var}) 
+\item{ylab.tc}{A scalar (or a vector of the same length as \code{plot.var})
 character string giving the y-axis labels to be used for the first plots
 (that show treatment and control).  Defaults to \code{plot.var}.}
 
-\item{ylab.diff}{A scalar (or a vector of the same length as \code{plot.var}) 
+\item{ylab.diff}{A scalar (or a vector of the same length as \code{plot.var})
 character string giving the y-axis labels to be used for the second plots
-(that show differences between treatment and control).  
+(that show differences between treatment and control).
 Defaults to \code{'Treatment - Control'}.}
 }
 \description{
@@ -126,16 +126,19 @@ sea1 <- microsynth(seattledmi,
                   start.pre=1, end.pre=12, end.post=16,
                   match.out=match.out, match.covar=cov.var,
                   result.var=match.out, omnibus.var=match.out,
-                  test="lower")
+                  test="lower",
+                  n.cores = min(parallel::detectCores(), 2))
 
 # Plot with default settings in the GUI.
 plot_microsynth(sea1)
 
+\dontrun{
 # Make plots, display, and save to a single file (plots.pdf).
 plot_microsynth(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 
 # Make plots for only one outcome, display, and save to a single file.
 plot_microsynth(sea1, plot.var = "any_crime",
      file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
+}
 
 }

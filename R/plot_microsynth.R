@@ -71,31 +71,31 @@
 #'   If \code{NULL}, a third curve showing the overall outcome levels is
 #'   not plotted.
 #'
-#' @param main.tc A scalar (or a vector of the same length as \code{plot.var}) 
+#' @param main.tc A scalar (or a vector of the same length as \code{plot.var})
 #'   character string giving the title to be used for the first plots
 #'   (that show treatment and control).  Defaults to \code{plot.var}.
 #'
-#' @param main.diff A scalar (or a vector of the same length as \code{plot.var}) 
+#' @param main.diff A scalar (or a vector of the same length as \code{plot.var})
 #'   character string giving the title to be used for the second plots
-#'   (that show differences between treatment and control).  
+#'   (that show differences between treatment and control).
 #'   Defaults to \code{plot.var}.
 #'
-#' @param xlab.tc A scalar (or a vector of the same length as \code{plot.var}) 
+#' @param xlab.tc A scalar (or a vector of the same length as \code{plot.var})
 #'   character string giving the x-axis labels to be used for the first plots
 #'   (that show treatment and control).  Defaults to \code{''}.
 #'
-#' @param xlab.diff A scalar (or a vector of the same length as \code{plot.var}) 
+#' @param xlab.diff A scalar (or a vector of the same length as \code{plot.var})
 #'   character string giving the x-axis labels to be used for the second plots
-#'   (that show differences between treatment and control).  
+#'   (that show differences between treatment and control).
 #'   Defaults to \code{''}.
 #'
-#' @param ylab.tc A scalar (or a vector of the same length as \code{plot.var}) 
+#' @param ylab.tc A scalar (or a vector of the same length as \code{plot.var})
 #'   character string giving the y-axis labels to be used for the first plots
 #'   (that show treatment and control).  Defaults to \code{plot.var}.
 #'
-#' @param ylab.diff A scalar (or a vector of the same length as \code{plot.var}) 
+#' @param ylab.diff A scalar (or a vector of the same length as \code{plot.var})
 #'   character string giving the y-axis labels to be used for the second plots
-#'   (that show differences between treatment and control).  
+#'   (that show differences between treatment and control).
 #'   Defaults to \code{'Treatment - Control'}.
 #'
 #' @examples
@@ -115,17 +115,20 @@
 #'                   start.pre=1, end.pre=12, end.post=16,
 #'                   match.out=match.out, match.covar=cov.var,
 #'                   result.var=match.out, omnibus.var=match.out,
-#'                   test="lower")
+#'                   test="lower",
+#'                   n.cores = min(parallel::detectCores(), 2))
 #'
 #' # Plot with default settings in the GUI.
 #' plot_microsynth(sea1)
 #'
+#' \dontrun{
 #' # Make plots, display, and save to a single file (plots.pdf).
 #' plot_microsynth(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 #'
 #' # Make plots for only one outcome, display, and save to a single file.
 #' plot_microsynth(sea1, plot.var = "any_crime",
 #'      file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
+#' }
 #'
 #' @export
 
@@ -133,7 +136,7 @@ plot_microsynth <- function (ms,
                              plot.var = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL,
                              file=NULL, sep = TRUE, plot.first = NULL, legend.spot = "bottomleft",
                              height = NULL, width = NULL, at = NULL, labels = NULL,
-                             all = "cases", main.tc = NULL, main.diff = NULL, xlab.tc = NULL, 
+                             all = "cases", main.tc = NULL, main.diff = NULL, xlab.tc = NULL,
                              xlab.diff = NULL, ylab.tc = NULL, ylab.diff = NULL) {
 
   if(!is.element("Plot.Stats",names(ms))) {
