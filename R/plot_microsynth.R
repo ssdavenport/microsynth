@@ -121,7 +121,7 @@
 #' # Plot with default settings in the GUI.
 #' plot_microsynth(sea1)
 #'
-#' \dontrun{
+#' \donttest{
 #' # Make plots, display, and save to a single file (plots.pdf).
 #' plot_microsynth(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 #'

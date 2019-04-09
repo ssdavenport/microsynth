@@ -449,7 +449,7 @@
 #' summary(sea1)
 #' plot_microsynth(sea1)
 #'
-#' \dontrun{
+#' \donttest{
 #'
 #' # Repeat matching and estimation, with permutations and jackknife
 #' # Set permutations and jack-knife to very few groups (2) for
