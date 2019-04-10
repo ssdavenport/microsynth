@@ -119,6 +119,8 @@ match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 
 set.seed(99199) # for reproducibility
 
+\dontrun{
+
 # Perform matching and estimation, without permutations or jackknife
 # runtime: <1 min
 sea1 <- microsynth(seattledmi,
@@ -132,7 +134,6 @@ sea1 <- microsynth(seattledmi,
 # Plot with default settings in the GUI.
 plot_microsynth(sea1)
 
-\dontrun{
 # Make plots, display, and save to a single file (plots.pdf).
 plot_microsynth(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 

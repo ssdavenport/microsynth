@@ -428,6 +428,7 @@ set.seed(99199) # for reproducibility
 # Perform matching and estimation, without permutations or jackknife
 # runtime: < 1 min
 
+\dontrun{
 sea1 <- microsynth(seattledmi,
                   idvar="ID", timevar="time", intvar="Intervention",
                   start.pre=1, end.pre=12, end.post=16,
@@ -440,7 +441,6 @@ sea1 <- microsynth(seattledmi,
 summary(sea1)
 plot_microsynth(sea1)
 
-\dontrun{
 
 # Repeat matching and estimation, with permutations and jackknife
 # Set permutations and jack-knife to very few groups (2) for

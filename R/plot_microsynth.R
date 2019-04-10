@@ -108,7 +108,7 @@
 #'
 #' set.seed(99199) # for reproducibility
 #'
-#' \donttest{
+#' \dontrun{
 #'
 #' # Perform matching and estimation, without permutations or jackknife
 #' # runtime: <1 min

@@ -437,7 +437,7 @@
 #' # Perform matching and estimation, without permutations or jackknife
 #' # runtime: < 1 min
 #'
-#' \donttest{
+#' \dontrun{
 #' sea1 <- microsynth(seattledmi,
 #'                   idvar="ID", timevar="time", intvar="Intervention",
 #'                   start.pre=1, end.pre=12, end.post=16,
