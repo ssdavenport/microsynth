@@ -108,6 +108,8 @@
 #'
 #' set.seed(99199) # for reproducibility
 #'
+#' \donttest{
+#'
 #' # Perform matching and estimation, without permutations or jackknife
 #' # runtime: <1 min
 #' sea1 <- microsynth(seattledmi,
@@ -121,7 +123,6 @@
 #' # Plot with default settings in the GUI.
 #' plot_microsynth(sea1)
 #'
-#' \donttest{
 #' # Make plots, display, and save to a single file (plots.pdf).
 #' plot_microsynth(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 #'
