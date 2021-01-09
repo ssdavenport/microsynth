@@ -4,16 +4,40 @@
 \alias{microsynth}
 \title{Synthetic control methods for disaggregated, micro-level data.}
 \usage{
-microsynth(data, idvar, intvar, timevar = NULL, start.pre = NULL,
-  end.pre = NULL, end.post = NULL, match.out = TRUE,
-  match.covar = TRUE, match.out.min = NULL, match.covar.min = NULL,
-  result.var = TRUE, omnibus.var = result.var, period = 1,
-  scale.var = "Intercept", confidence = 0.9, test = "twosided",
-  perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf,
-  check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01,
-  maxit = 250, cal.epsilon = 1e-04, calfun = "linear",
-  bounds = c(0, Inf), result.file = NULL, printFlag = TRUE,
-  n.cores = TRUE)
+microsynth(
+  data,
+  idvar,
+  intvar,
+  timevar = NULL,
+  start.pre = NULL,
+  end.pre = NULL,
+  end.post = NULL,
+  match.out = TRUE,
+  match.covar = TRUE,
+  match.out.min = NULL,
+  match.covar.min = NULL,
+  result.var = TRUE,
+  omnibus.var = result.var,
+  period = 1,
+  scale.var = "Intercept",
+  confidence = 0.9,
+  test = "twosided",
+  perm = 0,
+  jack = 0,
+  use.survey = TRUE,
+  cut.mse = Inf,
+  check.feas = FALSE,
+  use.backup = FALSE,
+  w = NULL,
+  max.mse = 0.01,
+  maxit = 250,
+  cal.epsilon = 1e-04,
+  calfun = "linear",
+  bounds = c(0, Inf),
+  result.file = NULL,
+  printFlag = TRUE,
+  n.cores = TRUE
+)
 }
 \arguments{
 \item{data}{A data frame.  If longitudinal, the data must be entered in tall
@@ -71,44 +95,44 @@ in \code{end.post}.  When \code{end.post = NULL} (the default), it is reset
 to the maximum time that appears in the column given by \code{timevar}.}
 
 \item{match.out}{Either A) logical, B) a vector of variable names that
-  indicates across which time-varying variables treatment is to be exactly matched
-  to synthetic control pre-intervention, or C) a
-  list consisting of variable names and timespans over which variables should
-  be aggregated before matching.  Note that outcome variables and time-varying
-  covariates should be included in \code{match.out}.
+indicates across which time-varying variables treatment is to be exactly matched
+to synthetic control pre-intervention, or C) a
+list consisting of variable names and timespans over which variables should
+be aggregated before matching.  Note that outcome variables and time-varying
+covariates should be included in \code{match.out}.
 
-  If \code{match.out = TRUE} (the default), it is set equal to
-  \code{result.var}; if \code{match.out = NULL} or \code{match.out = FALSE},
-  no outcome variables are factored into the calculation of weights. If
-  \code{match.out} is passed a vector of variable
-  names, then weights are calculated to match treatment and synthetic control
-  for the value of each variable that appears in \code{match.out} at each
-  time point from \code{start.pre} to \code{end.pre}. Otherwise, to allow
-  more flexibility, \code{match.out} may also be a list that gives
-  an outcome-based model outlining more specific constraints that are to be
-  exactly satisfied within calibration weighting.  In this case, each entry
-  of \code{match.out} is a vector of integers, and the names of entries of
-  \code{match.out} are the outcome variables to which the vectors correspond.
-  Each element of the vectors gives a number of time points that are to be
-  aggregated for the respective outcome, with the first element indicating
-  time points immediately prior the beginning of the post-intervention
-  period.  The sum of
-  the elements in each vector should not exceed the number of
-  pre-intervention time periods in the data.
+If \code{match.out = TRUE} (the default), it is set equal to
+\code{result.var}; if \code{match.out = NULL} or \code{match.out = FALSE},
+no outcome variables are factored into the calculation of weights. If
+\code{match.out} is passed a vector of variable
+names, then weights are calculated to match treatment and synthetic control
+for the value of each variable that appears in \code{match.out} at each
+time point from \code{start.pre} to \code{end.pre}. Otherwise, to allow
+more flexibility, \code{match.out} may also be a list that gives
+an outcome-based model outlining more specific constraints that are to be
+exactly satisfied within calibration weighting.  In this case, each entry
+of \code{match.out} is a vector of integers, and the names of entries of
+\code{match.out} are the outcome variables to which the vectors correspond.
+Each element of the vectors gives a number of time points that are to be
+aggregated for the respective outcome, with the first element indicating
+time points immediately prior the beginning of the post-intervention
+period.  The sum of
+the elements in each vector should not exceed the number of
+pre-intervention time periods in the data.
 
-  The following examples show the proper formatting of \code{match.out} as a
-  list.  Assume that there are two outcomes, Y1 and Y2 (across which
-  treatment is to be matched to synthetic control), and \code{end.pre = 10}
-  (i.e., the post-intervention period begins at time 11).
-  Let \code{match.out = list('Y1' = c(1, 3, 3), 'Y2'=
+The following examples show the proper formatting of \code{match.out} as a
+list.  Assume that there are two outcomes, Y1 and Y2 (across which
+treatment is to be matched to synthetic control), and \code{end.pre = 10}
+(i.e., the post-intervention period begins at time 11).
+Let \code{match.out = list('Y1' = c(1, 3, 3), 'Y2'=
   c(2,5,1))}.  According to this specification, treatment is to be matched to
-  synthetic control across: a) The value of Y1 at time 10; b) the sum of Y1
-  across times 7, 8 and 9; c) the sum of Y1 across times 4, 5 and 6; e) The
-  sum of Y2 across times time 9 and 10; e) the sum of Y2 across times 4, 5,
-  6, 7, and 8; f) the value of Y2 at time 3.  Likewise, if \code{match.out =
+synthetic control across: a) The value of Y1 at time 10; b) the sum of Y1
+across times 7, 8 and 9; c) the sum of Y1 across times 4, 5 and 6; e) The
+sum of Y2 across times time 9 and 10; e) the sum of Y2 across times 4, 5,
+6, 7, and 8; f) the value of Y2 at time 3.  Likewise, if \code{match.out =
   list('Y1' = 10, 'Y2'= rep(1,10))}, Y1 is matched to synthetic control
-  the entire aggregated pre-intervention time range, and Y2 is matched
-  at each pre-intervention time point individually.}
+the entire aggregated pre-intervention time range, and Y2 is matched
+at each pre-intervention time point individually.}
 
 \item{match.covar}{Either a logical or a vector of variable names that
 indicates which time invariant covariates
@@ -143,25 +167,25 @@ variables that appear in \code{data}.  If \code{result.var = NULL} or
 \item{omnibus.var}{A vector of variable names that indicates the outcome
 variables that are to be used within the calculation of the omnibus
 statistic.  Can also be a logical indicator.  When \code{omnibus.var =
-TRUE}, it is reset as being equal to \code{result.var}.  When
+  TRUE}, it is reset as being equal to \code{result.var}.  When
 \code{omnibus.var = NULL} or \code{omnibus = FALSE}, no omnibus statistic
 is calculated.}
 
 \item{period}{An integer that gives the granularity of the data that will be
-  used for plotting and compiling results.  If \code{match.out} and
-  \code{match.out.min} are provided a vector of variable names, it will also
-  affect the calculation of weights used for matching. In this case, matching
-  of treatment and synthetic control is performed at a temporal granularity
-  defined by \code{period}. For instance, if monthly data are provided and
-  \code{period = 3}, data are aggregated to quarters for plots and results
-  (and weighting unless otherwise specified). If \code{match.out} and
-  \code{match.out.min} are provided a list, \code{period} only affects plots
-  and how results are displayed.
+used for plotting and compiling results.  If \code{match.out} and
+\code{match.out.min} are provided a vector of variable names, it will also
+affect the calculation of weights used for matching. In this case, matching
+of treatment and synthetic control is performed at a temporal granularity
+defined by \code{period}. For instance, if monthly data are provided and
+\code{period = 3}, data are aggregated to quarters for plots and results
+(and weighting unless otherwise specified). If \code{match.out} and
+\code{match.out.min} are provided a list, \code{period} only affects plots
+and how results are displayed.
 
-  Note that plotting is performed with
-  \code{plot.microsynth()}; however, a \code{microsynth} object is required as
-  input for that function and \code{period} should be specified in the creation
-  of that object.}
+Note that plotting is performed with
+\code{plot.microsynth()}; however, a \code{microsynth} object is required as
+input for that function and \code{period} should be specified in the creation
+of that object.}
 
 \item{scale.var}{A variable name.  When comparing the treatment group to all
 cases, the latter is scaled to the size of the former with respect to the
@@ -243,7 +267,7 @@ weights.}
 
 \item{result.file}{A character string giving the name of a file that will be
 created in the home directory containing results.  If \code{result.file =
-NULL} (the default), no file is created.  If \code{end.post} has length 1,
+  NULL} (the default), no file is created.  If \code{end.post} has length 1,
 a \code{.csv} file is created.  If \code{end.post} has length greater than
 one, a formatted \code{.xlsx} file is created with one tab for each element
 of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
@@ -265,63 +289,62 @@ could return a spurious number of available cores.}
 }
 \value{
 \code{microsynth} returns a list with up to five elements: a)
-  \code{w}, b) \code{Results}, c) \code{svyglm.stats},
-  and d) \code{Plot.Stats}, and e) \code{info}.
+\code{w}, b) \code{Results}, c) \code{svyglm.stats}, and
+d) \code{Plot.Stats}, and e) \code{info}.
 
-  \code{w} is a list with six elements: a) \code{Weights}, b)
-  \code{Intervention},
-  c) \code{MSE}, d) \code{Model}, e) \code{Summary}, and f) \code{keep.groups}.
-  Assume there are
-  C total sets of weights calculated, where C = \code{1 + jack + perm}, and
-  there are N total cases across the treatment and control groups.
-  \code{w$Weights} is an N x C matrix, where each column provides a set of
-  weights.  \code{w$Intervention} is an N x C matrix made of logical
-  indicators that indicate whether or not the case in the respective row is
-  considered treated (at any point in time) for the respective column.
-  Entries of \code{NA} are to be dropped for the respective jackknife
-  replication group (\code{NA}s only appear in jackknife weights).
-  \code{w$MSE} is a 6 x C matrix that give the MSEs for each set of weights.
-  MSEs are listed for the primary and secondary constraints for the first,
-  second, and third models.  \code{w$Model} is a length-C vector that
-  indicates whether backup models were used in the calculation of each set of
-  weights.  \code{w$keep.groups} is a logical vector indicating which groups
-  are to be used in analysis (groups that are not used have pre-intervention
-  MSE greater than \code{cut.mse}.  \code{w$Summary} is a three-column matrix
-  that (for treatment,
-  synthetic control, and the full dataset), shows aggregate values
-  of the variables across which treatment and synthetic control are matched.
-  The summary, which is tabulated only for the primary weights, is also
-  printed by \code{microsynth} while weights are being calculated.
+\code{w} is a list with six elements: a) \code{Weights}, b) \code{Intervention},
+c) \code{MSE}, d) \code{Model}, e) \code{Summary}, and f) \code{keep.groups}.
+Assume there are
+C total sets of weights calculated, where C = \code{1 + jack + perm}, and
+there are N total cases across the treatment and control groups.
+\code{w$Weights} is an N x C matrix, where each column provides a set of
+weights.  \code{w$Intervention} is an N x C matrix made of logical
+indicators that indicate whether or not the case in the respective row is
+considered treated (at any point in time) for the respective column.
+Entries of \code{NA} are to be dropped for the respective jackknife
+replication group (\code{NA}s only appear in jackknife weights).
+\code{w$MSE} is a 6 x C matrix that give the MSEs for each set of weights.
+MSEs are listed for the primary and secondary constraints for the first,
+second, and third models.  \code{w$Model} is a length-C vector that
+indicates whether backup models were used in the calculation of each set of
+weights.  \code{w$keep.groups} is a logical vector indicating which groups
+are to be used in analysis (groups that are not used have pre-intervention
+MSE greater than \code{cut.mse}.  \code{w$Summary} is a three-column matrix
+that (for treatment,
+synthetic control, and the full dataset), shows aggregate values
+of the variables across which treatment and synthetic control are matched.
+The summary, which is tabulated only for the primary weights, is also
+printed by \code{microsynth} while weights are being calculated.
 
-  Further, \code{Results} is a list where each element gives the final
-  results for each value of \code{end.post}.  Each element of \code{Results}
-  is itself a matrix with each row corresponding to an outcome variable (and
-  a row for the omnibus test, if used) and each column denotes estimates of
-  the intervention effects and p-values, upper, and lower bounds of
-  confidence intervals as found using Taylor series linearization (Linear),
-  jackknife (jack), and permutation (perm) methods where needed.
+Further, \code{Results} is a list where each element gives the final
+results for each value of \code{end.post}.  Each element of \code{Results}
+is itself a matrix with each row corresponding to an outcome variable (and
+a row for the omnibus test, if used) and each column denotes estimates of
+the intervention effects and p-values, upper, and lower bounds of
+confidence intervals as found using Taylor series linearization (Linear),
+jackknife (jack), and permutation (perm) methods where needed.
 
-  In addition, \code{svyglm.stats} is a list where each element is a
-  matrix that includes the output from the regression models run using the
-  \code{svyglm()} function to estimate the treatment effect.  The list has one
-  element for each value of \code{end.post}, and the matrices each have
-  one row per variable in \code{result.var}.
+In addition, \code{svyglm.stats} is a list where each element is a
+matrix that includes the output from the regression models run using the
+\code{svyglm()} function to estimate the treatment effect.  The list has one
+element for each value of \code{end.post}, and the matrices each have
+one row per variable in \code{result.var}.
 
-  Next, \code{Plot.Stats} contains the data that are displayed in the
-  plots which may be generated using \code{plot.microsynth()}.
-  \code{Plot.Stats} is a list with four elements (Treatment, Control,
-  All, Difference).  The first three elements are matrices with one row per
-  outcome variable and one column per time point.  The last element (which
-  gives the treatment minus control values) is an array that contains data
-  for each permutation group in addition to the true treatment area.
-  Specifically, \code{Plot.Stats$Difference[,,1]} contains the time series of
-  treatment minus control for the true intervention group;
-  \code{Plot.Stats$Difference[,,i+1]} contains the time series of treatment
-  minus control for the i^th permutation group.
+Next, \code{Plot.Stats} contains the data that are displayed in the
+plots which may be generated using \code{plot.microsynth()}.
+\code{Plot.Stats} is a list with four elements (Treatment, Control,
+All, Difference).  The first three elements are matrices with one row per
+outcome variable and one column per time point.  The last element (which
+gives the treatment minus control values) is an array that contains data
+for each permutation group in addition to the true treatment area.
+Specifically, \code{Plot.Stats$Difference[,,1]} contains the time series of
+treatment minus control for the true intervention group;
+\code{Plot.Stats$Difference[,,i+1]} contains the time series of treatment
+minus control for the i^th permutation group.
 
-	 Lastly, \code{info} documents some input parameters for display by
-  \code{print()}. A summary of weighted matching variables and of results
-  can be viewed using \code{\link{summary}}
+Lastly, \code{info} documents some input parameters for display by
+\code{print()}. A summary of weighted matching variables and of results
+can be viewed using \code{\link{summary}}
 }
 \description{
 Implements the synthetic control method for micro-level data as outlined in
@@ -402,15 +425,15 @@ in cross sectional data (in which case \code{timevar} does not need to be
 specified) as proposed by Hainmueller (2012).
 
 \code{microsynth} calculates weights using
-  \code{survey::calibrate()} from the \code{survey} package in circumstances
-  where a feasible solution exists for all constraints, whereas
-  \code{LowRankQP::LowRankQP()} is used to assess feasibility and to
-  calculate weights in the event that a feasible solution to all constraints
-  does not exist.  The \code{LowRankQP} routine is memory-intensive and can
-  run quite slowly in data that have a large number of cases.  To prevent
-  \code{LowRankQP} from being used, set \code{match.out.min = NULL},
-  \code{match.covar.min= NULL}, \code{check.feas = FALSE}, and
-  \code{use.backup = FALSE}.
+\code{survey::calibrate()} from the \code{survey} package in circumstances
+where a feasible solution exists for all constraints, whereas
+\code{LowRankQP::LowRankQP()} is used to assess feasibility and to
+calculate weights in the event that a feasible solution to all constraints
+does not exist.  The \code{LowRankQP} routine is memory-intensive and can
+run quite slowly in data that have a large number of cases.  To prevent
+\code{LowRankQP} from being used, set \code{match.out.min = NULL},
+\code{match.covar.min= NULL}, \code{check.feas = FALSE}, and
+\code{use.backup = FALSE}.
 }
 \examples{
 
@@ -430,11 +453,11 @@ set.seed(99199) # for reproducibility
 
 \dontrun{
 sea1 <- microsynth(seattledmi,
-                  idvar="ID", timevar="time", intvar="Intervention",
+                  idvar='ID', timevar='time', intvar='Intervention',
                   start.pre=1, end.pre=12, end.post=16,
                   match.out=match.out, match.covar=cov.var,
                   result.var=match.out, omnibus.var=match.out,
-                  test="lower",
+                  test='lower',
                   n.cores = min(parallel::detectCores(), 2))
 
 # View results
@@ -447,11 +470,11 @@ plot_microsynth(sea1)
 # quick demonstration only.
 # runtime: ~30 min
 sea2 <- microsynth(seattledmi,
-                     idvar="ID", timevar="time", intvar="Intervention",
+                     idvar='ID', timevar='time', intvar='Intervention',
                      start.pre=1, end.pre=12, end.post=c(14, 16),
                      match.out=match.out, match.covar=cov.var,
                      result.var=match.out, omnibus.var=match.out,
-                     test="lower",
+                     test='lower',
                      perm=250, jack=TRUE,
                      result.file=file.path(tempdir(), 'ExResults2.xlsx'),
                      n.cores = min(parallel::detectCores(), 2))
@@ -469,11 +492,11 @@ match.out <- c('i_robbery','i_aggassau','i_burglary','i_larceny',
 # to ensure model feasibility
 # runtime: ~40 minutes
 sea3 <- microsynth(seattledmi,
-                   idvar="ID", timevar="time", intvar="Intervention",
+                   idvar='ID', timevar='time', intvar='Intervention',
                    end.pre=12,
                    match.out=match.out, match.covar=cov.var,
                    result.var=match.out, perm=250, jack=0,
-                   test="lower", check.feas=TRUE, use.backup = TRUE,
+                   test='lower', check.feas=TRUE, use.backup = TRUE,
                    result.file=file.path(tempdir(), 'ExResults3.xlsx'),
                    n.cores = min(parallel::detectCores(), 2))
 
@@ -553,7 +576,7 @@ plot_microsynth(sea8)
 
 # Use microsynth to calculate propensity score-type weights
 # Prepare cross-sectional data at time of intervention
-seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!="time"]#'
+seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!='time']#'
 
 # Apply microsynth to find propensity score-type weights
 # runtime: ~5 minutes
@@ -569,27 +592,31 @@ summary(sea9)
 }
 \references{
 Abadie A, Diamond A, Hainmueller J (2010). Synthetic control
-  methods for comparative case studies: Estimating the effect of California's
-  tobacco control program.? \emph{Journal of the American Statistical
-  Association}, 105(490), 493-505.
+methods for comparative case studies: Estimating the effect of California's
+tobacco control program.? \emph{Journal of the American Statistical
+Association}, 105(490), 493-505.
 
-  Abadie A, Diamond A, Hainmueller J (2011). Synth: An R Package for
-  Synthetic Control Methods in Comparative Case Studies.? \emph{Journal
-  of Statistical Software}, 42(13), 1-17.
+Abadie A, Diamond A, Hainmueller J (2011). Synth: An R Package for
+Synthetic Control Methods in Comparative Case Studies.? \emph{Journal
+of Statistical Software}, 42(13), 1-17.
 
-  Abadie A, Diamond A, Hainmueller J (2015). Comparative politics and the
-  synthetic control method. \emph{American Journal of Political Science},
-  59(2), 495-510.
+Abadie A, Diamond A, Hainmueller J (2015). Comparative politics and the
+synthetic control method. \emph{American Journal of Political Science},
+59(2), 495-510.
 
-  Abadie A, Gardeazabal J (2003). The economic costs of conflict: A case
-  study of the Basque Country.? \emph{American Economic Review}, pp. 113-132.
+Abadie A, Gardeazabal J (2003). The economic costs of conflict: A case
+study of the Basque Country.? \emph{American Economic Review}, pp. 113-132.
 
-  Hainmueller, J. (2012), Entropy Balancing for Causal Effects: A
-  Multivariate Reweighting Method to Produce Balanced Samples in
-  Observational Studies,? \emph{Political Analysis}, 20, 25-46.
+Hainmueller, J. (2012), Entropy Balancing for Causal Effects: A
+Multivariate Reweighting Method to Produce Balanced Samples in
+Observational Studies,? \emph{Political Analysis}, 20, 25-46.
 
-  Robbins MW, Saunders J, Kilmer B (2017). A framework for synthetic control
-  methods with high-dimensional, micro-level data: Evaluating a neighborhood-
-  specific crime intervention,? \emph{Journal of the American Statistical
-  Association}, 112(517), 109-126.
+Robbins MW, Saunders J, Kilmer B (2017). A framework for synthetic control
+methods with high-dimensional, micro-level data: Evaluating a neighborhood-
+specific crime intervention,? \emph{Journal of the American Statistical
+Association}, 112(517), 109-126.
+
+Robbins MW, Davenport S (2021). microsynth: Synthetic Control Methods for
+Disaggregated and Micro-Level Data in R,? \emph{Journal of Statistical
+Software}, 97(2), doi:10.18637/jss.v097.i02.
 }

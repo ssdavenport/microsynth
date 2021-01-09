@@ -1,36 +1,43 @@
 Package: microsynth
 Title: Synthetic Control Methods with Micro- And Meso-Level Data
-Version: 2.0.13
-Description: A generalization of the 'Synth' package that is designed
- for data at a more granular level (e.g., micro-level). Provides
- functions to construct weights (including propensity score-type
- weights) and run analyses for synthetic control methods with
- micro- and meso-level data; see Robbins, Saunders, and Kilmer 
- (2017) <doi:10.1080/01621459.2016.1213634>.
-Depends: 
-    R (>= 3.3.0)
+Version: 2.0.14
+Authors@R: 
+    c(person(given = "Michael",
+             family = "Robbins",
+             role = c("aut", "cre"),
+             email = "mrobbins@rand.org"),
+      person(given = "Steven",
+             family = "Davenport",
+             role = "aut",
+             email = "ssdport@gmail.com"))
+Description: A generalization of the 'Synth' package that is
+    designed for data at a more granular level (e.g., micro-level).
+    Provides functions to construct weights (including propensity
+    score-type weights) and run analyses for synthetic control methods
+    with micro- and meso-level data; see Robbins, Saunders, and Kilmer
+    (2017) <doi:10.1080/01621459.2016.1213634> and Robbins and Davenport
+    (2021) <doi:10.18637/jss.v097.i02>.
 License: GPL-3
+VignetteBuilder: 
+    knitr
 Encoding: UTF-8
+language: en
 LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
 Imports: 
     boot,
     survey,
-    MASS,
-    stats,
-    utils,
     kernlab,
     LowRankQP,
     nleqslv,
-    pracma,
-    parallel
-Suggests: knitr, xlsx, rmarkdown
-RoxygenNote: 6.1.1
-Authors@R: c(
-  person("Michael", "Robbins", , "mrobbins@rand.org", c("aut", "cre")),
-  person("Steven", "Davenport", , "sdavenpo@rand.org", "aut"))
-VignetteBuilder: knitr
-NeedsCompilation: no
-Author: Michael Robbins [aut, cre],
-  Steven Davenport [aut]
-Maintainer: Michael Robbins <mrobbins@rand.org>
-URL: https://github.com/ssdavenport/microsynth
+    MASS,
+    stats,
+    parallel,
+    utils,
+    pracma
+Suggests: 
+    xlsx,
+    knitr
+Depends: 
+    R (>= 2.10)

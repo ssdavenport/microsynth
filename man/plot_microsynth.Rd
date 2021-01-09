@@ -4,12 +4,28 @@
 \alias{plot_microsynth}
 \title{Plotting for microsynth objects.}
 \usage{
-plot_microsynth(ms, plot.var = NULL, start.pre = NULL,
-  end.pre = NULL, end.post = NULL, file = NULL, sep = TRUE,
-  plot.first = NULL, legend.spot = "bottomleft", height = NULL,
-  width = NULL, at = NULL, labels = NULL, all = "cases",
-  main.tc = NULL, main.diff = NULL, xlab.tc = NULL,
-  xlab.diff = NULL, ylab.tc = NULL, ylab.diff = NULL)
+plot_microsynth(
+  ms,
+  plot.var = NULL,
+  start.pre = NULL,
+  end.pre = NULL,
+  end.post = NULL,
+  file = NULL,
+  sep = TRUE,
+  plot.first = NULL,
+  legend.spot = "bottomleft",
+  height = NULL,
+  width = NULL,
+  at = NULL,
+  labels = NULL,
+  all = "cases",
+  main.tc = NULL,
+  main.diff = NULL,
+  xlab.tc = NULL,
+  xlab.diff = NULL,
+  ylab.tc = NULL,
+  ylab.diff = NULL
+)
 }
 \arguments{
 \item{ms}{A microsynth object}
@@ -40,7 +56,7 @@ When \code{end.post = NULL} (the default), it is reset
 to the maximum time that appears in \code{ms}.}
 
 \item{file}{A character string giving the name of file that will be
- created in the home directory containing plots.
+created in the home directory containing plots.
 The name should have a \code{.pdf} extension.}
 
 \item{sep}{If \code{sep = TRUE}, separate plots will be generated for each
@@ -124,11 +140,11 @@ set.seed(99199) # for reproducibility
 # Perform matching and estimation, without permutations or jackknife
 # runtime: <1 min
 sea1 <- microsynth(seattledmi,
-                  idvar="ID", timevar="time", intvar="Intervention",
+                  idvar='ID', timevar='time', intvar='Intervention',
                   start.pre=1, end.pre=12, end.post=16,
                   match.out=match.out, match.covar=cov.var,
                   result.var=match.out, omnibus.var=match.out,
-                  test="lower",
+                  test='lower',
                   n.cores = min(parallel::detectCores(), 2))
 
 # Plot with default settings in the GUI.
@@ -138,7 +154,7 @@ plot_microsynth(sea1)
 plot_microsynth(sea1, file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 
 # Make plots for only one outcome, display, and save to a single file.
-plot_microsynth(sea1, plot.var = "any_crime",
+plot_microsynth(sea1, plot.var = 'any_crime',
      file = file.path(tempdir(), 'plots.pdf'), sep = FALSE)
 }
 

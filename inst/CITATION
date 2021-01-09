@@ -1,0 +1,17 @@
+bibentry(bibtype = "Article",
+  title        = "{microsynth}: Synthetic Control Methods for Disaggregated and Micro-Level Data in {R}",
+  author       = c(person(given = c("Michael", "W."),
+                          family = "Robbins",
+                          email = "mrobbins@rand.org"),
+                   person(given = "Steven",
+                          family = "Davenport")),
+  journal      = "Journal of Statistical Software",
+  year         = "2021",
+  volume       = "97",
+  number       = "2",
+  pages        = "1--31",
+  doi          = "10.18637/jss.v097.i02",
+
+  header       = "To cite microsynth in publications use:"
+)
+

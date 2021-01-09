@@ -23,5 +23,5 @@ appear when saved to .csv or .xlsx., once for each specified
 post-intervention evaluation time.
 }
 \description{
-Summary method for class "microsynth".
+Summary method for class 'microsynth'.
 }
