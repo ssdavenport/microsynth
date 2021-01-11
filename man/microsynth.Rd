@@ -136,7 +136,7 @@ at each pre-intervention time point individually.}
 
 \item{match.covar}{Either a logical or a vector of variable names that
 indicates which time invariant covariates
-are to be used for weighting.  Covariates must be numeric variables.  Weights are
+are to be used for weighting.  Covariates must be numeric variables. Weights are
 calculated so that treatment and synthetic control exactly match across
 these variables.  If \code{match.covar = TRUE}, it is set equal to a vector
 of variable names corresponding to the time invariant variables that

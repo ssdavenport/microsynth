@@ -1,6 +1,6 @@
 Package: microsynth
 Title: Synthetic Control Methods with Micro- And Meso-Level Data
-Version: 2.0.14
+Version: 2.0.15
 Authors@R: 
     c(person(given = "Michael",
              family = "Robbins",
