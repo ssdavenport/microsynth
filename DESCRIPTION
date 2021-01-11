@@ -38,6 +38,7 @@ Imports:
     pracma
 Suggests: 
     xlsx,
-    knitr
+    knitr,
+    rmarkdown
 Depends: 
     R (>= 2.10)

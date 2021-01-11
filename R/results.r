@@ -1,8 +1,8 @@
 
 # Main function used to produce basic summary statistics; called by microsynth()
-get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigdat)[[2]], end.pre, period = 1, end.post = 80, file = NULL, 
-    sep = TRUE, start.pre = 25, legend.spot = "bottomleft", omnibus.var = result.var, cut.mse = 1, scale.var = "Intercept", twosided = FALSE, 
-    time.names = NULL) {
+get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigdat)[[2]], end.pre, 
+    period = 1, end.post = 80, file = NULL, sep = TRUE, start.pre = 25, legend.spot = "bottomleft", 
+    omnibus.var = result.var, cut.mse = 1, scale.var = "Intercept", twosided = FALSE, time.names = NULL) {
     if (length(time.names) == 0) {
         time.names <- as.character(1:dim(bigdat)[3])
     }
@@ -13,7 +13,8 @@ get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigda
     stat5 <- stat4 <- stat2 <- stat1 <- mu <- matrix(NA, NCOL(w), length(result.var) + sum(use.omnibus))
     rownames(stat5) <- rownames(stat4) <- rownames(stat2) <- rownames(stat1) <- rownames(mu) <- colnames(w)
     if (use.omnibus) {
-        colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var, "Omnibus")
+        colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var, 
+            "Omnibus")
     } else {
         colnames(stat5) <- colnames(stat4) <- colnames(stat2) <- colnames(stat1) <- colnames(mu) <- c(result.var)
     }
@@ -37,7 +38,8 @@ get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigda
             if (scale.var == "Intercept") {
                 scale.by <- sum(use.tre)/sum(use.tre | use.con)
             } else {
-                scale.by <- sum(bigdat1[use.tre, scale.var, 1])/sum(bigdat1[use.tre | use.con, scale.var, 1])
+                scale.by <- sum(bigdat1[use.tre, scale.var, 1])/sum(bigdat1[use.tre | use.con, 
+                  scale.var, 1])
             }
             alldat1 <- bigdat1[use.tre | use.con, all.var, , drop = FALSE]
             test3 <- apply(alldat1, c(2, 3), sum)
@@ -60,7 +62,8 @@ get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigda
                 plotdat.d <- array(NA, c(length(plot.it), length(no.jack), length(xnams)))
                 dimnames(plotdat.d) <- list(plot.it, colnames(w)[no.jack], time.names[xnams])
                 plotdat.a <- plotdat.t <- plotdat.c <- array(NA, c(length(plot.it), length(xnams)))
-                dimnames(plotdat.a) <- dimnames(plotdat.t) <- dimnames(plotdat.c) <- list(plot.it, time.names[xnams])
+                dimnames(plotdat.a) <- dimnames(plotdat.t) <- dimnames(plotdat.c) <- list(plot.it, 
+                  time.names[xnams])
             } else {
                 plotdat.t <- plotdat.c <- plotdat.a <- plotdat.d <- NULL
             }
@@ -74,7 +77,8 @@ get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigda
         stat4[i, use.cols] <- rowSums(test1[result.var, fuse, drop = FALSE])
         stat5[i, use.cols] <- rowSums(test2[result.var, fuse, drop = FALSE])
         stat1[i, use.cols] <- stat4[i, use.cols, drop = FALSE] - stat5[i, use.cols, drop = FALSE]
-        stat2[i, use.cols] <- stat1[i, use.cols, drop = FALSE]/rowSums(test2[result.var, fuse, drop = FALSE])
+        stat2[i, use.cols] <- stat1[i, use.cols, drop = FALSE]/rowSums(test2[result.var, fuse, 
+            drop = FALSE])
         if (length(plot.it) > 0) {
             if (i == 1) {
                 plotdat.t[plot.it, ] <- test1[plot.it, ]
@@ -97,15 +101,16 @@ get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigda
             }
         }
     }
-    stats <- list(stat1[keep, , drop = FALSE], stat2[keep, , drop = FALSE], stat4[keep, , drop = FALSE], stat5[keep, , drop = FALSE], 
-        list(Treatment = plotdat.t, Control = plotdat.c, All = plotdat.a, Difference = plotdat.d, end.pre = end.pre, scale.by = scale.by))
+    stats <- list(stat1[keep, , drop = FALSE], stat2[keep, , drop = FALSE], stat4[keep, , 
+        drop = FALSE], stat5[keep, , drop = FALSE], list(Treatment = plotdat.t, Control = plotdat.c, 
+        All = plotdat.a, Difference = plotdat.d, end.pre = end.pre, scale.by = scale.by))
     return(stats)
 }
 
 
 # Main function used to produce complex (survey) statistics; called by microsynth()
-get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period = 1, end.post = 80, omnibus.var = NULL, G = 25, twosided = FALSE, 
-    printFlag = TRUE, n.cores = 1) {
+get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period = 1, end.post = 80, 
+    omnibus.var = NULL, G = 25, twosided = FALSE, printFlag = TRUE, n.cores = 1) {
     use.omnibus <- length(omnibus.var) > 0
     dof <- NA
     
@@ -170,7 +175,8 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
         is.tre <- is.tre[use]
         
         if (i == 1) {
-            test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, period = period, end.pre = end.pre)
+            test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, 
+                period = period, end.pre = end.pre)
             if (end.post > end.pre) {
                 use.test <- test[, 1] > end.pre & test[, 1] <= end.post
             } else if (end.post == end.pre) {
@@ -213,8 +219,8 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
                 design <- survey::svydesign(ids = ~0, data = test.tmp, weights = w.tmp)
             } else {
                 sup.out <- suppressWarnings({
-                  design <- survey::svrepdesign(data = test.tmp, repweights = w.jack.tmp, weights = w.tmp, combined.weights = TRUE, type = "JK1", 
-                    mse = TRUE)
+                  design <- survey::svrepdesign(data = test.tmp, repweights = w.jack.tmp, 
+                    weights = w.tmp, combined.weights = TRUE, type = "JK1", mse = TRUE)
                 })
             }
             usevars <- colnames(test.tmp)
@@ -283,7 +289,8 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
                 }
                 omnibus.var <- omnibus.var[keep]
             }
-            test.tmp <- data.frame(test[, omnibus.var, drop = FALSE], treat = as.numeric(treat), time = factor(time))
+            test.tmp <- data.frame(test[, omnibus.var, drop = FALSE], treat = as.numeric(treat), 
+                time = factor(time))
             form2 <- paste(omnibus.var, sep = "", collapse = ",")
             form2 <- paste("cbind(", form2, ")", sep = "")
             form1 <- paste(form2, form1, sep = "")
@@ -298,7 +305,8 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
             rownames(Sigma) <- colnames(Sigma) <- omnibus.var
             if (!is.jack) {
                 for (g in 1:G.tmp) {
-                  allmod <- stats::lm(form1, data = test.tmp, weights = w.tmp, subset = which(reps != g))
+                  allmod <- stats::lm(form1, data = test.tmp, weights = w.tmp, subset = which(reps != 
+                    g))
                   coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
                 }
             } else {
@@ -336,7 +344,8 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
         tmp <- proc.time() - tmp
         if (i == 1) {
             if (printFlag) {
-                message("Completed survey statistics for main weights: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+                message("Completed survey statistics for main weights: Time = ", round(tmp[3], 
+                  2), "\n", sep = "", appendLF = FALSE)
             }
             if (jack == 0 & boot > 0) {
                 if (printFlag) {
@@ -346,12 +355,14 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
             }
             if (is.inf) {
                 if (printFlag) {
-                  message("WARNING: Infinite standard errors yielded by main weights.\n", appendLF = FALSE)
+                  message("WARNING: Infinite standard errors yielded by main weights.\n", 
+                    appendLF = FALSE)
                 }
             }
         } else if (is.jack) {
             if (printFlag) {
-                message("Completed survey statistics for jackknife: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+                message("Completed survey statistics for jackknife: Time = ", round(tmp[3], 
+                  2), "\n", sep = "", appendLF = FALSE)
             }
             if (boot > 0) {
                 if (printFlag) {
@@ -361,13 +372,15 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
             }
             if (is.inf) {
                 if (printFlag) {
-                  message("WARNING: Infinite standard errors yielded by jackknife weights.\n", appendLF = FALSE)
+                  message("WARNING: Infinite standard errors yielded by jackknife weights.\n", 
+                    appendLF = FALSE)
                 }
             }
         } else {
             if (i == boot.lower) {
                 if (printFlag) {
-                  message("Completed survey statistics for permutation group:\n", i - use.jack - 1, sep = "", appendLF = FALSE)
+                  message("Completed survey statistics for permutation group:\n", i - use.jack - 
+                    1, sep = "", appendLF = FALSE)
                 }
             } else if ((i - use.jack - 1)%%20 != 1 & i != boot.upper) {
                 if (printFlag) {
@@ -394,12 +407,14 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
                 }
                 tmp.boot <- proc.time() - tmp.boot
                 if (printFlag) {
-                  message("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 2), "\n", sep = "", appendLF = FALSE)
+                  message("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 
+                    2), "\n", sep = "", appendLF = FALSE)
                 }
             }
             if (is.inf) {
                 if (printFlag) {
-                  message("WARNING: Infinite standard errors yielded by permutation group ", i, ".\n", sep = "", appendLF = FALSE)
+                  message("WARNING: Infinite standard errors yielded by permutation group ", 
+                    i, ".\n", sep = "", appendLF = FALSE)
                 }
             }
         }
@@ -412,15 +427,17 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
         requireNamespace("parallel", quietly = TRUE)
         cl <- parallel::makeCluster(n.cores)
         
-        list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):tot.col, get.stats1.sub, G, use.jack, boot.upper, boot.lower, inter, 
-            w, end.post, end.pre, period, bigdat, all.var, use.omnibus, omnibus.var, twosided, test, use.test, time, time.tmp1, reps, 
-            keep.var, twosided, printFlag = FALSE, tmp.boot, all.nams1 = colnames(delta.out))
+        list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):tot.col, get.stats1.sub, 
+            G, use.jack, boot.upper, boot.lower, inter, w, end.post, end.pre, period, bigdat, 
+            all.var, use.omnibus, omnibus.var, twosided, test, use.test, time, time.tmp1, 
+            reps, keep.var, twosided, printFlag = FALSE, tmp.boot, all.nams1 = colnames(delta.out))
         
         parallel::stopCluster(cl)
         
         tmp.boot <- proc.time() - tmp.boot
         if (printFlag) {
-            message("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 2), "\n", sep = "", appendLF = FALSE)
+            message("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 
+                2), "\n", sep = "", appendLF = FALSE)
         }
         
         for (index in (for.max + 1):tot.col) {
@@ -437,8 +454,9 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
 
 
 # Sub-function of get.stats1()
-get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end.post, end.pre, period, bigdat, all.var, use.omnibus, 
-    omnibus.var, two.sided, test, use.test, time, time.tmp1, reps, keep.var, twosided, printFlag, tmp.boot, all.nams1) {
+get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end.post, end.pre, 
+    period, bigdat, all.var, use.omnibus, omnibus.var, two.sided, test, use.test, time, time.tmp1, 
+    reps, keep.var, twosided, printFlag, tmp.boot, all.nams1) {
     
     i <- X
     G.tmp <- G
@@ -456,7 +474,8 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
     is.tre <- is.tre[use]
     
     if (i == 1) {
-        test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, period = period, end.pre = end.pre)
+        test <- make.quarter2(bigdat[use, , , drop = FALSE], tre = is.tre, w = w.tmp, period = period, 
+            end.pre = end.pre)
         if (end.post > end.pre) {
             use.test <- test[, 1] > end.pre & test[, 1] <= end.post
         } else if (end.post == end.pre) {
@@ -501,8 +520,8 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
             design <- survey::svydesign(ids = ~0, data = test.tmp, weights = w.tmp)
         } else {
             sup.out <- suppressWarnings({
-                design <- survey::svrepdesign(data = test.tmp, repweights = w.jack.tmp, weights = w.tmp, combined.weights = TRUE, type = "JK1", 
-                  mse = TRUE)
+                design <- survey::svrepdesign(data = test.tmp, repweights = w.jack.tmp, weights = w.tmp, 
+                  combined.weights = TRUE, type = "JK1", mse = TRUE)
             })
         }
         usevars <- colnames(test.tmp)
@@ -571,7 +590,8 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
             }
             omnibus.var <- omnibus.var[keep]
         }
-        test.tmp <- data.frame(test[, omnibus.var, drop = FALSE], treat = as.numeric(treat), time = factor(time))
+        test.tmp <- data.frame(test[, omnibus.var, drop = FALSE], treat = as.numeric(treat), 
+            time = factor(time))
         form2 <- paste(omnibus.var, sep = "", collapse = ",")
         form2 <- paste("cbind(", form2, ")", sep = "")
         form1 <- paste(form2, form1, sep = "")
@@ -586,7 +606,8 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
         rownames(Sigma) <- colnames(Sigma) <- omnibus.var
         if (!is.jack) {
             for (g in 1:G.tmp) {
-                allmod <- stats::lm(form1, data = test.tmp, weights = w.tmp, subset = which(reps != g))
+                allmod <- stats::lm(form1, data = test.tmp, weights = w.tmp, subset = which(reps != 
+                  g))
                 coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
             }
         } else {
@@ -624,7 +645,8 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
     tmp <- proc.time() - tmp
     if (i == 1) {
         if (printFlag) {
-            message("Completed survey statistics for main weights: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+            message("Completed survey statistics for main weights: Time = ", round(tmp[3], 
+                2), "\n", sep = "", appendLF = FALSE)
         }
         if (jack == 0 & boot > 0) {
             if (printFlag) {
@@ -639,7 +661,8 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
         }
     } else if (is.jack) {
         if (printFlag) {
-            message("Completed survey statistics for jackknife: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+            message("Completed survey statistics for jackknife: Time = ", round(tmp[3], 2), 
+                "\n", sep = "", appendLF = FALSE)
         }
         if (boot > 0) {
             if (printFlag) {
@@ -649,13 +672,15 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
         }
         if (is.inf) {
             if (printFlag) {
-                message("WARNING: Infinite standard errors yielded by jackknife weights.\n", appendLF = FALSE)
+                message("WARNING: Infinite standard errors yielded by jackknife weights.\n", 
+                  appendLF = FALSE)
             }
         }
     } else {
         if (i == boot.lower) {
             if (printFlag) {
-                message("Completed survey statistics for permutation group:\n", i - use.jack - 1, sep = "", appendLF = FALSE)
+                message("Completed survey statistics for permutation group:\n", i - use.jack - 
+                  1, sep = "", appendLF = FALSE)
             }
         } else if ((i - use.jack - 1)%%20 != 1 & i != boot.upper) {
             if (printFlag) {
@@ -682,12 +707,14 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
             }
             tmp.boot <- proc.time() - tmp.boot
             if (printFlag) {
-                message("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 2), "\n", sep = "", appendLF = FALSE)
+                message("Completed survey statistics for permutation groups: Time = ", round(tmp.boot[3], 
+                  2), "\n", sep = "", appendLF = FALSE)
             }
         }
         if (is.inf) {
             if (printFlag) {
-                message("WARNING: Infinite standard errors yielded by permutation group ", i, ".\n", sep = "", appendLF = FALSE)
+                message("WARNING: Infinite standard errors yielded by permutation group ", 
+                  i, ".\n", sep = "", appendLF = FALSE)
             }
         }
     }

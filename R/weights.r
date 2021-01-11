@@ -1,7 +1,9 @@
 
-get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot = 0, jack = 0, Int, int.val = 1, trim = NULL, maxit = 500, 
-    cal.epsilon = 1e-04, end.pre, bounds = c(-Inf, Inf), calfun = "raking", qpmeth = "LowRankQP", check.feas = FALSE, use.backup = TRUE, 
-    scale.var = "Intercept", cut.mse = 1, time.names = NULL, keep.int = FALSE, printFlag = TRUE, n.cores = 1) {
+get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot = 0, jack = 0, 
+    Int, int.val = 1, trim = NULL, maxit = 500, cal.epsilon = 1e-04, end.pre, bounds = c(-Inf, 
+        Inf), calfun = "raking", qpmeth = "LowRankQP", check.feas = FALSE, use.backup = TRUE, 
+    scale.var = "Intercept", cut.mse = 1, time.names = NULL, keep.int = FALSE, printFlag = TRUE, 
+    n.cores = 1) {
     # Primary function used for calculating weights
     n <- dim(bigdat)[1]
     n.int <- sum(Int == int.val)
@@ -21,7 +23,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
             check.combn <- function(x, y) {
                 return(sum(!is.element(x, y)))
             }
-            is.trt.area <- which(apply(boots, 2, check.combn, x = which(Int == int.val)) == 0)
+            is.trt.area <- which(apply(boots, 2, check.combn, x = which(Int == int.val)) == 
+                0)
             boots <- boots[, base::sample((1:NCOL(boots))[-is.trt.area], boot), drop = FALSE]
             fin.boots <- TRUE
         }
@@ -32,52 +35,59 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         if (printFlag) {
             message("Checking feasibility of first model...", "\n", sep = "", appendLF = FALSE)
         }
-        is.sol <- is.feasible(bigdat, covar.var, dum, Int = Int, int.val = int.val, end.pre = end.pre, eps = 1e-04)
+        is.sol <- is.feasible(bigdat, covar.var, dum, Int = Int, int.val = int.val, end.pre = end.pre, 
+            eps = 1e-04)
         tmp <- proc.time() - tmp
         if (!is.sol) {
             use.model <- 2
             if (printFlag) {
-                message("First model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+                message("First model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "", 
+                  appendLF = FALSE)
             }
             dum.tmp <- merge.dums(dum, dum1)
             tmp <- proc.time()
             if (printFlag) {
                 message("Checking feasibility of second model...", "\n", sep = "", appendLF = FALSE)
             }
-            is.sol <- is.feasible(bigdat, covar.var, dum.tmp[[1]], Int = Int, int.val = int.val, end.pre = end.pre, eps = 1e-04)
+            is.sol <- is.feasible(bigdat, covar.var, dum.tmp[[1]], Int = Int, int.val = int.val, 
+                end.pre = end.pre, eps = 1e-04)
             tmp <- proc.time() - tmp
             if (!is.sol) {
                 use.model <- 3
                 if (printFlag) {
-                  message("Second model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+                  message("Second model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "", 
+                    appendLF = FALSE)
                 }
                 if (printFlag) {
                   message("Will use third model.", "\n", sep = "", appendLF = FALSE)
                 }
             } else {
                 if (printFlag) {
-                  message("Second model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+                  message("Second model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "", 
+                    appendLF = FALSE)
                 }
             }
         } else {
             if (printFlag) {
-                message("First model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "", appendLF = FALSE)
+                message("First model is feasible: Time = ", round(tmp[3], 2), "\n", sep = "", 
+                  appendLF = FALSE)
             }
         }
     }
-    newdat <- get.newdat(bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1, end.pre = end.pre, time.names = time.names)
+    newdat <- get.newdat(bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1, 
+        end.pre = end.pre, time.names = time.names)
     newdat1 <- newdat[[2]]
     newdat <- newdat[[1]]
     duma <- merge.dums(dum, dum1)
-    newdata <- get.newdat(bigdat, dum = duma[[1]], dum1 = duma[[2]], covar.var = covar.var, covar.var1 = covar.var1, end.pre = end.pre, 
-        time.names = time.names)
+    newdata <- get.newdat(bigdat, dum = duma[[1]], dum1 = duma[[2]], covar.var = covar.var, 
+        covar.var1 = covar.var1, end.pre = end.pre, time.names = time.names)
     newdat1a <- newdata[[2]]
     newdata <- newdata[[1]]
     dumb <- merge.dums(duma[[1]], duma[[2]])
     covar.var1b <- union(covar.var, covar.var1)
     covar.varb <- NULL
-    newdatb <- get.newdat(bigdat, dum = dumb[[1]], dum1 = dumb[[2]], covar.var = covar.varb, covar.var1 = covar.var1b, end.pre = end.pre, 
-        time.names = time.names)
+    newdatb <- get.newdat(bigdat, dum = dumb[[1]], dum1 = dumb[[2]], covar.var = covar.varb, 
+        covar.var1 = covar.var1b, end.pre = end.pre, time.names = time.names)
     newdat1b <- newdatb[[2]]
     newdatb <- newdatb[[1]]
     colnam <- "Main"
@@ -105,8 +115,9 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
     mse <- matrix(NA, 6, boot + jack + 1)
     mod <- rep(NA, boot + jack + 1)
     rownames(wghts) <- rownames(Inter) <- dimnames(bigdat)[[1]]
-    rownames(mse) <- c("First model: Primary variables", "First model: Second variables", "Secondary model: Primary variables", "Second model: Secondary variables", 
-        "Third model: Primary variables", "Third model: Secondary variables")
+    rownames(mse) <- c("First model: Primary variables", "First model: Second variables", 
+        "Secondary model: Primary variables", "Second model: Secondary variables", "Third model: Primary variables", 
+        "Third model: Secondary variables")
     names(mod) <- colnames(wghts) <- colnames(Inter) <- colnames(mse) <- colnam
     inds <- 1:(boot + jack + 1)
     jack.lower <- 2
@@ -145,8 +156,10 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         Inter[!samp & use, i] <- FALSE
         if (use.model.i == 1) {
             mod[i] <- "First"
-            ws <- get.w.sub(newdat = newdat, newdat1 = newdat1, end.pre = end.pre, samp = samp, use = use, n = NROW(newdat), maxit = maxit, 
-                calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
+            ws <- get.w.sub(newdat = newdat, newdat1 = newdat1, end.pre = end.pre, samp = samp, 
+                use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, 
+                epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, 
+                printFlag = printFlag)
             if (ws$mse > cut.mse | is.na(ws$mse)) {
                 if (use.backup) {
                   cat.back <- ".  Using second model."
@@ -155,9 +168,11 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                   cat.back <- cat.back1 <- ".  Consider setting use.backup = TRUE."
                 }
                 if (i > 1) {
-                  back.state1 <- paste("First model was infeasible for ", rep.meth, " group ", g, cat.back1, "\n", sep = "")
+                  back.state1 <- paste("First model was infeasible for ", rep.meth, " group ", 
+                    g, cat.back1, "\n", sep = "")
                 } else {
-                  back.state1 <- paste("First model is infeasible for primary weights", cat.back, "\n", sep = "")
+                  back.state1 <- paste("First model is infeasible for primary weights", cat.back, 
+                    "\n", sep = "")
                 }
                 if (use.backup) {
                   use.model.i <- 2
@@ -166,24 +181,31 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         }
         if (use.model.i == 2 & use.backup) {
             mod[i] <- "Second"
-            ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a, end.pre = end.pre, samp = samp, use = use, n = NROW(newdat), maxit = maxit, 
-                calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
+            ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a, end.pre = end.pre, samp = samp, 
+                use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, 
+                epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, 
+                printFlag = printFlag)
             if (ws$mse > cut.mse | is.na(ws$mse)) {
                 if (i > 1) {
-                  back.state2 <- paste("Second model was infeasible for ", rep.meth, " group ", g, ".  Used third model.", "\n", sep = "")
-                  back.state3 <- paste("First and second model were infeasible for ", rep.meth, " group ", g, ".  Used third model.", 
-                    "\n", sep = "")
+                  back.state2 <- paste("Second model was infeasible for ", rep.meth, " group ", 
+                    g, ".  Used third model.", "\n", sep = "")
+                  back.state3 <- paste("First and second model were infeasible for ", rep.meth, 
+                    " group ", g, ".  Used third model.", "\n", sep = "")
                 } else {
-                  back.state2 <- paste("Second model is infeasible for primary weights.  Will use third model.", "\n", sep = "")
-                  back.state3 <- paste("First and second model are infeasible for primary weights.  Will use third model.", "\n", sep = "")
+                  back.state2 <- paste("Second model is infeasible for primary weights.  Will use third model.", 
+                    "\n", sep = "")
+                  back.state3 <- paste("First and second model are infeasible for primary weights.  Will use third model.", 
+                    "\n", sep = "")
                 }
                 use.model.i <- 3
             }
         }
         if (use.model.i == 3 & use.backup) {
             mod[i] <- "Third"
-            ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b, end.pre = end.pre, samp = samp, use = use, n = NROW(newdat), maxit = maxit, 
-                calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
+            ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b, end.pre = end.pre, samp = samp, 
+                use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, 
+                epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, 
+                printFlag = printFlag)
         }
         if (back.state1 != "" & back.state2 != "") {
             back.state.final <- back.state3
@@ -215,7 +237,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
             back.state <- ""
             use.model <- use.model.i
             if (printFlag) {
-                message("Created main weights for synthetic control: Time = ", round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
+                message("Created main weights for synthetic control: Time = ", round(tmp[3], 
+                  2), "\n\n", sep = "", appendLF = FALSE)
             }
             if (printFlag) {
                 message("Matching summary for main weights:\n", appendLF = FALSE)
@@ -229,7 +252,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                 }
                 printstuff <- mses$printstuff
                 if (printFlag) {
-                  message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), appendLF = FALSE)
+                  message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), 
+                    appendLF = FALSE)
                 }
                 if (printFlag) {
                   message("\n\n", appendLF = FALSE)
@@ -243,7 +267,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                 }
                 printstuff <- msesa$printstuff
                 if (printFlag) {
-                  message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), appendLF = FALSE)
+                  message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), 
+                    appendLF = FALSE)
                 }
                 if (printFlag) {
                   message("\n\n", appendLF = FALSE)
@@ -257,7 +282,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                 }
                 printstuff <- msesb$printstuff
                 if (printFlag) {
-                  message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), appendLF = FALSE)
+                  message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), 
+                    appendLF = FALSE)
                 }
                 if (printFlag) {
                   message("\n\n", appendLF = FALSE)
@@ -265,7 +291,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
             }
             if (jack > 0 & n.cores > 1 & boot > 0) {
                 if (printFlag) {
-                  message("Calculating weights for jackknife and permutation replication groups...\n", appendLF = FALSE)
+                  message("Calculating weights for jackknife and permutation replication groups...\n", 
+                    appendLF = FALSE)
                 }
                 tmp.jack <- proc.time()
             } else if (jack > 0) {
@@ -311,8 +338,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                 back.state <- ""
                 tmp.jack <- proc.time() - tmp.jack
                 if (printFlag) {
-                  message("Completed weights for all jackknife replication groups: Time = ", round(tmp.jack[3], 2), "\n\n", sep = "", 
-                    appendLF = FALSE)
+                  message("Completed weights for all jackknife replication groups: Time = ", 
+                    round(tmp.jack[3], 2), "\n\n", sep = "", appendLF = FALSE)
                 }
                 if (boot > 0) {
                   if (printFlag) {
@@ -324,7 +351,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         } else if (i >= boot.lower & i <= boot.upper) {
             if (i == boot.lower) {
                 if (printFlag) {
-                  message("Completed weights for permutation group:\n", i - jack - 1, sep = "", appendLF = FALSE)
+                  message("Completed weights for permutation group:\n", i - jack - 1, sep = "", 
+                    appendLF = FALSE)
                 }
             } else if ((i - jack - 1)%%20 != 1 & i != boot.upper) {
                 if (printFlag) {
@@ -351,7 +379,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                 }
                 tmp.boot <- proc.time() - tmp.boot
                 if (printFlag) {
-                  message("Completed weights for all permutation groups: Time = ", round(tmp.boot[3], 2), "\n\n", sep = "", appendLF = FALSE)
+                  message("Completed weights for all permutation groups: Time = ", round(tmp.boot[3], 
+                    2), "\n\n", sep = "", appendLF = FALSE)
                 }
             }
         }
@@ -366,10 +395,12 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         requireNamespace("parallel", quietly = TRUE)
         cl <- parallel::makeCluster(n.cores)
         
-        list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):(boot + jack + 1), get.w.sub.par, use.model, Int, int.val, colnam, 
-            rep.G, n, fin.boots, boots, newdat, newdat1, newdata, newdat1a, newdatb, newdat1b, end.pre, maxit, calfun, bounds, cal.epsilon, 
-            trim, qpmeth, scale.var, printFlag = FALSE, cut.mse, use.backup, jack, back.state, back.state1, back.state2, back.state3, 
-            tmp.jack, boot, boot.lower, boot.upper, jack.lower, jack.upper, rownams = rownames(wghts), rownams1 = rownames(mse))
+        list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):(boot + jack + 1), get.w.sub.par, 
+            use.model, Int, int.val, colnam, rep.G, n, fin.boots, boots, newdat, newdat1, 
+            newdata, newdat1a, newdatb, newdat1b, end.pre, maxit, calfun, bounds, cal.epsilon, 
+            trim, qpmeth, scale.var, printFlag = FALSE, cut.mse, use.backup, jack, back.state, 
+            back.state1, back.state2, back.state3, tmp.jack, boot, boot.lower, boot.upper, 
+            jack.lower, jack.upper, rownams = rownames(wghts), rownams1 = rownames(mse))
         
         parallel::stopCluster(cl)
         
@@ -378,7 +409,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         }
         tmp.boot <- proc.time() - tmp.jack
         if (printFlag) {
-            message("Completed calculation of all replication weights: Time = ", round(tmp.boot[3], 2), "\n\n", sep = "", appendLF = FALSE)
+            message("Completed calculation of all replication weights: Time = ", round(tmp.boot[3], 
+                2), "\n\n", sep = "", appendLF = FALSE)
         }
         
         for (index in (for.max + 1):(boot + jack + 1)) {
@@ -389,15 +421,17 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
         }
     }
     
-    keep.groups <- mse[2 * (use.model - 1) + 1, ] < cut.mse & !is.na(mse[2 * (use.model - 1) + 1, ])
+    keep.groups <- mse[2 * (use.model - 1) + 1, ] < cut.mse & !is.na(mse[2 * (use.model - 
+        1) + 1, ])
     keep.groups[!grepl("Perm", colnames(mse))] <- TRUE
     
     if (printFlag & boot > 0) {
-        message("Removing ", sum(!keep.groups), " permutation groups with pre-intervention MSE > cut.mse.\n\n", sep = "", appendLF = FALSE)
+        message("Removing ", sum(!keep.groups), " permutation groups with pre-intervention MSE > cut.mse.\n\n", 
+            sep = "", appendLF = FALSE)
     }
     
-    out <- list(Weights = wghts, Intervention = Inter, MSE = mse, Model = mod, Summary = printstuff, keep.groups = keep.groups, num.constr = c(num.exact = num.exact, 
-        num.prox = num.prox))
+    out <- list(Weights = wghts, Intervention = Inter, MSE = mse, Model = mod, Summary = printstuff, 
+        keep.groups = keep.groups, num.constr = c(num.exact = num.exact, num.prox = num.prox))
     return(out)
 }
 
@@ -497,8 +531,8 @@ check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
         requireNamespace("LowRankQP", quietly = TRUE)
         Vmat <- matrix(0, NCOL(A3), 1)
         uvec <- rep(M, NCOL(A3))
-        sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = Vmat, dvec = a, Amat = A3, bvec = b, uvec = uvec, method = "SMW", 
-            verbose = FALSE, niter = maxit))
+        sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = Vmat, dvec = a, 
+            Amat = A3, bvec = b, uvec = uvec, method = "SMW", verbose = FALSE, niter = maxit))
         sol <- all.root$alpha
     }
     if (meth == "simplex") {
@@ -521,9 +555,11 @@ check.feasible2 <- function(A, b, eps = 1e-07, M = 10000, meth = "LowRankQP") {
 }
 
 
-# Sub-function of is.feasible(); reshape data inaccordance with a stated model structure Produces two data frames: newdat (data used
-# for exact constraints) and newdat1 (data used for proximate constraints)
-get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL, end.pre, time.names = NULL) {
+# Sub-function of is.feasible(); reshape data inaccordance with a stated model structure
+# Produces two data frames: newdat (data used for exact constraints) and newdat1 (data
+# used for proximate constraints)
+get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL, 
+    end.pre, time.names = NULL) {
     n <- dim(bigdat)[1]
     
     if (length(time.names) == 0) {
@@ -554,9 +590,11 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
             for (i in 1:length(lows)) {
                 newdat[[j]][, i] <- rowSums(as.matrix(bigdat[, result.var[j], lows[i]:highs[i]]))
                 if (lows[i] == highs[i]) {
-                  colnames(newdat[[j]])[i] <- paste(result.var[j], ".", time.names[lows[i]], sep = "")
+                  colnames(newdat[[j]])[i] <- paste(result.var[j], ".", time.names[lows[i]], 
+                    sep = "")
                 } else {
-                  colnames(newdat[[j]])[i] <- paste(result.var[j], ".", time.names[lows[i]], ".", time.names[highs[i]], sep = "")
+                  colnames(newdat[[j]])[i] <- paste(result.var[j], ".", time.names[lows[i]], 
+                    ".", time.names[highs[i]], sep = "")
                 }
             }
         }
@@ -610,9 +648,11 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
             for (i in 1:length(lows)) {
                 newdat1[[j]][, i] <- rowSums(as.matrix(bigdat[, result.var1[j], lows[i]:highs[i]]))
                 if (lows[i] == highs[i]) {
-                  colnames(newdat1[[j]])[i] <- paste(result.var1[j], ".", time.names[lows[i]], sep = "")
+                  colnames(newdat1[[j]])[i] <- paste(result.var1[j], ".", time.names[lows[i]], 
+                    sep = "")
                 } else {
-                  colnames(newdat1[[j]])[i] <- paste(result.var1[j], ".", time.names[lows[i]], ".", time.names[highs[i]], sep = "")
+                  colnames(newdat1[[j]])[i] <- paste(result.var1[j], ".", time.names[lows[i]], 
+                    ".", time.names[highs[i]], sep = "")
                 }
             }
         }
@@ -650,13 +690,15 @@ get.newdat <- function(bigdat, dum = NULL, dum1 = NULL, covar.var = NULL, covar.
 
 
 # Secondary function used for calculating weights
-get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, dum1 = NULL, covar.var = NULL, covar.var1 = NULL, end.pre, 
-    samp, use, n = NROW(newdat), maxit = 500, calfun = "raking", bounds = c(-Inf, Inf), epsilon = 1e-04, trim = NULL, qpmeth = "LowRankQP", 
+get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, dum1 = NULL, 
+    covar.var = NULL, covar.var1 = NULL, end.pre, samp, use, n = NROW(newdat), maxit = 500, 
+    calfun = "raking", bounds = c(-Inf, Inf), epsilon = 1e-04, trim = NULL, qpmeth = "LowRankQP", 
     scale.var = "Intercept", printFlag = TRUE) {
     tmp <- proc.time()
     
     if (length(newdat) == 0) {
-        newdat <- get.newdat(bigdat = bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, covar.var1 = covar.var1, end.pre = end.pre)
+        newdat <- get.newdat(bigdat = bigdat, dum = dum, dum1 = dum1, covar.var = covar.var, 
+            covar.var1 = covar.var1, end.pre = end.pre)
         newdat1 <- newdat[[2]]
         newdat <- newdat[[1]]
     }
@@ -706,8 +748,9 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
     if (NCOL(newdat) > 1) {
         tryCatch({
             caldesign <- survey::svydesign(ids = ~0, data = condat[, keep], weights = init)
-            cali2 <- survey::calibrate(design = caldesign, maxit = maxit, formula = form, population = targets[keep], data = condat[, 
-                keep], calfun = calfun, bounds = bounds, force = TRUE, epsilon = epsilon)
+            cali2 <- survey::calibrate(design = caldesign, maxit = maxit, formula = form, 
+                population = targets[keep], data = condat[, keep], calfun = calfun, bounds = bounds, 
+                force = TRUE, epsilon = epsilon)
             ws.init <- ws <- stats::weights(cali2)
         }, error = function(e, printFlag = printFlag) {
             if (printFlag) {
@@ -723,8 +766,8 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
         condat2 <- condat1
         targets2 <- targets1
         
-        ws <- my.qp(b.init = ws.init, X = t(condat2), a = targets2, Y = t(condat[, keep, drop = FALSE]), c = targets[keep], qpmeth = qpmeth, 
-            printFlag = printFlag)
+        ws <- my.qp(b.init = ws.init, X = t(condat2), a = targets2, Y = t(condat[, keep, drop = FALSE]), 
+            c = targets[keep], qpmeth = qpmeth, printFlag = printFlag)
         tmp2 <- proc.time() - tmp2
     }
     
@@ -732,7 +775,8 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
         if (length(trim) == 1) {
             trim = c(trim, 1 - trim)
         }
-        cali2 <- survey::trimWeights(cali2, upper = stats::quantile(ws, max(trim)), lower = stats::quantile(ws, min(trim)))
+        cali2 <- survey::trimWeights(cali2, upper = stats::quantile(ws, max(trim)), lower = stats::quantile(ws, 
+            min(trim)))
         ws <- stats::weights(cali2)
     }
     
@@ -751,9 +795,11 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
 
 
 
-get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boots, boots, newdat, newdat1, newdata, newdat1a, newdatb, 
-    newdat1b, end.pre, maxit, calfun, bounds, cal.epsilon, trim, qpmeth, scale.var, printFlag, cut.mse, use.backup, jack, back.state, 
-    back.state1, back.state2, back.state3, tmp.jack, boot, boot.lower, boot.upper, jack.lower, jack.upper, rownams, rownams1) {
+get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boots, boots, 
+    newdat, newdat1, newdata, newdat1a, newdatb, newdat1b, end.pre, maxit, calfun, bounds, 
+    cal.epsilon, trim, qpmeth, scale.var, printFlag, cut.mse, use.backup, jack, back.state, 
+    back.state1, back.state2, back.state3, tmp.jack, boot, boot.lower, boot.upper, jack.lower, 
+    jack.upper, rownams, rownams1) {
     
     tmp.boot <- tmp.jack
     i <- X
@@ -787,8 +833,9 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
     Inter.out[!samp & use] <- FALSE
     if (use.model.i == 1) {
         mod.out <- "First"
-        ws <- get.w.sub(newdat = newdat, newdat1 = newdat1, end.pre = end.pre, samp = samp, use = use, n = NROW(newdat), maxit = maxit, 
-            calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
+        ws <- get.w.sub(newdat = newdat, newdat1 = newdat1, end.pre = end.pre, samp = samp, 
+            use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, 
+            epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
         if (ws$mse > cut.mse | is.na(ws$mse)) {
             if (use.backup) {
                 cat.back <- ".  Using second model."
@@ -797,9 +844,11 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
                 cat.back <- cat.back1 <- ".  Consider setting use.backup = TRUE."
             }
             if (i > 1) {
-                back.state1 <- paste("First model was infeasible for ", rep.meth, " group ", g, cat.back1, "\n", sep = "")
+                back.state1 <- paste("First model was infeasible for ", rep.meth, " group ", 
+                  g, cat.back1, "\n", sep = "")
             } else {
-                back.state1 <- paste("First model is infeasible for primary weights", cat.back, "\n", sep = "")
+                back.state1 <- paste("First model is infeasible for primary weights", cat.back, 
+                  "\n", sep = "")
             }
             if (use.backup) {
                 use.model.i <- 2
@@ -808,24 +857,29 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
     }
     if (use.model.i == 2 & use.backup) {
         mod.out <- "Second"
-        ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a, end.pre = end.pre, samp = samp, use = use, n = NROW(newdat), maxit = maxit, 
-            calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
+        ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a, end.pre = end.pre, samp = samp, 
+            use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, 
+            epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
         if (ws$mse > cut.mse | is.na(ws$mse)) {
             if (i > 1) {
-                back.state2 <- paste("Second model was infeasible for ", rep.meth, " group ", g, ".  Used third model.", "\n", sep = "")
-                back.state3 <- paste("First and second model were infeasible for ", rep.meth, " group ", g, ".  Used third model.", "\n", 
-                  sep = "")
+                back.state2 <- paste("Second model was infeasible for ", rep.meth, " group ", 
+                  g, ".  Used third model.", "\n", sep = "")
+                back.state3 <- paste("First and second model were infeasible for ", rep.meth, 
+                  " group ", g, ".  Used third model.", "\n", sep = "")
             } else {
-                back.state2 <- paste("Second model is infeasible for primary weights.  Will use third model.", "\n", sep = "")
-                back.state3 <- paste("First and second model are infeasible for primary weights.  Will use third model.", "\n", sep = "")
+                back.state2 <- paste("Second model is infeasible for primary weights.  Will use third model.", 
+                  "\n", sep = "")
+                back.state3 <- paste("First and second model are infeasible for primary weights.  Will use third model.", 
+                  "\n", sep = "")
             }
             use.model.i <- 3
         }
     }
     if (use.model.i == 3 & use.backup) {
         mod.out <- "Third"
-        ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b, end.pre = end.pre, samp = samp, use = use, n = NROW(newdat), maxit = maxit, 
-            calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
+        ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b, end.pre = end.pre, samp = samp, 
+            use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, 
+            epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
     }
     if (back.state1 != "" & back.state2 != "") {
         back.state.final <- back.state3
@@ -857,7 +911,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
         back.state <- ""
         use.model <- use.model.i
         if (printFlag) {
-            message("Created main weights for synthetic control: Time = ", round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
+            message("Created main weights for synthetic control: Time = ", round(tmp[3], 2), 
+                "\n\n", sep = "", appendLF = FALSE)
         }
         if (printFlag) {
             message("Matching summary for main weights:\n", appendLF = FALSE)
@@ -871,7 +926,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
             }
             printstuff <- mses$printstuff
             if (printFlag) {
-                message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), appendLF = FALSE)
+                message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), 
+                  appendLF = FALSE)
             }
             if (printFlag) {
                 message("\n", appendLF = FALSE)
@@ -885,7 +941,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
             }
             printstuff <- msesa$printstuff
             if (printFlag) {
-                message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), appendLF = FALSE)
+                message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), 
+                  appendLF = FALSE)
             }
             if (printFlag) {
                 message("\n", appendLF = FALSE)
@@ -899,7 +956,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
             }
             printstuff <- msesb$printstuff
             if (printFlag) {
-                message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), appendLF = FALSE)
+                message(paste0(utils::capture.output(round(printstuff, 4)), collapse = "\n"), 
+                  appendLF = FALSE)
             }
             if (printFlag) {
                 message("\n", appendLF = FALSE)
@@ -948,7 +1006,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
             back.state <- ""
             tmp.jack <- proc.time() - tmp.jack
             if (printFlag) {
-                message("Completed weights for all jackknife replication groups: Time = ", round(tmp.jack[3], 2), "\n\n", sep = "", appendLF = FALSE)
+                message("Completed weights for all jackknife replication groups: Time = ", 
+                  round(tmp.jack[3], 2), "\n\n", sep = "", appendLF = FALSE)
             }
             if (boot > 0) {
                 if (printFlag) {
@@ -960,7 +1019,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
     } else if (i >= boot.lower & i <= boot.upper) {
         if (i == boot.lower) {
             if (printFlag) {
-                message("Completed weights for permutation group:\n", i - jack - 1, sep = "", appendLF = FALSE)
+                message("Completed weights for permutation group:\n", i - jack - 1, sep = "", 
+                  appendLF = FALSE)
             }
         } else if ((i - jack - 1)%%20 != 1 & i != boot.upper) {
             if (printFlag) {
@@ -987,7 +1047,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
             }
             tmp.boot <- proc.time() - tmp.boot
             if (printFlag) {
-                message("Completed weights for all permutation groups: Time = ", round(tmp.boot[3], 2), "\n\n", sep = "", appendLF = FALSE)
+                message("Completed weights for all permutation groups: Time = ", round(tmp.boot[3], 
+                  2), "\n\n", sep = "", appendLF = FALSE)
             }
         }
     }
@@ -1021,12 +1082,14 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
     }
     
     if (length(newdat1) == 0) {
-        printstuff <- cbind(Targets = targets, Weighted.Control = colSums((ws) * (condat)), All.scaled = (scale.by) * colSums(alldat))
+        printstuff <- cbind(Targets = targets, Weighted.Control = colSums((ws) * (condat)), 
+            All.scaled = (scale.by) * colSums(alldat))
     } else {
-        # printstuff <- cbind(Targets = c(targets, targets1), Initial.Weighted.Control = colSums(ws.init * cbind(condat, condat1)),
-        # Final.Weighted.Control = colSums(ws * cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat, alldat1)))
-        printstuff <- cbind(Targets = c(targets, targets1), Final.Weighted.Control = colSums(ws * cbind(condat, condat1)), All.scaled = scale.by * 
-            colSums(cbind(alldat, alldat1)))
+        # printstuff <- cbind(Targets = c(targets, targets1), Initial.Weighted.Control =
+        # colSums(ws.init * cbind(condat, condat1)), Final.Weighted.Control = colSums(ws *
+        # cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat, alldat1)))
+        printstuff <- cbind(Targets = c(targets, targets1), Final.Weighted.Control = colSums(ws * 
+            cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat, alldat1)))
     }
     
     return(list(mse = mse, mse1 = mse1, printstuff = printstuff))
@@ -1076,17 +1139,21 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
             return(c(out1, out2))
         }
         b.init[b.init < 1e-06] <- 1e-06
-        lambda.init <- solve(tcrossprod(Y), Y) %*% ((M * log(b.init)) + crossprod(X, (X %*% b.init - a)))
+        lambda.init <- solve(tcrossprod(Y), Y) %*% ((M * log(b.init)) + crossprod(X, (X %*% 
+            b.init - a)))
         all.init <- c(b.init, lambda.init)
         
-        all.root <- nleqslv::nleqslv(all.init, fn = f1, jac = NULL, method = c("Broyden"), global = c("gline"), xscalm = c("fixed"), 
-            control = list(maxit = maxit, xtol = 1e-11, ftol = 1e-11, btol = 1e-06, cndtol = 1e-13))
+        all.root <- nleqslv::nleqslv(all.init, fn = f1, jac = NULL, method = c("Broyden"), 
+            global = c("gline"), xscalm = c("fixed"), control = list(maxit = maxit, xtol = 1e-11, 
+                ftol = 1e-11, btol = 1e-06, cndtol = 1e-13))
         
         if (printFlag) {
-            message("Number of Jacobian evaluations = ", all.root$njcnt, ". \n", sep = "", appendLF = FALSE)
+            message("Number of Jacobian evaluations = ", all.root$njcnt, ". \n", sep = "", 
+                appendLF = FALSE)
         }
         if (printFlag) {
-            message("Number of function evaluations = ", all.root$nfcnt, ". \n", sep = "", appendLF = FALSE)
+            message("Number of function evaluations = ", all.root$nfcnt, ". \n", sep = "", 
+                appendLF = FALSE)
         }
         if (printFlag) {
             message("Number of iterations = ", all.root$iter, ". \n", sep = "", appendLF = FALSE)
@@ -1104,13 +1171,15 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
             rem <- NULL
         }
         leave <- setdiff(1:NROW(Y), rem)
-        sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = t(X), dvec = -crossprod(X, a), Amat = Y[leave, , drop = FALSE], 
-            bvec = c[leave], uvec = rep(M, q), method = "SMW", verbose = FALSE, niter = maxit))
+        sup.out <- utils::capture.output(all.root <- LowRankQP::LowRankQP(Vmat = t(X), dvec = -crossprod(X, 
+            a), Amat = Y[leave, , drop = FALSE], bvec = c[leave], uvec = rep(M, q), method = "SMW", 
+            verbose = FALSE, niter = maxit))
         b <- all.root$alpha
     } else if (qpmeth == "ipop") {
         requireNamespace("kernlab", quietly = TRUE)
         
-        all.root <- kernlab::ipop(c = -crossprod(X, a), H = crossprod(X), b = c, A = Y, l = rep(0, q), r = rep(0, n), u = rep(M, q))
+        all.root <- kernlab::ipop(c = -crossprod(X, a), H = crossprod(X), b = c, A = Y, l = rep(0, 
+            q), r = rep(0, n), u = rep(M, q))
         b <- all.root$alpha
     } else {
         stop("qpmeth not recognized.")
