@@ -1,6 +1,6 @@
 Package: microsynth
 Title: Synthetic Control Methods with Micro- And Meso-Level Data
-Version: 2.0.15
+Version: 2.0.17
 Authors@R: 
     c(person(given = "Michael",
              family = "Robbins",
@@ -21,7 +21,6 @@ License: GPL-3
 VignetteBuilder: 
     knitr
 Encoding: UTF-8
-language: en
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
@@ -31,7 +30,6 @@ Imports:
     kernlab,
     LowRankQP,
     nleqslv,
-    MASS,
     stats,
     parallel,
     utils,
@@ -39,6 +37,7 @@ Imports:
 Suggests: 
     xlsx,
     knitr,
-    rmarkdown
+    rmarkdown,
+    MASS
 Depends: 
     R (>= 2.10)
