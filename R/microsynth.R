@@ -242,7 +242,7 @@
 #'   statistic.  Can also be a logical indicator.  When \code{omnibus.var =
 #'   TRUE}, it is reset as being equal to \code{result.var}.  When
 #'   \code{omnibus.var = NULL} or \code{omnibus = FALSE}, no omnibus statistic
-#'   is calculated.  \code{omnibus.var} should not contain elements not in 
+#'   is calculated.  \code{omnibus.var} should not contain elements not in
 #'   \code{result.var}.
 #'
 #' @param period An integer that gives the granularity of the data that will be
@@ -355,7 +355,7 @@
 #'   replication group (\code{NA}s only appear in jackknife weights).
 #'   \code{w$MSE} is a 6 x C matrix that give the MSEs for each set of weights.
 #'   MSEs are listed for the primary and secondary constraints for the first,
-#'   second, and third models.  Note that the primary constraints differ for each 
+#'   second, and third models.  Note that the primary constraints differ for each
 #'   model (see Robbins and Davenport, 2021). \code{w$Model} is a length-C vector that
 #'   indicates whether backup models were used in the calculation of each set of
 #'   weights.  \code{w$keep.groups} is a logical vector indicating which groups
@@ -582,14 +582,17 @@
 #'
 #' @export
 
-microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE, 
-    match.out.min = NULL, match.covar.min = NULL, result.var = TRUE, omnibus.var = result.var, period = 1, scale.var = "Intercept", confidence = 0.9, 
-    test = "twosided", perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01, 
+microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE,
+    match.out.min = NULL, match.covar.min = NULL, result.var = TRUE, omnibus.var = result.var, period = 1, scale.var = "Intercept", confidence = 0.9,
+    test = "twosided", perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01,
     maxit = 250, cal.epsilon = 1e-04, calfun = "linear", bounds = c(0, Inf), result.file = NULL, printFlag = TRUE, n.cores = TRUE) {
-    
+
+    # Force to dataframe (e.g., not "tibble")
+    data <- as.data.frame(data)
+
     # Determine the number of cores to be used. CRAN tops at 2.
     n.cores <- msCluster(n.cores)
-    
+
     # Declare metrics for print() call (1 of 3)
     info <- list()
     info$match <- unique(match.out)
@@ -599,7 +602,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
     info$start.pre <- start.pre
     info$end.pre <- end.pre
     info$end.post <- end.post
-    
+
     all.tmp <- proc.time()
     if (length(timevar) == 0) {
         if (length(table(data[, idvar])) < NROW(data)) {
@@ -613,12 +616,12 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
     time.tmp <- data[, timevar]
     time.names <- names(table(time.tmp))
     data[, timevar] <- match(as.character(time.tmp), time.names)
-    
+
     # Declare more metrics for print() call (2 of 3)
     info$nUnits <- length(unique(data[[idvar]]))  # num units
     info$nTreatment <- length(unique(data[idvar][data[intvar] == 1]))
     info$nControl <- info$nUnits - info$nTreatment
-    
+
     # Set up dummy variables for use in determining values of indirectly stated inputs
     if (length(start.pre) > 0 & !is.logical(start.pre)) {
         start.pre <- match(as.character(start.pre), time.names)
@@ -705,7 +708,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
     data <- data[, !is.element(colnames(data), rm.col)]
     v.names <- setdiff(v.names, rm.col)
     nv.names <- setdiff(nv.names, rm.col)
-    
+
     # Shape panel data into 3D array, generate intervention matrix, etc.
     data <- newreshape(data, nv.names = nv.names, v.names = v.names, timevar = timevar, idvar = idvar, intvar = intvar)
     if (length(result.var) == 0) {
@@ -879,7 +882,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
             }
             if (is.element(rm.col[i], match.covar.min)) {
                 if (printFlag) {
-                  message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar.min. \n", sep = "", 
+                  message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.covar.min. \n", sep = "",
                     appendLF = FALSE)
                 }
                 match.covar.min <- setdiff(match.covar.min, rm.col[i])
@@ -893,7 +896,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
             }
             if (is.element(rm.col[i], names(match.out.min))) {
                 if (printFlag) {
-                  message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out.min. \n", sep = "", 
+                  message("WARNING: ", rm.col[i], " is a non-numeric variable.  It will be removed from match.out.min. \n", sep = "",
                     appendLF = FALSE)
                 }
                 rm.li1 <- which(is.element(names(match.out.min), rm.col[i]))
@@ -901,16 +904,16 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
             }
         }
     }
-    
+
     # Establish synthetic control weights
     if (length(w) == 0) {
         tmp <- proc.time()
         if (printFlag) {
             message("Calculating weights...", "\n", appendLF = FALSE)
         }
-        w <- get.w(data, match.covar, match.covar.min, match.out, match.out.min, boot = perm, jack = jack, Int = Intervention[, as.character(end.pre)], 
-            int.val = int.num, trim = NULL, end.pre = end.pre, cal.epsilon = cal.epsilon, maxit = maxit, bounds = bounds, calfun = calfun, 
-            check.feas = check.feas, scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup, time.names = time.names, printFlag = printFlag, 
+        w <- get.w(data, match.covar, match.covar.min, match.out, match.out.min, boot = perm, jack = jack, Int = Intervention[, as.character(end.pre)],
+            int.val = int.num, trim = NULL, end.pre = end.pre, cal.epsilon = cal.epsilon, maxit = maxit, bounds = bounds, calfun = calfun,
+            check.feas = check.feas, scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup, time.names = time.names, printFlag = printFlag,
             n.cores = n.cores)
         tmp <- proc.time() - tmp
         if (printFlag) {
@@ -925,7 +928,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
         }
         is.correct.w <- is.list(w)
         if (is.correct.w) {
-            is.correct.w <- is.correct.w & sum(names(w) != c("Weights", "Intervention", "MSE", "Model", "Summary", "keep.groups")) == 
+            is.correct.w <- is.correct.w & sum(names(w) != c("Weights", "Intervention", "MSE", "Model", "Summary", "keep.groups")) ==
                 0
         }
         if (is.correct.w) {
@@ -963,9 +966,9 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
             if (printFlag) {
                 message(is.graph, " for end.post = ", time.names[end.post[i]], "...", "\n", sep = "", appendLF = FALSE)
             }
-            
+
             # Calculate basic statistics
-            stats[[i]] <- get.stats(data, w$Weights, w$Intervention, w$keep.groups, result.var, end.pre = end.pre, period = period, end.post = end.post[i], 
+            stats[[i]] <- get.stats(data, w$Weights, w$Intervention, w$keep.groups, result.var, end.pre = end.pre, period = period, end.post = end.post[i],
                 omnibus.var = omnibus.var, start.pre = start.pre, cut.mse = cut.mse, twosided = twosided, time.names = time.names)
             if (i == which.max(end.post)) {
                 plot.stats <- stats[[i]][[5]]
@@ -989,9 +992,9 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
                 if (printFlag) {
                   message("Calculating survey statistics for end.post = ", time.names[end.post[i]], "...", "\n", sep = "", appendLF = FALSE)
                 }
-                
+
                 # Calculate complex (i.e., survey) statistics
-                stats.tmp <- get.stats1(data, w.tmp, Inter.tmp, mse.tmp, result.var, end.pre = end.pre, period = period, end.post = end.post[i], 
+                stats.tmp <- get.stats1(data, w.tmp, Inter.tmp, mse.tmp, result.var, end.pre = end.pre, period = period, end.post = end.post[i],
                   omnibus.var = omnibus.var, twosided = twosided, printFlag = printFlag, n.cores = n.cores)
                 stats1[[i]] <- stats.tmp[[1]]
                 stats2[[i]] <- stats.tmp[[2]]
@@ -1000,7 +1003,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
                 out.coefs[[i]] <- stats.tmp[[5]]
                 tmp <- proc.time() - tmp
                 if (printFlag) {
-                  message("Completed calculation of survey statistics for end.post = ", time.names[end.post[i]], ".  Time = ", round(tmp[3], 
+                  message("Completed calculation of survey statistics for end.post = ", time.names[end.post[i]], ".  Time = ", round(tmp[3],
                     2), "\n\n", sep = "", appendLF = FALSE)
                 }
                 Pct.Chng <- cbind(Pct.Chng = stats[[i]][[2]][1, ])
@@ -1098,7 +1101,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
             message("Returning weights only.\n", appendLF = FALSE)
         }
     }
-    
+
     # Tabulate results for output.
     out <- list()
     i <- 1
@@ -1134,15 +1137,15 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
     if (printFlag) {
         message("microsynth complete: Overall time = ", round(all.tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
     }
-    
+
     # Declare final output for print (3 of 3)
     info$nConstraints <- nrow(out$w$Summary) - 1
     info$num.constr <- out$w$num.constr
     out$w$num.constr <- NULL
-    
+
     # Add descriptive stats to output for print() call
     out$info <- info
-    
+
     out <- makemicrosynth(out)
     return(out)
 }
@@ -1156,7 +1159,7 @@ get.pval <- function(stats, p = NCOL(stats[[1]]), k = length(stats), ret.na = FA
     out <- matrix(NA, k, p)
     colnames(out) <- nams
     rownames(out) <- paste("Stat", 1:k, sep = "")
-    
+
     dum <- list()
     for (i in 1:k) {
         synth <- stats[[i]][1, ]
@@ -1186,7 +1189,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
     keep.nams <- c(idvar, timevar, intvar, nv.names, v.names)
     keep.nams <- names(table(keep.nams))
     data <- data[, keep.nams]
-    
+
     if (length(times) > 1) {
         newdat <- stats::reshape(data, timevar = timevar, idvar = idvar, v.names = v.names1, direction = "wide")
     } else if (length(times) == 1) {
@@ -1196,7 +1199,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
         colnames(newdat)[append.cols] <- paste(colnames(newdat)[append.cols], ".", times, sep = "")
     }
     intcols <- substr(colnames(newdat), 1, nchar(intvar)) == intvar
-    intcols <- intcols & (substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 1) == "" | substr(colnames(newdat), nchar(intvar) + 
+    intcols <- intcols & (substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 1) == "" | substr(colnames(newdat), nchar(intvar) +
         1, nchar(intvar) + 1) == ".")
     intcols <- colnames(newdat)[intcols]
     int <- newdat[, intcols, drop = FALSE]
@@ -1204,19 +1207,19 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
     intcols1 <- as.numeric(colnames(int))
     int <- int[, order(intcols1, decreasing = FALSE), drop = FALSE]
     rownames(int) <- newdat[, idvar]
-    
+
     v.names <- setdiff(v.names, intvar)
     nv.names <- setdiff(nv.names, intvar)
-    
+
     newdat <- newdat[, setdiff(colnames(newdat), intcols)]
-    
+
     out <- array(NA, c(NROW(newdat), length(nv.names) + length(v.names), NCOL(int)))
     dimnames(out) <- list(newdat[, idvar], c(nv.names, v.names), colnames(int))
-    
+
     for (i in 1:dim(out)[2]) {
         nam.tmp <- dimnames(out)[[2]][i]
         here <- substr(colnames(newdat), 1, nchar(nam.tmp)) == nam.tmp
-        here <- here & (substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == "." | substr(colnames(newdat), nchar(nam.tmp) + 
+        here <- here & (substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == "." | substr(colnames(newdat), nchar(nam.tmp) +
             1, nchar(nam.tmp) + 1) == "")
         tmp <- newdat[, here, drop = FALSE]
         if (sum(here, na.rm = TRUE) > 1) {
@@ -1226,7 +1229,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
         }
         out[, i, ] <- as.matrix(tmp)
     }
-    
+
     nv.names <- NULL
     if (dim(out)[3] > 1) {
         for (i in 1:dim(out)[2]) {
@@ -1239,9 +1242,9 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
     } else {
         nv.names <- dimnames(out)[[2]]
     }
-    
+
     v.names <- setdiff(dimnames(out)[[2]], nv.names)
-    
+
     return(list(bigdat = out, Intervention = int, nv.names = nv.names, v.names = v.names))
 }
 
@@ -1250,7 +1253,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
 # Sub-function of microsynth(); create results file (e.g., as CSV or XLSX)
 out.results <- function(results, end.pre, end.post = names(results), file = NULL, printFlag = TRUE) {
     use.xlsx <- length(end.post) > 1
-    
+
     if (substr(file, nchar(file) - 3, nchar(file)) == ".csv") {
         file <- substr(file, 1, nchar(file) - 4)
         if (use.xlsx) {
@@ -1265,12 +1268,12 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
         file <- substr(file, 1, nchar(file) - 5)
         use.xlsx <- TRUE
     }
-    
+
     if (use.xlsx) {
         xlsx.loaded <- is.element("xlsx", loadedNamespaces())
         file <- paste(file, ".xlsx", sep = "")
         if (!requireNamespace("xlsx", quietly = TRUE)) {
-            stop("The xlsx package is needed when saving output with multiple post-intervention times, or when the file name specifies a .xlsx extension. Please install xlsx, or if you'd like to write to .csv, only select a single post-intervention time and append the filename appropriately.", 
+            stop("The xlsx package is needed when saving output with multiple post-intervention times, or when the file name specifies a .xlsx extension. Please install xlsx, or if you'd like to write to .csv, only select a single post-intervention time and append the filename appropriately.",
                 call. = FALSE)
         }
         if (!xlsx.loaded) {
@@ -1281,16 +1284,16 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
         cspValColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0000"))
         csOtherColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.00"))
         csPercColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0%"))
-        
+
         for (i in 1:length(end.post)) {
             out <- results[[i]]
             keep <- rowMeans(is.na(out)) < 1
             out <- out[keep, , drop = FALSE]
-            
+
             is.pct <- grepl("pct", tolower(colnames(out))) | grepl("lower", tolower(colnames(out))) | grepl("upper", tolower(colnames(out)))
             is.pval <- grepl("pval", tolower(colnames(out)))
             is.oth <- !is.pct & !is.pval
-            
+
             pct.list <- rep(list(csPercColumn), sum(is.pct))
             names(pct.list) <- as.character(which(is.pct))
             pval.list <- rep(list(cspValColumn), sum(is.pval))
@@ -1305,28 +1308,28 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
             }
             p <- NCOL(out)
             n <- NROW(out)
-            
+
             nam <- paste("Max time = ", end.post[i], sep = "")
             sheet <- xlsx::createSheet(wb, sheetName = nam)
             xlsx::setColumnWidth(sheet, colIndex = 1:(p + 1), colWidth = 13)
             xlsx::addDataFrame(out, sheet, colStyle = c(pct.list, pval.list, oth.list))
-            
+
             bord1 <- xlsx::Border(color = "black", position = "BOTTOM", pen = "BORDER_THIN")
             cb <- xlsx::CellBlock(sheet, startRow = 1, startColumn = 1, noRows = (n + 1), noColumns = (p + 1), create = FALSE)
             xlsx::CB.setBorder(cb, border = bord1, rowIndex = 1, colIndex = 1:(p + 1))
-            
+
             font <- xlsx::Font(wb, isBold = TRUE)
             xlsx::CB.setFont(cb, font = font, rowIndex = 1, colIndex = 2:(p + 1))
-            
+
         }
-        
+
         xlsx::saveWorkbook(wb, file = file)
         rm(wb)
     } else {
         file <- paste(file, ".csv", sep = "")
         utils::write.csv(results[[1]], file, na = "")
     }
-    
+
 }
 
 
@@ -1334,10 +1337,10 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
 # Sub-function of microsynth(); calculate confidence intervals
 make.ci <- function(means, ses, alpha = 0.05) {
     z.score <- stats::qnorm(1 - alpha/2)
-    
+
     lower <- means - ses * z.score
     upper <- means + ses * z.score
-    
+
     out <- cbind(exp(lower) - 1, exp(upper) - 1)
     rownames(out) <- names(means)
     colnames(out) <- c("Lower", "Upper")
@@ -1350,13 +1353,13 @@ make.ci <- function(means, ses, alpha = 0.05) {
 make.ci2 <- function(stats, delta.out, alpha = 0.05) {
     means <- stats[1, ]
     sds <- sqrt(delta.out[1, ])
-    
+
     z.scores <- stats/sqrt(delta.out)
     quants <- apply(z.scores, 2, stats::quantile, probs = c(alpha/2, 1 - alpha/2), na.rm = TRUE)
-    
+
     lower <- means - sds * quants[2, ]
     upper <- means - sds * quants[1, ]
-    
+
     out <- cbind(exp(lower) - 1, exp(upper) - 1)
     rownames(out) <- colnames(stats)
     colnames(out) <- c("Lower", "Upper")
@@ -1367,9 +1370,9 @@ make.ci2 <- function(stats, delta.out, alpha = 0.05) {
 
 # Sub-function of microsynth(); allow parellalization
 msCluster <- function(n) {
-    
+
     requireNamespace("parallel", quietly = TRUE)
-    
+
     if (is.logical(n)) {
         if (n) {
             n1 <- parallel::detectCores()
@@ -1383,11 +1386,11 @@ msCluster <- function(n) {
     } else {
         n1 <- n
     }
-    
+
     # use 2 cores if CRAN, otherwise, use number detected
     chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
     cores <- ifelse(chk == TRUE, 2, n1)
-    
+
     return(cores)
 }
 
@@ -1400,21 +1403,21 @@ remove.vars <- function(vars, nams, objnam = "result.var", printFlag = TRUE) {
     } else {
         vars1 <- vars
     }
-    
+
     rm.vars <- setdiff(vars1, nams)
-    
+
     if (length(rm.vars) > 0) {
         rm.here <- which(is.element(vars1, rm.vars))
         vars <- vars[-rm.here]
         if (printFlag) {
-            message("WARNING: The following variables will be removed from ", objnam, " since they are not in the dataset: \n", sep = "", 
+            message("WARNING: The following variables will be removed from ", objnam, " since they are not in the dataset: \n", sep = "",
                 appendLF = FALSE)
         }
         if (printFlag) {
             message(paste(rm.vars, collapse = ", ", sep = ""), "\n\n", sep = "", appendLF = FALSE)
         }
     }
-    
+
     return(vars)
 }
 
