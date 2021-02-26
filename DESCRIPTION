@@ -1,6 +1,6 @@
 Package: microsynth
 Title: Synthetic Control Methods with Micro- And Meso-Level Data
-Version: 2.0.3
+Version: 2.0.31
 Authors@R: 
     c(person(given = "Michael",
              family = "Robbins",
@@ -35,9 +35,9 @@ Imports:
     utils,
     pracma
 Suggests: 
+    MASS,
     xlsx,
     knitr,
-    rmarkdown,
-    MASS
+    rmarkdown
 Depends: 
     R (>= 2.10)

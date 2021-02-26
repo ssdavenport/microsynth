@@ -51,7 +51,7 @@ control groups across those time periods.
 If \code{end.pre = NULL} the end of the pre-intevention period will be
 determined from the object \code{ms}.}
 
-\item{end.post}{An integer that gives final time point that will be plottd.
+\item{end.post}{An integer that gives final time point that will be plotted.
 When \code{end.post = NULL} (the default), it is reset
 to the maximum time that appears in \code{ms}.}
 

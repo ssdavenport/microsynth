@@ -1,4 +1,13 @@
-# microsynth 2.0.14
+# microsynth 2.0.31
+
+## Bug Fixes
+* Fixed crashing when applied to tibble objects
+* Fixed bugs related to result.var specification
+
+# microsynth 2.0.15
+
+## Minor changes
+* Added JSS citation
 
 # microsynth 2.0.0
 

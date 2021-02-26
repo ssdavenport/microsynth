@@ -45,7 +45,7 @@ variables, move variables from exact matches (`match.out`/`match.covar`) to
 best-possible matches (`match.out.min`/`match.covar.min`), or aggregate
 time-variant variables before matching.
 
-When attempts to match on a sparse variable cause model infeasiblity, there are
+When attempts to match on a sparse variable cause model infeasibility, there are
 several solutions:
 
 * Do not attempt an exact match. If the variable is time-invariant, move it from

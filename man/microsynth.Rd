@@ -136,7 +136,7 @@ at each pre-intervention time point individually.}
 
 \item{match.covar}{Either a logical or a vector of variable names that
 indicates which time invariant covariates
-are to be used for weighting.  Covariates must be numeric variables. Weights are
+are to be used for weighting.  Weights are
 calculated so that treatment and synthetic control exactly match across
 these variables.  If \code{match.covar = TRUE}, it is set equal to a vector
 of variable names corresponding to the time invariant variables that
@@ -169,7 +169,8 @@ variables that are to be used within the calculation of the omnibus
 statistic.  Can also be a logical indicator.  When \code{omnibus.var =
   TRUE}, it is reset as being equal to \code{result.var}.  When
 \code{omnibus.var = NULL} or \code{omnibus = FALSE}, no omnibus statistic
-is calculated.}
+is calculated.  \code{omnibus.var} should not contain elements not in
+\code{result.var}.}
 
 \item{period}{An integer that gives the granularity of the data that will be
 used for plotting and compiling results.  If \code{match.out} and
@@ -305,7 +306,8 @@ Entries of \code{NA} are to be dropped for the respective jackknife
 replication group (\code{NA}s only appear in jackknife weights).
 \code{w$MSE} is a 6 x C matrix that give the MSEs for each set of weights.
 MSEs are listed for the primary and secondary constraints for the first,
-second, and third models.  \code{w$Model} is a length-C vector that
+second, and third models.  Note that the primary constraints differ for each
+model (see Robbins and Davenport, 2021). \code{w$Model} is a length-C vector that
 indicates whether backup models were used in the calculation of each set of
 weights.  \code{w$keep.groups} is a logical vector indicating which groups
 are to be used in analysis (groups that are not used have pre-intervention
@@ -552,9 +554,9 @@ plot_microsynth(sea6, plot.var=match.out[1:2])
 
 # Apply microsynth in the traditional setting of Synth
 # Create macro-level (small n) data, with 1 treatment unit
-set.seed(86872)
+set.seed(86879)
 ids.t <- names(table(seattledmi$ID[seattledmi$Intervention==1]))
-ids.c <- names(table(seattledmi$ID[seattledmi$Intervention==0]))
+ids.c <- setdiff(names(table(seattledmi$ID)), ids.t)
 ids.synth <- c(base::sample(ids.t, 1), base::sample(ids.c, 100))
 seattledmi.one <- seattledmi[is.element(seattledmi$ID,
            as.numeric(ids.synth)), ]
@@ -576,7 +578,7 @@ plot_microsynth(sea8)
 
 # Use microsynth to calculate propensity score-type weights
 # Prepare cross-sectional data at time of intervention
-seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!='time']#'
+seattledmi.cross <- seattledmi[seattledmi$time==16, colnames(seattledmi)!='time']
 
 # Apply microsynth to find propensity score-type weights
 # runtime: ~5 minutes

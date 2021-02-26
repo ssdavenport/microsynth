@@ -51,8 +51,8 @@ print.microsynth <- function(x, ...) {
     cat(paste0("\tmicrosynth object\n\n"))
     
     cat("Scope:\n")
-    cat(paste0("\tUnits:\t\t\tTotal: ", x$info$nUnits, "\tTreated: ", x$info$nTreatment, "\tUntreated: ", 
-        x$info$nControl, "\n"))
+    cat(paste0("\tUnits:\t\t\tTotal: ", x$info$nUnits, "\tTreated: ", x$info$nTreatment, 
+        "\tUntreated: ", x$info$nControl, "\n"))
     cat(paste0("\tStudy Period(s):\tPre-period: ", x$info$start.pre, " - ", x$info$end.pre, 
         "\tPost-period: ", x$info$end.pre + 1, " - ", x$info$end.post, "\n"))
     cat(paste0("\tConstraints:\t\tExact Match: ", x$info$num.constr[1], "\t\tMinimized Distance: ", 
@@ -73,8 +73,8 @@ print.microsynth <- function(x, ...) {
 
 # This is a helper function for print/summary
 print.res <- function(results.tables, ...) {
-    # First, extract the end.post value (otherwise it will interfere with colnames) Allow for
-    # an iterated process if there are 2 end times (and 2 tables)
+    # First, extract the end.post value (otherwise it will interfere with colnames) Allow
+    # for an iterated process if there are 2 end times (and 2 tables)
     
     
     end.post <- names(results.tables)

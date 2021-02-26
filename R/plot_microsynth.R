@@ -40,7 +40,7 @@
 #'   If \code{end.pre = NULL} the end of the pre-intevention period will be
 #'   determined from the object \code{ms}.
 #'
-#' @param end.post An integer that gives final time point that will be plottd.
+#' @param end.post An integer that gives final time point that will be plotted.
 #'   When \code{end.post = NULL} (the default), it is reset
 #'   to the maximum time that appears in \code{ms}.
 #'
@@ -133,15 +133,15 @@
 #'
 #' @export
 
-plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL, 
-    file = NULL, sep = TRUE, plot.first = NULL, legend.spot = "bottomleft", height = NULL, 
-    width = NULL, at = NULL, labels = NULL, all = "cases", main.tc = NULL, main.diff = NULL, 
+plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL,
+    file = NULL, sep = TRUE, plot.first = NULL, legend.spot = "bottomleft", height = NULL,
+    width = NULL, at = NULL, labels = NULL, all = "cases", main.tc = NULL, main.diff = NULL,
     xlab.tc = NULL, xlab.diff = NULL, ylab.tc = NULL, ylab.diff = NULL) {
-    
+
     if (!is.element("Plot.Stats", names(ms))) {
         stop("object ms does not contain output regarding results (e.g., only weights were generated).")
     }
-    
+
     plotdat.t <- ms$Plot.Stats$Treatment
     plotdat.c <- ms$Plot.Stats$Control
     if (length(all) > 0) {
@@ -151,7 +151,7 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
     }
     plotdat.d <- ms$Plot.Stats$Difference
     scale.by <- ms$Plot.Stats$scale.by
-    
+
     if (length(height) == 0) {
         if (!sep) {
             height <- 11
@@ -159,7 +159,7 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
             height <- 5
         }
     }
-    
+
     if (length(width) == 0) {
         if (!sep) {
             width <- 8.5
@@ -167,13 +167,13 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
             width <- 5
         }
     }
-    
+
     if (length(plot.first) == 0) {
         plot.first <- dim(plotdat.d)[2] - 1
     }
-    
+
     time.names <- colnames(plotdat.t)
-    
+
     if (length(start.pre) > 0) {
         if (is.element(as.character(start.pre), time.names)) {
             start.pre <- match(as.character(start.pre), time.names)
@@ -204,55 +204,55 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
     } else {
         end.post <- length(time.names)
     }
-    
+
     if (start.pre == end.post) {
         stop("Do not plot:  start.pre == end.post")
     }
-    
+
     all.vars <- rownames(plotdat.t)
-    
+
     if (length(plot.var) == 0) {
         plot.var <- all.vars
     }
-    
+
     plot.var <- remove.vars(plot.var, all.vars, "plot.var")
-    
+
     if (length(xlab.tc) == 0) {
         xlab.tc <- rep("", length(plot.var))
     } else if (length(xlab.tc) == 1) {
         xlab.tc <- rep(xlab.tc, length(plot.var))
     }
-    
+
     if (length(xlab.diff) == 0) {
         xlab.diff <- rep("", length(plot.var))
     } else if (length(xlab.diff) == 1) {
         xlab.diff <- rep(xlab.diff, length(plot.var))
     }
-    
+
     if (length(ylab.tc) == 0) {
         ylab.tc <- plot.var
     } else if (length(ylab.tc) == 1) {
         ylab.tc <- rep(ylab.tc, length(plot.var))
     }
-    
+
     if (length(ylab.diff) == 0) {
         ylab.diff <- rep("Treatment - Control", length(plot.var))
     } else if (length(ylab.diff) == 1) {
         ylab.diff <- rep(ylab.diff, length(plot.var))
     }
-    
+
     if (length(main.tc) == 0) {
         main.tc <- plot.var
     } else if (length(main.tc) == 1) {
         main.tc <- rep(main.tc, length(plot.var))
     }
-    
+
     if (length(main.diff) == 0) {
         main.diff <- plot.var
     } else if (length(main.diff) == 1) {
         main.diff <- rep(main.diff, length(plot.var))
     }
-    
+
     # xnams <- as.numeric(colnames(test1))
     xnams <- 1:length(time.names)
     tuse <- xnams <= end.post & xnams >= start.pre
@@ -265,7 +265,7 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
     } else {
         stop("end.post is less than end.pre")
     }
-    
+
     if (length(file) == 0) {
         graphics::par(mfrow = c(1, 2), ask = FALSE)
     } else {
@@ -282,13 +282,13 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
                 grDevices::pdf(file = file, width = width, height = height)
             } else if (file.type == "png") {
                 file <- paste(file, ".png", sep = "")
-                grDevices::png(file = file, width = width, height = height, units = "in", 
+                grDevices::png(file = file, width = width, height = height, units = "in",
                   res = 500)
             }
             graphics::par(mfrow = c(3, 2), ask = FALSE)
         }
     }
-    
+
     for (j in 1:length(plot.var)) {
         # use.mu <- which(mu[, plot.var[j]] > 0)
         use.mu <- 1:dim(plotdat.d)[2]
@@ -297,10 +297,10 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
             if (i == 1) {
                 if (sep & length(file) > 0) {
                   if (file.type == "pdf") {
-                    grDevices::pdf(file = paste(file, "_", plot.var[j], "_TC.pdf", sep = ""), 
+                    grDevices::pdf(file = paste(file, "_", plot.var[j], "_TC.pdf", sep = ""),
                       width = width, height = height)
                   } else if (file.type == "png") {
-                    grDevices::png(file = paste(file, "_", plot.var[j], "_TC.png", sep = ""), 
+                    grDevices::png(file = paste(file, "_", plot.var[j], "_TC.png", sep = ""),
                       width = width, height = height, units = "in", res = 500)
                   }
                 }
@@ -330,8 +330,8 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
                 xxnams3 <- xxnams1[tuse & nuse]
                 xxnams1 <- xxnams1[tuse]
                 xlim <- c(min(xxnams1), max(xxnams1))
-                graphics::plot(xxnams1, tmp1[tuse], type = "l", lty = lty[1], col = col[1], 
-                  lwd = lwd[1], xlim = xlim, xlab = xlab.tc[j], ylab = ylab.tc[j], main = main.tc[j], 
+                graphics::plot(xxnams1, tmp1[tuse], type = "l", lty = lty[1], col = col[1],
+                  lwd = lwd[1], xlim = xlim, xlab = xlab.tc[j], ylab = ylab.tc[j], main = main.tc[j],
                   ylim = ylim, xaxt = xaxt)
                 if (length(at) > 0) {
                   at1 <- intersect(at, xxnams1)
@@ -339,10 +339,10 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
                   graphics::axis(1, at = at1, labels = labels1)
                 }
                 graphics::abline(v = iend.pre, lty = 2, col = 2)
-                graphics::lines(xxnams1, tmp2[tuse], type = "l", lty = lty[2], col = col[2], 
+                graphics::lines(xxnams1, tmp2[tuse], type = "l", lty = lty[2], col = col[2],
                   lwd = lwd[2])
                 if (length(all) > 0) {
-                  graphics::lines(xxnams1, tmp3[tuse], type = "l", lty = lty[3], col = col[3], 
+                  graphics::lines(xxnams1, tmp3[tuse], type = "l", lty = lty[3], col = col[3],
                     lwd = lwd[3])
                   leg3 <- paste("All ", all, " (scaled)", sep = "")
                   leg <- c("Treatment", "Synthetic Control", leg3)
@@ -352,7 +352,7 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
                   lty <- lty[1:2]
                   lwd <- lwd[1:2]
                 }
-                graphics::legend(legend.spot, legend = leg, col = col, lty = lty, lwd = lwd, 
+                graphics::legend(legend.spot, legend = leg, col = col, lty = lty, lwd = lwd,
                   cex = 0.8, bty = "n")
                 if (sep & length(file) > 0) {
                   grDevices::dev.off()
@@ -360,24 +360,24 @@ plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NUL
                 if (is.element(i, use.mu)) {
                   if (sep & length(file) > 0) {
                     if (file.type == "pdf") {
-                      grDevices::pdf(file = paste(file, "_", plot.var[j], "_Diff.pdf", sep = ""), 
+                      grDevices::pdf(file = paste(file, "_", plot.var[j], "_Diff.pdf", sep = ""),
                         width = width, height = height)
                     } else if (file.type == "png") {
-                      grDevices::png(file = paste(file, "_", plot.var[j], "_Diff.png", sep = ""), 
+                      grDevices::png(file = paste(file, "_", plot.var[j], "_Diff.png", sep = ""),
                         width = width, height = height, units = "in", res = 500)
                     }
                   }
                   ylim1 <- c(min(tmp[tuse]), max(tmp[tuse]))
                   bigtmp <- plotdat.d[plot.var[j], use.mu, ]
                   bigtmp <- matrix(bigtmp, length(use.mu), dim(plotdat.d)[3])
-                  ylim2a <- 2 * min(apply(bigtmp[, tuse, drop = FALSE], 2, stats::quantile, 
+                  ylim2a <- 2 * min(apply(bigtmp[, tuse, drop = FALSE], 2, stats::quantile,
                     probs = 0.05, na.rm = TRUE))
-                  ylim2b <- 2 * max(apply(bigtmp[, tuse, drop = FALSE], 2, stats::quantile, 
+                  ylim2b <- 2 * max(apply(bigtmp[, tuse, drop = FALSE], 2, stats::quantile,
                     probs = 0.95, na.rm = TRUE))
                   ylim <- c(min(ylim1[1], ylim2a, na.rm = TRUE), max(ylim1[2], ylim2b, na.rm = TRUE))
                   xlim <- c(min(xxnams1), max(xxnams1))
-                  graphics::plot(xxnams2, tmp[tuse & use], type = "l", ylim = ylim, xlim = xlim, 
-                    col = 2, lty = 2, main = main.diff[j], xlab = xlab.diff[j], ylab = ylab.diff[j], 
+                  graphics::plot(xxnams2, tmp[tuse & use], type = "l", ylim = ylim, xlim = xlim,
+                    col = 2, lty = 2, main = main.diff[j], xlab = xlab.diff[j], ylab = ylab.diff[j],
                     xaxt = xaxt)
                   if (length(at) > 0) {
                     at1 <- intersect(at, xxnams1)

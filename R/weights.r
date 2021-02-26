@@ -55,8 +55,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
             if (!is.sol) {
                 use.model <- 3
                 if (printFlag) {
-                  message("Second model is infeasible: Time = ", round(tmp[3], 2), "\n", sep = "", 
-                    appendLF = FALSE)
+                  message("Second model is infeasible: Time = ", round(tmp[3], 2), "\n", 
+                    sep = "", appendLF = FALSE)
                 }
                 if (printFlag) {
                   message("Will use third model.", "\n", sep = "", appendLF = FALSE)
@@ -171,8 +171,8 @@ get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot =
                   back.state1 <- paste("First model was infeasible for ", rep.meth, " group ", 
                     g, cat.back1, "\n", sep = "")
                 } else {
-                  back.state1 <- paste("First model is infeasible for primary weights", cat.back, 
-                    "\n", sep = "")
+                  back.state1 <- paste("First model is infeasible for primary weights", 
+                    cat.back, "\n", sep = "")
                 }
                 if (use.backup) {
                   use.model.i <- 2
@@ -766,8 +766,8 @@ get.w.sub <- function(newdat = NULL, newdat1 = NULL, bigdat = NULL, dum = NULL, 
         condat2 <- condat1
         targets2 <- targets1
         
-        ws <- my.qp(b.init = ws.init, X = t(condat2), a = targets2, Y = t(condat[, keep, drop = FALSE]), 
-            c = targets[keep], qpmeth = qpmeth, printFlag = printFlag)
+        ws <- my.qp(b.init = ws.init, X = t(condat2), a = targets2, Y = t(condat[, keep, 
+            drop = FALSE]), c = targets[keep], qpmeth = qpmeth, printFlag = printFlag)
         tmp2 <- proc.time() - tmp2
     }
     
@@ -835,7 +835,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
         mod.out <- "First"
         ws <- get.w.sub(newdat = newdat, newdat1 = newdat1, end.pre = end.pre, samp = samp, 
             use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, 
-            epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
+            epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, 
+            printFlag = printFlag)
         if (ws$mse > cut.mse | is.na(ws$mse)) {
             if (use.backup) {
                 cat.back <- ".  Using second model."
@@ -859,7 +860,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
         mod.out <- "Second"
         ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a, end.pre = end.pre, samp = samp, 
             use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, 
-            epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
+            epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, 
+            printFlag = printFlag)
         if (ws$mse > cut.mse | is.na(ws$mse)) {
             if (i > 1) {
                 back.state2 <- paste("Second model was infeasible for ", rep.meth, " group ", 
@@ -879,7 +881,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
         mod.out <- "Third"
         ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b, end.pre = end.pre, samp = samp, 
             use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, 
-            epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, printFlag = printFlag)
+            epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var, 
+            printFlag = printFlag)
     }
     if (back.state1 != "" & back.state2 != "") {
         back.state.final <- back.state3
@@ -911,8 +914,8 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
         back.state <- ""
         use.model <- use.model.i
         if (printFlag) {
-            message("Created main weights for synthetic control: Time = ", round(tmp[3], 2), 
-                "\n\n", sep = "", appendLF = FALSE)
+            message("Created main weights for synthetic control: Time = ", round(tmp[3], 
+                2), "\n\n", sep = "", appendLF = FALSE)
         }
         if (printFlag) {
             message("Matching summary for main weights:\n", appendLF = FALSE)
@@ -1178,8 +1181,8 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
     } else if (qpmeth == "ipop") {
         requireNamespace("kernlab", quietly = TRUE)
         
-        all.root <- kernlab::ipop(c = -crossprod(X, a), H = crossprod(X), b = c, A = Y, l = rep(0, 
-            q), r = rep(0, n), u = rep(M, q))
+        all.root <- kernlab::ipop(c = -crossprod(X, a), H = crossprod(X), b = c, A = Y, 
+            l = rep(0, q), r = rep(0, n), u = rep(M, q))
         b <- all.root$alpha
     } else {
         stop("qpmeth not recognized.")
