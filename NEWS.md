@@ -1,3 +1,8 @@
+# microsynth 2.0.32
+
+## Return additional output
+* Removed ret.stats flag that was set to `FALSE` and add it as an argument to the `microsynth()` function. 
+* 
 # microsynth 2.0.31
 
 ## Bug Fixes
