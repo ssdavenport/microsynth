@@ -393,9 +393,18 @@
 #'   \code{Plot.Stats$Difference[,,i+1]} contains the time series of treatment
 #'   minus control for the i^th permutation group.
 #'
-#'   Lastly, \code{info} documents some input parameters for display by
+#'   Next, \code{info} documents some input parameters for display by
 #'   \code{print()}. A summary of weighted matching variables and of results
 #'   can be viewed using \code{\link{summary}}
+#'
+#'   Lastly, if \code{ret.stats} is set to \code{TRUE}, four additional elements
+#'   are returned: \code{stats}, \code{stats1}, \code{stats2} and \code{delta.out}.
+#'   \code{stats} contains elements with the basic statistics that are the same as 
+#'   the main microsynth output: outcomes in treatment, control and percentage change.
+#'   \code{stats1} are the estimates of \code{svyglm()} adjusted by their standard
+#'   errors. \code{stats2} is the percent change in the observed value from each 
+#'   outcome from the hypothetical outcome absent intervention. \code{delta.out} is
+#'   a Taylor series linearization used to approximate the variance of the estimator. 
 #'
 #' @references Abadie A, Diamond A, Hainmueller J (2010). Synthetic control
 #'   methods for comparative case studies: Estimating the effect of California's
@@ -587,7 +596,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
     result.var = TRUE, omnibus.var = result.var, period = 1, scale.var = "Intercept", confidence = 0.9, 
     test = "twosided", perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, 
     use.backup = FALSE, w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04, calfun = "linear", 
-    bounds = c(0, Inf), result.file = NULL, printFlag = TRUE, n.cores = TRUE) {
+    bounds = c(0, Inf), result.file = NULL, printFlag = TRUE, n.cores = TRUE, ret.stats = FALSE) {
     
     # Force to dataframe (e.g., not 'tibble')
     data <- as.data.frame(data)
@@ -1151,7 +1160,6 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
         names(out)[i] <- "Plot.Stats"
         i <- i + 1
     }
-    ret.stats <- FALSE
     if (ret.stats) {
         out[[i]] <- stats
         names(out)[i] <- "stats"
