@@ -133,6 +133,7 @@
 #'
 #' @export
 
+
 plot_microsynth <- function(ms, plot.var = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL, file = NULL, sep = TRUE, plot.first = NULL, legend.spot = "bottomleft", height = NULL, width = NULL, at = NULL, labels = NULL, all = "cases",
     main.tc = NULL, main.diff = NULL, xlab.tc = NULL, xlab.diff = NULL, ylab.tc = NULL, ylab.diff = NULL) {
 

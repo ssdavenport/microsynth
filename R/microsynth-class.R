@@ -56,7 +56,6 @@ print.microsynth <- function(x, ...) {
     cat(paste0("\tConstraints:\t\tExact Match: ", x$info$num.constr[1], "\t\tMinimized Distance: ", x$info$num.constr[2]))
     cat(paste0("\nTime-variant outcomes:", "\n\tExact Match: ", paste0(x$info$match, collapse = ", "), " (", length(x$info$match), ")", "\n\tMinimized Distance: ", paste0(x$info$match.min, collapse = ", "), "(", length(x$info$match.min), ")",
         "\n"))
-
     cat(paste0("Time-invariant covariates:", "\n\tExact Match: ", paste0(x$info$covar, collapse = ", "), " (", length(x$info$covar), ")", "\n\tMinimized Distance: ", paste0(x$info$covar.min, collapse = ", "), "(", length(x$info$covar.min), ")"))
 
     if (!is.null(x$Results)) {

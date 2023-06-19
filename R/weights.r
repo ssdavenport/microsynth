@@ -1,4 +1,5 @@
 
+
 get.w <- function(bigdat, covar.var, covar.var1 = NULL, dum, dum1 = NULL, boot = 0, jack = 0, Int, int.val = 1, trim = NULL, maxit = 500, cal.epsilon = 1e-04, end.pre, bounds = c(-Inf, Inf), calfun = "raking", qpmeth = "LowRankQP", check.feas = FALSE,
     use.backup = TRUE, scale.var = "Intercept", cut.mse = 1, time.names = NULL, keep.int = FALSE, printFlag = TRUE, n.cores = 1) {
     # Primary function used for calculating weights
@@ -783,6 +784,7 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
     Inter.out[!samp & use] <- FALSE
     if (use.model.i == 1) {
         mod.out <- "First"
+
         ws <- get.w.sub(newdat = newdat, newdat1 = newdat1, end.pre = end.pre, samp = samp, use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var,
             printFlag = printFlag)
         if (ws$mse > cut.mse | is.na(ws$mse)) {
@@ -804,6 +806,7 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
     }
     if (use.model.i == 2 & use.backup) {
         mod.out <- "Second"
+
         ws <- get.w.sub(newdat = newdata, newdat1 = newdat1a, end.pre = end.pre, samp = samp, use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var,
             printFlag = printFlag)
         if (ws$mse > cut.mse | is.na(ws$mse)) {
@@ -819,6 +822,7 @@ get.w.sub.par <- function(X, use.model, Int, int.val, colnam, rep.G, n, fin.boot
     }
     if (use.model.i == 3 & use.backup) {
         mod.out <- "Third"
+
         ws <- get.w.sub(newdat = newdatb, newdat1 = newdat1b, end.pre = end.pre, samp = samp, use = use, n = NROW(newdat), maxit = maxit, calfun = calfun, bounds = bounds, epsilon = cal.epsilon, trim = trim, qpmeth = qpmeth, scale.var = scale.var,
             printFlag = printFlag)
     }
@@ -1018,6 +1022,7 @@ get.mse <- function(newdat, newdat1 = NULL, samp, use, ws, ws.init, scale.by) {
     if (length(newdat1) == 0) {
         printstuff <- cbind(Targets = targets, Weighted.Control = colSums((ws) * (condat)), All.scaled = (scale.by) * colSums(alldat))
     } else {
+
         # printstuff <- cbind(Targets = c(targets, targets1), Initial.Weighted.Control = colSums(ws.init * cbind(condat, condat1)), Final.Weighted.Control = colSums(ws * cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat,
         # alldat1)))
         printstuff <- cbind(Targets = c(targets, targets1), Final.Weighted.Control = colSums(ws * cbind(condat, condat1)), All.scaled = scale.by * colSums(cbind(alldat, alldat1)))
@@ -1052,6 +1057,7 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
         rem <- NULL
     }
     leave <- setdiff(1:NROW(Y), rem)
+
 
     # if (qpmeth == 'nleqslv') { requireNamespace('nleqslv', quietly = TRUE) XtX <- crossprod(X) M <- 1/M jacobian <- function(all) { b <- all[1:q] lambda <- all[(q + 1):(q + n)] lowerright <- matrix(0, n, n) upperleft <- diag(1/b) + XtX
     # upperright <- t(Y) lowerleft <- Y out <- rbind(cbind(upperleft, upperright), cbind(lowerleft, lowerright)) return((out)) } f1 <- function(all) { b <- all[1:q] lambda <- all[(q + 1):(q + n)] out1 <- (M * log(b)) + crossprod(X, (X %*% b
