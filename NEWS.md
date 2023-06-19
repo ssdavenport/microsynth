@@ -1,3 +1,8 @@
+# microsynth 2.0.41
+
+## Minor changes
+* Misc doc and bug fixes to resolve bad merged code
+
 # microsynth 2.0.40
 
 ## Minor changes

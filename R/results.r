@@ -2,7 +2,7 @@
 # Main function used to produce basic summary statistics; called by microsynth()
 get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigdat)[[2]], end.pre, period = 1, end.post = 80, file = NULL, sep = TRUE, start.pre = 25, legend.spot = "bottomleft", omnibus.var = result.var, cut.mse = 1, scale.var = "Intercept",
     twosided = FALSE, time.names = NULL) {
-715dff0a47483ed7f9ed1f1
+
     if (length(time.names) == 0) {
         time.names <- as.character(1:dim(bigdat)[3])
     }

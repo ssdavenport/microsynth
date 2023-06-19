@@ -597,12 +597,9 @@
 #'
 #' @export
 
-microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, end.pre = NULL,
-    end.post = NULL, match.out = TRUE, match.covar = TRUE, match.out.min = NULL, match.covar.min = NULL,
-    result.var = TRUE, omnibus.var = result.var, period = 1, scale.var = "Intercept", confidence = 0.9,
-    test = "twosided", perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf, check.feas = FALSE,
-    use.backup = FALSE, w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04, calfun = "linear",
-    bounds = c(0, Inf), result.file = NULL, printFlag = TRUE, n.cores = TRUE, ret.stats = FALSE) {
+microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE, match.out.min = NULL, match.covar.min = NULL, result.var = TRUE, omnibus.var = result.var, period = 1,
+    scale.var = "Intercept", confidence = 0.9, test = "twosided", perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01, maxit = 250, cal.epsilon = 1e-04, calfun = "linear", bounds = c(0,
+        Inf), result.file = NULL, printFlag = TRUE, n.cores = TRUE, ret.stats = FALSE) {
 
     # Force to dataframe (e.g., not 'tibble')
     data <- as.data.frame(data)
