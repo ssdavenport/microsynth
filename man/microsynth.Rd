@@ -387,7 +387,10 @@ treatment is to be matched to synthetic control as closely as possible.  If
 there are no variables specified in \code{match.covar.min} and
 \code{match.out.min}, the function \code{calibrate()} from the \code{survey}
 package is used to calculate weights.  Otherwise, the function
-\code{LowRankQP()} from the package of the same name is used.  In the event
+\code{LowRankQP()} from the package of the same name is used, if it is
+available on the user's machine (it is now in the CRAN archive, so would need
+to be installed by other means). If the \code{LowRankQP} package is unavailable,
+it will use \code{ipop()} from the \code{kernlab} package.  In the event
 that the model specified by \code{match.covar} and \code{match.out} is not
 feasible (i.e., weights do not exist that exactly match treatment and
 synthetic control subject to the given constraints), a less restrictive
