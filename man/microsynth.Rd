@@ -36,7 +36,8 @@ microsynth(
   bounds = c(0, Inf),
   result.file = NULL,
   printFlag = TRUE,
-  n.cores = TRUE
+  n.cores = TRUE,
+  ret.stats = FALSE
 )
 }
 \arguments{
@@ -287,6 +288,9 @@ of \code{end.post}.  If \code{result.file} has a \code{.xlsx} (or
 parallelization is not invoked.  Note that the
 documentation for \code{detectCores} makes clear that it is not failsafe and
 could return a spurious number of available cores.}
+
+\item{ret.stats}{if set to \code{TRUE}, returns four additional elements:
+\code{stats}, \code{stats1}, \code{stats2} and \code{delta.out}.}
 }
 \value{
 \code{microsynth} returns a list with up to five elements: a)
@@ -344,9 +348,18 @@ treatment minus control for the true intervention group;
 \code{Plot.Stats$Difference[,,i+1]} contains the time series of treatment
 minus control for the i^th permutation group.
 
-Lastly, \code{info} documents some input parameters for display by
+Next, \code{info} documents some input parameters for display by
 \code{print()}. A summary of weighted matching variables and of results
 can be viewed using \code{\link{summary}}
+
+Lastly, if \code{ret.stats} is set to \code{TRUE}, four additional elements
+are returned: \code{stats}, \code{stats1}, \code{stats2} and \code{delta.out}.
+\code{stats} contains elements with the basic statistics that are the same as
+the main microsynth output: outcomes in treatment, control and percentage change.
+\code{stats1} are the estimates of \code{svyglm()} adjusted by their standard
+errors. \code{stats2} is the percent change in the observed value from each
+outcome from the hypothetical outcome absent intervention. \code{delta.out} is
+a Taylor series linearization used to approximate the variance of the estimator.
 }
 \description{
 Implements the synthetic control method for micro-level data as outlined in
@@ -387,7 +400,10 @@ treatment is to be matched to synthetic control as closely as possible.  If
 there are no variables specified in \code{match.covar.min} and
 \code{match.out.min}, the function \code{calibrate()} from the \code{survey}
 package is used to calculate weights.  Otherwise, the function
-\code{LowRankQP()} from the package of the same name is used.  In the event
+\code{LowRankQP()} from the package of the same name is used, if it is
+available on the user's machine (it is now in the CRAN archive, so would need
+to be installed by other means). If the \code{LowRankQP} package is unavailable,
+it will use \code{ipop()} from the \code{kernlab} package.  In the event
 that the model specified by \code{match.covar} and \code{match.out} is not
 feasible (i.e., weights do not exist that exactly match treatment and
 synthetic control subject to the given constraints), a less restrictive
