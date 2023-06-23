@@ -1,3 +1,8 @@
+# microsynth 2.0.42
+
+## Minor changes
+* Updated DESCRIPTION for LowRankQP url
+
 # microsynth 2.0.41
 
 ## Minor changes

@@ -1,5 +1,8 @@
 inst/doc
+.gitignore
 .Rproj.user
 .DS_Store
 .microsynth.Rcheck/*
 microsynth.Rcheck/
+.Rhistory
+.Rbuildignore
