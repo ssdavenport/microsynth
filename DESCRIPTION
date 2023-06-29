@@ -1,6 +1,6 @@
 Package: microsynth
 Title: Synthetic Control Methods with Micro- And Meso-Level Data
-Version: 2.0.42
+Version: 2.0.44
 Authors@R: c(
     person("Michael", "Robbins", , "mrobbins@rand.org", role = c("aut", "cre")),
     person("Steven", "Davenport", , "ssdport@gmail.com", role = "aut")
@@ -15,11 +15,16 @@ Description: A generalization of the 'Synth' package that is designed for
 License: GPL-3
 VignetteBuilder: 
     knitr
-Additional_repositories: 
-    https://cran.r-project.org/src/contrib/Archive/LowRankQP/LowRankQP_1.0.5.tar.gz
+Additional_repositories: https://ssdavenport.github.io/drat
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+Suggests: 
+    knitr,
+    LowRankQP,
+    MASS,
+    rmarkdown,
+    xlsx
 Imports: 
     kernlab,
     methods,
@@ -28,12 +33,6 @@ Imports:
     stats,
     survey,
     utils
-Suggests: 
-    knitr,
-    LowRankQP,
-    MASS,
-    rmarkdown,
-    xlsx
 Depends: 
     R (>= 2.10)
 LazyData: true

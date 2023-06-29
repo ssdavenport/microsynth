@@ -13,7 +13,7 @@
 }
 \value{
 The functions \code{print.microsynth} and
-\code{summary.microsynth} display information about the microsynth
+\code{summary.microsynth} displays information about the microsynth
 fit and estimation results, if available.
 
 The output includes two parts: 1) a matching summary that compares
@@ -24,4 +24,32 @@ post-intervention evaluation time.
 }
 \description{
 Summary method for class 'microsynth'.
+}
+\examples{
+
+# Use seattledmi, block-level panel data, to evaluate a crime intervention.
+
+# Declare time-variant (outcome) and time-invariant variables for matching
+cov.var <- c('TotalPop', 'BLACK', 'HISPANIC', 'Males_1521',
+       'HOUSEHOLDS', 'FAMILYHOUS', 'FEMALE_HOU', 'RENTER_HOU', 'VACANT_HOU')
+
+match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
+set.seed(99199) # for reproducibility
+
+# Perform matching and estimation, without permutations or jackknife
+# runtime: < 1 min
+
+\donttest{
+sea1 <- microsynth(seattledmi,
+                  idvar='ID', timevar='time', intvar='Intervention',
+                  start.pre=1, end.pre=12, end.post=16,
+                  match.out=match.out, match.covar=cov.var,
+                  result.var=match.out, omnibus.var=match.out,
+                  test='lower',
+                  n.cores = min(parallel::detectCores(), 2))
+
+# View results
+summary(sea1)
+}
+
 }

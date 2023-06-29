@@ -17,8 +17,7 @@ boot <- NULL
 
 
 
-# Sub-function of get.w(), get.stats1(), get.stats1.sub(); Assign
-# replication groups for jackknife procedures
+# Sub-function of get.w(), get.stats1(), get.stats1.sub(); Assign replication groups for jackknife procedures
 assign.groups <- function(strata = NULL, n = length(strata), G = min(table(strata))) {
 
     states <- names(table(strata))

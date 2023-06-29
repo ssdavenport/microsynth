@@ -1,3 +1,13 @@
+# microsynth 2.0.44
+
+## Minor changes
+* Modest improvements to documentation per CRAN request
+
+# microsynth 2.0.43
+
+## Minor changes
+* Updating to support use of LowRankQP package
+
 # microsynth 2.0.42
 
 ## Minor changes

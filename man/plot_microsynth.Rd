@@ -48,7 +48,7 @@ All time points
 following \code{end.pre} are considered to be post-intervention and the
 behavior of outcomes will be compared between the treatment and synthetic
 control groups across those time periods.
-If \code{end.pre = NULL} the end of the pre-intevention period will be
+If \code{end.pre = NULL} the end of the pre-intervention period will be
 determined from the object \code{ms}.}
 
 \item{end.post}{An integer that gives final time point that will be plotted.
@@ -113,6 +113,11 @@ character string giving the y-axis labels to be used for the second plots
 (that show differences between treatment and control).
 Defaults to \code{'Treatment - Control'}.}
 }
+\value{
+No return value, called for side effects (i.e., to produce plots
+of outcome values and treatment/control differences, with the option to
+write to file).
+}
 \description{
 Using a \code{microsynth} object as an input, this function gives time
 series plots of selected outcomes.
@@ -135,7 +140,7 @@ match.out <- c('i_felony', 'i_misdemea', 'i_drugs', 'any_crime')
 
 set.seed(99199) # for reproducibility
 
-\dontrun{
+\donttest{
 
 # Perform matching and estimation, without permutations or jackknife
 # runtime: <1 min
