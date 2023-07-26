@@ -1,3 +1,8 @@
+# microsynth 2.0.45
+
+## Minor changes
+* Fixed bug using ipop() with check.feas=F
+
 # microsynth 2.0.44
 
 ## Minor changes

@@ -1,6 +1,6 @@
 Package: microsynth
 Title: Synthetic Control Methods with Micro- And Meso-Level Data
-Version: 2.0.44
+Version: 2.0.45
 Authors@R: c(
     person("Michael", "Robbins", , "mrobbins@rand.org", role = c("aut", "cre")),
     person("Steven", "Davenport", , "ssdport@gmail.com", role = "aut")
@@ -19,20 +19,3 @@ Additional_repositories: https://ssdavenport.github.io/drat
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Suggests: 
-    knitr,
-    LowRankQP,
-    MASS,
-    rmarkdown,
-    xlsx
-Imports: 
-    kernlab,
-    methods,
-    parallel,
-    pracma,
-    stats,
-    survey,
-    utils
-Depends: 
-    R (>= 2.10)
-LazyData: true

@@ -1075,7 +1075,7 @@ my.qp <- function(b.init, X, Y, a, c, M = 10000, qpmeth = "LowRankQP", maxit = 1
     } else if (qpmeth == "ipop") {
         requireNamespace("kernlab", quietly = TRUE)
 
-        sup.out <- utils::capture.output(all.root <- kernlab::ipop(H = t(X), c = -crossprod(X, a), A = Y[leave, , drop = FALSE], b = c[leave], u = rep(M, q), verb = 0, maxiter = maxit))
+        sup.out <- utils::capture.output(all.root <- kernlab::ipop(H = t(X), c = -crossprod(X, a), A = Y[leave, , drop = FALSE], b = c[leave], l = rep(0, q), u = rep(M, q), verb = 0, maxiter = maxit))
         # all.root <- kernlab::ipop(c = -crossprod(X, a), H = crossprod(X), b = c, A = Y, l = rep(0, q), r = rep(0, n), u = rep(M, q))
         b <- kernlab::primal(all.root)
     } else {
