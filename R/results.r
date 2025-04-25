@@ -1,7 +1,7 @@
 
 # Main function used to produce basic summary statistics; called by microsynth()
 get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigdat)[[2]], end.pre, period = 1, end.post = 80, file = NULL, sep = TRUE, start.pre = 25, legend.spot = "bottomleft", omnibus.var = result.var,
-    cut.mse = 1, scale.var = "Intercept", twosided = FALSE, time.names = NULL) {
+    cut.mse = 1, scale.var = "Intercept", twosided = FALSE, time.names = NULL, R = NULL, r = NULL) {
 
     if (length(time.names) == 0) {
         time.names <- as.character(1:dim(bigdat)[3])
@@ -88,12 +88,28 @@ get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigda
             }
         }
         if (use.omnibus) {
+            #R <- matrix(c(1,-1),1,2)
+            #r <- c(0)
+            #colnames(R) <- rownames(thetas)
+            #rownames(R) <- names(r) <- "diff"
+            thetas <- stat1[i, omnibus.var]
+            #thetas1 <- stat1[i, omnibus.var]/mu[i, omnibus.var]
+            thetas1 <- stat2[i, omnibus.var]
+            Sigma <- diag(length(thetas))
+            thetas <- R %*% thetas - r
+            thetas1 <- R %*% thetas1 - r
+            Sigma <- R %*% Sigma %*% t(R)
             if (!twosided) {
-                stat1[i, NCOL(stat1)] <- sum(stat1[i, omnibus.var])
-                stat2[i, NCOL(stat2)] <- sum(stat1[i, omnibus.var])/sum(mu[i, omnibus.var])
+                #stat1[i, NCOL(stat1)] <- sum(stat1[i, omnibus.var])
+                #stat2[i, NCOL(stat2)] <- sum(stat1[i, omnibus.var])/sum(mu[i, omnibus.var])
+                a <- as.matrix(diag(Sigma)^-0.5)
+                stat1[i, NCOL(stat1)] <- crossprod(a, thetas)/sqrt(t(a) %*% Sigma %*% a)
+                stat2[i, NCOL(stat1)] <- crossprod(a, thetas1)/sqrt(t(a) %*% Sigma %*% a)
             } else {
-                stat1[i, NCOL(stat1)] <- sum((stat1[i, omnibus.var])^2)
-                stat2[i, NCOL(stat2)] <- sum((stat1[i, omnibus.var]/mu[i, omnibus.var])^2)
+                #stat1[i, NCOL(stat1)] <- sum((stat1[i, omnibus.var])^2)
+                #stat2[i, NCOL(stat2)] <- sum((stat1[i, omnibus.var]/mu[i, omnibus.var])^2)
+                stat1[i, NCOL(stat1)] <- crossprod(thetas, solve(Sigma)) %*% thetas
+                stat2[i, NCOL(stat1)] <- crossprod(thetas1, solve(Sigma)) %*% thetas1
             }
         }
     }
@@ -104,9 +120,11 @@ get.stats <- function(bigdat, w, inter, keep.groups, result.var = dimnames(bigda
 
 
 # Main function used to produce complex (survey) statistics; called by microsynth()
-get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period = 1, end.post = 80, omnibus.var = NULL, G = 25, twosided = FALSE, printFlag = TRUE, n.cores = 1) {
+get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period = 1, end.post = 80, omnibus.var = NULL, G = 25, twosided = FALSE, printFlag = TRUE, n.cores = 1, R = NULL, r = NULL) {
     use.omnibus <- length(omnibus.var) > 0
     dof <- NA
+    reps <- NULL
+    keep.var <- omnibus.var
 
     jack <- sum(grepl("Jack", colnames(w)))
     use.jack <- as.numeric(jack > 0)
@@ -279,6 +297,11 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
                   }
                 }
                 omnibus.var <- omnibus.var[keep]
+                if(NCOL(R) == NROW(R)) {
+                  R <- R[keep, keep, drop = FALSE]
+                } else {
+                  R <- R[, keep, drop = FALSE]
+                }
             }
             test.tmp <- data.frame(test[, omnibus.var, drop = FALSE], treat = as.numeric(treat), time = factor(time))
             form2 <- paste(omnibus.var, sep = "", collapse = ",")
@@ -296,14 +319,21 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
             if (!is.jack) {
                 for (g in 1:G.tmp) {
                   allmod <- stats::lm(form1, data = test.tmp, weights = w.tmp, subset = which(reps != g))
-                  coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
+                  if (isTRUE(all.equal(R, diag(length(omnibus.var)))) & isTRUE(all.equal(r, rep(0, length(omnibus.var))))) {
+                      coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
+                  } else {
+                      coef.g <- as.matrix(stats::coef(allmod))
+                      coefs[, g] <- coef.g["treat", , drop=FALSE]/colMeans(coef.g[rownames(coef.g) != "treat", , drop=FALSE])
+                  }
                 }
             } else {
                 for (g in 1:G.tmp) {
                   test.tmp.tmp <- test.tmp[!is.na(inter.jack[, g]), ]
                   w.jack.tmp.tmp <- w.jack.tmp[!is.na(inter.jack[, g]), g]
                   allmod <- stats::lm(form1, data = test.tmp.tmp, weights = w.jack.tmp.tmp)
-                  coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
+                  coef.g <- as.matrix(stats::coef(allmod))
+                  coefs[, g] <- coef.g["treat", , drop=FALSE]/colMeans(coef.g[rownames(coef.g) != "treat", , drop=FALSE])
+                  #coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
                 }
             }
             thetas <- rowMeans(coefs)
@@ -323,11 +353,22 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
             }
             thetas <- thetas[keep.var, , drop = FALSE]
             Sigma <- Sigma[keep.var, keep.var, drop = FALSE]
+            #R <- matrix(c(1,-1),1,2)
+            #r <- c(0)
+            #colnames(R) <- rownames(thetas)
+            #rownames(R) <- names(r) <- "diff"
+            dof <- length(r)
+            thetas <- R %*% thetas - r
+            Sigma <- R %*% Sigma %*% t(R)
             if (!twosided) {
                 a <- as.matrix(diag(Sigma)^-0.5)
                 stat1[i, NCOL(stat1)] <- crossprod(a, thetas)/sqrt(t(a) %*% Sigma %*% a)
             } else {
                 stat1[i, NCOL(stat1)] <- crossprod(thetas, solve(Sigma)) %*% thetas
+            }
+            if (length(r) == 1) {
+                stat2[i, NCOL(stat2)] <- thetas
+                delta.out[i, NCOL(stat2)] <- Sigma
             }
         }
         tmp <- proc.time() - tmp
@@ -409,8 +450,8 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
         requireNamespace("parallel", quietly = TRUE)
         cl <- parallel::makeCluster(n.cores)
 
-        list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):tot.col, get.stats1.sub, G, use.jack, boot.upper, boot.lower, inter, w, end.post, end.pre, period, bigdat, all.var, use.omnibus, omnibus.var, twosided,
-            test, use.test, time, time.tmp1, reps, keep.var, twosided, printFlag = FALSE, tmp.boot, all.nams1 = colnames(delta.out))
+        list.out <- parallel::parLapply(cl = cl, X = (for.max + 1):tot.col, get.stats1.sub, G, use.jack, boot.upper, boot.lower, inter, inter.jack, w, w.jack, end.post, end.pre, period, bigdat, all.var, use.omnibus, omnibus.var, twosided,
+            test, use.test, time, time.tmp1, reps, keep.var, twosided, printFlag = FALSE, tmp.boot, all.nams1 = colnames(delta.out), R = R, r = r)
 
         parallel::stopCluster(cl)
 
@@ -433,8 +474,8 @@ get.stats1 <- function(bigdat, w, inter, keep.groups, all.var, end.pre, period =
 
 
 # Sub-function of get.stats1()
-get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end.post, end.pre, period, bigdat, all.var, use.omnibus, omnibus.var, two.sided, test, use.test, time, time.tmp1, reps, keep.var, twosided,
-    printFlag, tmp.boot, all.nams1) {
+get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, inter.jack, w, w.jack, end.post, end.pre, period, bigdat, all.var, use.omnibus, omnibus.var, two.sided, test, use.test, time, time.tmp1, reps, keep.var, twosided,
+    printFlag, tmp.boot, all.nams1, R = NULL, r = NULL) {
 
     i <- X
     G.tmp <- G
@@ -570,9 +611,9 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
         form2 <- paste("cbind(", form2, ")", sep = "")
         form1 <- paste(form2, form1, sep = "")
         form1 <- stats::formula(form1)
-        if (i == 1) {
-            reps <- assign.groups(as.numeric(treat), G = G.tmp)
-        }
+        #if (i == 1) {
+        #    reps <- assign.groups(as.numeric(treat), G = G.tmp)
+        #}
         coefs <- matrix(NA, length(omnibus.var), G.tmp)
         rownames(coefs) <- omnibus.var
         colnames(coefs) <- 1:G.tmp
@@ -581,14 +622,21 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
         if (!is.jack) {
             for (g in 1:G.tmp) {
                 allmod <- stats::lm(form1, data = test.tmp, weights = w.tmp, subset = which(reps != g))
-                coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
+                if (isTRUE(all.equal(R, diag(length(omnibus.var)))) & isTRUE(all.equal(r, rep(0, length(omnibus.var))))) {
+                    coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
+                } else {
+                    coef.g <- as.matrix(stats::coef(allmod))
+                    coefs[, g] <- coef.g["treat", , drop=FALSE]/colMeans(coef.g[rownames(coef.g) != "treat", , drop=FALSE])
+                }
             }
         } else {
             for (g in 1:G.tmp) {
                 test.tmp.tmp <- test.tmp[!is.na(inter.jack[, g]), ]
                 w.jack.tmp.tmp <- w.jack.tmp[!is.na(inter.jack[, g]), g]
                 allmod <- stats::lm(form1, data = test.tmp.tmp, weights = w.jack.tmp.tmp)
-                coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
+                coef.g <- as.matrix(stats::coef(allmod))
+                coefs[, g] <- coef.g["treat", , drop=FALSE]/colMeans(coef.g[rownames(coef.g) != "treat", , drop=FALSE])
+                #coefs[, g] <- as.matrix(stats::coef(allmod))["treat", ]
             }
         }
         thetas <- rowMeans(coefs)
@@ -608,11 +656,21 @@ get.stats1.sub <- function(X, G, use.jack, boot.upper, boot.lower, inter, w, end
         }
         thetas <- thetas[keep.var, , drop = FALSE]
         Sigma <- Sigma[keep.var, keep.var, drop = FALSE]
+        #R <- matrix(c(1,-1),1,2)
+        #r <- c(0)
+        #colnames(R) <- rownames(thetas)
+        #rownames(R) <- names(r) <- "diff"
+        thetas <- R %*% thetas - r
+        Sigma <- R %*% Sigma %*% t(R)
         if (!twosided) {
             a <- as.matrix(diag(Sigma)^-0.5)
             stat1.out[length(stat1.out)] <- crossprod(a, thetas)/sqrt(t(a) %*% Sigma %*% a)
         } else {
             stat1.out[length(stat1.out)] <- crossprod(thetas, solve(Sigma)) %*% thetas
+        }
+        if (length(r) == 1) {
+            stat2.out[length(stat2.out)] <- thetas
+            delta.out.out[length(delta.out.out)] <- Sigma
         }
     }
     tmp <- proc.time() - tmp
@@ -696,12 +754,12 @@ make.quarter3 <- function(dat, period = 1, end.pre) {
     p <- dim(dat)[2]
     q <- dim(dat)[3]
     add.back <- min(as.numeric(dimnames(dat)[[3]]))
-
+    
     remain <- end.pre%%period
     newcol <- (q - remain)%/%period
     times <- period * (1:newcol) + remain
     times <- times + add.back - 1
-
+    
     out <- array(NA, c(n, p, newcol))
     dimnames(out) <- list(dimnames(dat)[[1]], dimnames(dat)[[2]], times)
     start <- remain + 1
@@ -725,7 +783,7 @@ make.quarter2 <- function(dat, tre, w, period = 1, end.pre) {
     newcol <- (q - remain)%/%period
     times <- period * (1:newcol) + remain
     times <- times + add.back - 1
-
+    
     out <- matrix(NA, n * length(times), p + 3)
     colnames(out) <- c("Time", "Treatment", "w", dimnames(dat)[[2]])
     start <- remain + 1
@@ -739,7 +797,7 @@ make.quarter2 <- function(dat, tre, w, period = 1, end.pre) {
         out[here, 4:NCOL(out)] <- apply(tmp, c(1, 2), sum)
         start <- stop + 1
     }
-
+    
     return(out)
 }
 

@@ -1,39 +1,8 @@
-# microsynth 2.0.45
-
-## Minor changes
-* Fixed bug using ipop() with check.feas=F
-
-# microsynth 2.0.44
-
-## Minor changes
-* Modest improvements to documentation per CRAN request
-
-# microsynth 2.0.43
-
-## Minor changes
-* Updating to support use of LowRankQP package
-
-# microsynth 2.0.42
-
-## Minor changes
-* Updated DESCRIPTION for LowRankQP url
-
-# microsynth 2.0.41
-
-## Minor changes
-* Misc doc and bug fixes to resolve bad merged code
-
-# microsynth 2.0.40
-
-## Minor changes
-* Shifted LowRankQP to optional package, as it was archived by CRAN.
-
-=======
 # microsynth 2.0.32
 
 ## Return additional output
 * Removed ret.stats flag that was set to `FALSE` and add it as an argument to the `microsynth()` function. 
-
+* 
 # microsynth 2.0.31
 
 ## Bug Fixes

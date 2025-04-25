@@ -40,10 +40,7 @@
 #' there are no variables specified in \code{match.covar.min} and
 #' \code{match.out.min}, the function \code{calibrate()} from the \code{survey}
 #' package is used to calculate weights.  Otherwise, the function
-#' \code{LowRankQP()} from the package of the same name is used, if it is
-#' available on the user's machine (it is now in the CRAN archive, so would need
-#' to be installed by other means). If the \code{LowRankQP} package is unavailable,
-#' it will use \code{ipop()} from the \code{kernlab} package.  In the event
+#' \code{LowRankQP()} from the package of the same name is used.  In the event
 #' that the model specified by \code{match.covar} and \code{match.out} is not
 #' feasible (i.e., weights do not exist that exactly match treatment and
 #' synthetic control subject to the given constraints), a less restrictive
@@ -247,6 +244,24 @@
 #'   \code{omnibus.var = NULL} or \code{omnibus = FALSE}, no omnibus statistic
 #'   is calculated.  \code{omnibus.var} should not contain elements not in
 #'   \code{result.var}.
+#'   
+#' @param R,r Applicable only if \code{omnibus.var} is non-\code{NULL},
+#'   in which case the omnibus test is framed as a Wald test of 
+#'   \eqn{H_0}: \eqn{Rd = r}, where \eqn{d} is a vector of
+#'   the length of \code{omnibus.var} indicating the treatment effect (as a 
+#'   percent change) on the respective outcomes. \code{R} should be a matrix with 
+#'   the columns corresponding to the elements of \code{omnibus.var} and the 
+#'   number of rows less than or equal to the length of \code{omnibus.var}. 
+#'   \code{r} is a vector with length equal to the number of rows of \code{R}.  
+#'   If \code{test = 'twosided'}, \code{test = 'lower'}, or \code{test = 'upper'}, 
+#'   the procedure evaulates \eqn{H_0} against \eqn{H_1}: \eqn{Rd \neq r}, 
+#'   \eqn{Rd < r}, or \eqn{Rd > r}, respectively.  \code{R} defaults 
+#'   to an identity matrix, and \code{r} defaults to a vector of zeros. If 
+#'   \code{length(r) = 1}, a confidence interval on \eqn{Rd} is provided in the
+#'   results. As an example, if \code{omnibus.var} has two elements, to test to 
+#'   see if the treatment effects (as a percent change) for those outcomes 
+#'   differ from one another, set \code{R = matrix(c(1, -1), 1, 2)} and 
+#'   \code{r = 0}.
 #'
 #' @param period An integer that gives the granularity of the data that will be
 #'   used for plotting and compiling results.  If \code{match.out} and
@@ -329,9 +344,10 @@
 #'   parallelization is not invoked.  Note that the
 #'   documentation for \code{detectCores} makes clear that it is not failsafe and
 #'   could return a spurious number of available cores.
-#'
-#' @param ret.stats if set to \code{TRUE}, returns four additional elements:
-#'   \code{stats}, \code{stats1}, \code{stats2} and \code{delta.out}.
+#' 
+#' @param ret.stats If \code{TRUE}, four additional elements are returned: 
+#'   \code{stats}, \code{stats1}, \code{stats2} and \code{delta.out}. See the output 
+#'   descriptions for details.
 #'
 #' @details \code{microsynth} calculates weights using
 #'   \code{survey::calibrate()} from the \code{survey} package in circumstances
@@ -405,12 +421,12 @@
 #'
 #'   Lastly, if \code{ret.stats} is set to \code{TRUE}, four additional elements
 #'   are returned: \code{stats}, \code{stats1}, \code{stats2} and \code{delta.out}.
-#'   \code{stats} contains elements with the basic statistics that are the same as
+#'   \code{stats} contains elements with the basic statistics that are the same as 
 #'   the main microsynth output: outcomes in treatment, control and percentage change.
 #'   \code{stats1} are the estimates of \code{svyglm()} adjusted by their standard
-#'   errors. \code{stats2} is the percent change in the observed value from each
+#'   errors. \code{stats2} is the percent change in the observed value from each 
 #'   outcome from the hypothetical outcome absent intervention. \code{delta.out} is
-#'   a Taylor series linearization used to approximate the variance of the estimator.
+#'   a Taylor series linearization used to approximate the variance of the estimator. 
 #'
 #' @references Abadie A, Diamond A, Hainmueller J (2010). Synthetic control
 #'   methods for comparative case studies: Estimating the effect of California's
@@ -457,7 +473,7 @@
 #' # Perform matching and estimation, without permutations or jackknife
 #' # runtime: < 1 min
 #'
-#' \donttest{
+#' \dontrun{
 #' sea1 <- microsynth(seattledmi,
 #'                   idvar='ID', timevar='time', intvar='Intervention',
 #'                   start.pre=1, end.pre=12, end.post=16,
@@ -469,9 +485,8 @@
 #' # View results
 #' summary(sea1)
 #' plot_microsynth(sea1)
-#' }
 #'
-#' \dontrun{
+#'
 #' # Repeat matching and estimation, with permutations and jackknife
 #' # Set permutations and jack-knife to very few groups (2) for
 #' # quick demonstration only.
@@ -599,7 +614,7 @@
 #' @export
 
 microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, end.pre = NULL, end.post = NULL, match.out = TRUE, match.covar = TRUE, match.out.min = NULL, match.covar.min = NULL, result.var = TRUE,
-    omnibus.var = result.var, period = 1, scale.var = "Intercept", confidence = 0.9, test = "twosided", perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01,
+    omnibus.var = result.var, R = NULL, r = NULL, period = 1, scale.var = "Intercept", confidence = 0.9, test = "twosided", perm = 0, jack = 0, use.survey = TRUE, cut.mse = Inf, check.feas = FALSE, use.backup = FALSE, w = NULL, max.mse = 0.01,
     maxit = 250, cal.epsilon = 1e-04, calfun = "linear", bounds = c(0, Inf), result.file = NULL, printFlag = TRUE, n.cores = TRUE, ret.stats = FALSE) {
 
     # Force to dataframe (e.g., not 'tibble')
@@ -607,6 +622,23 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
 
     # Determine the number of cores to be used. CRAN tops at 2.
     n.cores <- msCluster(n.cores)
+
+    # Evaluate input R vs. omnibus.var
+    if (length(omnibus.var) == 0 & (length(R) > 0 | length(r) > 0)) {
+        if (printFlag) {
+            message("WARNING: Although R and/or r are non-NULL, omnibus.var is NULL so no omnibus statistics is calculated.\n", sep = "", appendLF = FALSE)
+        }
+    }
+    if (is.vector(R)) {
+        R <- matrix(R, ncol = length(R), dimnames = list(NULL, names(R)))
+    }
+    if (length(R) > 0 & length(omnibus.var) == 0) {
+        if(length(colnames(R)) == 0) {
+            stop("R must have column names if omnibus.var is undefined.")
+        } else {
+            omnibus.var <- colnames(R)
+        }
+    }
 
     # Declare metrics for print() call (1 of 3)
     info <- list()
@@ -845,6 +877,30 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
     if (length(setdiff(omnibus.var, result.var)) > 0) {
         stop("omnibus.var contains elments not in results.var.")
     }
+    if (length(omnibus.var) > 0) {
+        if (length(R) == 0) {
+            R <- diag(length(omnibus.var))
+            colnames(R) <- omnibus.var
+        } else if (NCOL(R) != length(omnibus.var)) {
+            stop("The number of columns of R must equal the length of omnibus.var")
+        } else {
+            if(length(colnames(R)) == 0) {
+                colnames(R) = omnibus.var
+            } else if (length(setdiff(colnames(R), omnibus.var)) > 0) {
+                stop("R contains columns that are not in omnibus.var")
+            } else if (!identical(colnames(R), omnibus.var)) {
+                R <- R[, omnibus.var, drop = FALSE]
+            }
+        }
+        if (sum(R != 0) <= 1) {
+            stop("R should contain at least 2 non-zero elements.")
+        }
+        if (length(r) == 0) {
+            r <- rep(0, NROW(R))
+        } else if (length(r) != NROW(R)) {
+            stop("The length of r must equal the number of rows of R.")
+        }
+    }
     int.num <- 1
     dum <- max(colSums(Intervention == 1))
     dum <- min(NROW(Intervention) - dum, dum)
@@ -925,7 +981,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
             message("Calculating weights...", "\n", appendLF = FALSE)
         }
         w <- get.w(data, match.covar, match.covar.min, match.out, match.out.min, boot = perm, jack = jack, Int = Intervention[, as.character(end.pre)], int.val = int.num, trim = NULL, end.pre = end.pre, cal.epsilon = cal.epsilon,
-            maxit = maxit, bounds = bounds, calfun = calfun, check.feas = check.feas, scale.var = scale.var, cut.mse = max.mse, use.backup = use.backup, time.names = time.names, printFlag = printFlag, n.cores = n.cores)
+            maxit = maxit, bounds = bounds, calfun = calfun, check.feas = check.feas, scale.var = scale.var, cut.mse = max.mse, cut.mse1 = cut.mse, use.backup = use.backup, time.names = time.names, printFlag = printFlag, n.cores = n.cores)
         tmp <- proc.time() - tmp
         if (printFlag) {
             message("Calculation of weights complete: Total time = ", round(tmp[3], 2), "\n\n", sep = "", appendLF = FALSE)
@@ -979,7 +1035,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
 
             # Calculate basic statistics
             stats[[i]] <- get.stats(data, w$Weights, w$Intervention, w$keep.groups, result.var, end.pre = end.pre, period = period, end.post = end.post[i], omnibus.var = omnibus.var, start.pre = start.pre, cut.mse = cut.mse,
-                twosided = twosided, time.names = time.names)
+                twosided = twosided, time.names = time.names, R = R, r = r)
             if (i == which.max(end.post)) {
                 plot.stats <- stats[[i]][[5]]
             }
@@ -1005,7 +1061,7 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
 
                 # Calculate complex (i.e., survey) statistics
                 stats.tmp <- get.stats1(data, w.tmp, Inter.tmp, mse.tmp, result.var, end.pre = end.pre, period = period, end.post = end.post[i], omnibus.var = omnibus.var, twosided = twosided, printFlag = printFlag,
-                  n.cores = n.cores)
+                  n.cores = n.cores, R = R, r = r)
                 stats1[[i]] <- stats.tmp[[1]]
                 stats2[[i]] <- stats.tmp[[2]]
                 delta.out[[i]] <- stats.tmp[[3]]
@@ -1018,6 +1074,10 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
                 Pct.Chng <- cbind(Pct.Chng = stats[[i]][[2]][1, ])
                 if (is.element("Omnibus", rownames(Pct.Chng))) {
                   Pct.Chng["Omnibus", ] <- NA
+                  if(length(r) == 1) {
+                    a <- as.matrix(stats[[i]][[2]][1, colnames(R)])
+                    Pct.Chng["Omnibus", ] <- R %*% a
+                  }
                 }
                 Trt <- cbind(Trt = stats[[i]][[3]][1, ])
                 Con <- cbind(Con = stats[[i]][[4]][1, ])
@@ -1061,15 +1121,16 @@ microsynth <- function(data, idvar, intvar, timevar = NULL, start.pre = NULL, en
                 if (perm > 0 & use.survey) {
                   perm.stats1 <- get.pval(list(synth.stats1), ret.na = TRUE)
                   dum <- perm.stats1[[2]]
-                  perm.stats1 <- perm.stats1[[1]]
+                  perm.stats1 <- (perm.stats1[[1]])[c(1), , drop = FALSE]
                   if (test == "lower") {
-                    Perm.pVal <- cbind(Perm.pVal = c(perm.stats1))
+                    Perm.pVal <- cbind(Perm.pVal = c(perm.stats1[1, ]))
                   } else if (test == "upper") {
-                    Perm.pVal <- cbind(Perm.pVal = 1 - c(perm.stats1))
+                    Perm.pVal <- cbind(Perm.pVal = 1 - c(perm.stats1[1, ]))
                   } else {
-                    Perm.pVal <- cbind(Perm.pVal = 2 * apply(cbind(c(perm.stats1), 1 - c(perm.stats1)), 1, min))
+                    #Perm.pVal <- cbind(Perm.pVal = 2 * apply(cbind(c(perm.stats1), 1 - c(perm.stats1)), 1, min))
+                    Perm.pVal <- cbind(Perm.pVal = 2 * pmin(c(perm.stats1[1, ]), 1 - c(perm.stats1[1, ])))
                     if (is.element("Omnibus", rownames(Perm.pVal))) {
-                      Perm.pVal["Omnibus", ] <- 1 - c(perm.stats1)["Omnibus"]
+                      Perm.pVal["Omnibus", ] <- 1 - c(perm.stats1[1,])["Omnibus"]
                     }
                   }
                   Perm.CI <- make.ci2(synth.stats2, synth.delta.out, alpha = 1 - confidence)
@@ -1167,7 +1228,7 @@ get.pval <- function(stats, p = NCOL(stats[[1]]), k = length(stats), ret.na = FA
     out <- matrix(NA, k, p)
     colnames(out) <- nams
     rownames(out) <- paste("Stat", 1:k, sep = "")
-
+    
     dum <- list()
     for (i in 1:k) {
         synth <- stats[[i]][1, ]
@@ -1186,7 +1247,8 @@ get.pval <- function(stats, p = NCOL(stats[[1]]), k = length(stats), ret.na = FA
 
 
 
-# Sub-function of microsynth(); reshape data to make 3D array with other necessary outputs
+# Sub-function of microsynth(); reshape data to make 3D array with other necessary
+# outputs
 newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = NULL) {
     times = names(table(data[, timevar]))
     if (length(v.names) == 0) {
@@ -1197,36 +1259,40 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
     keep.nams <- c(idvar, timevar, intvar, nv.names, v.names)
     keep.nams <- names(table(keep.nams))
     data <- data[, keep.nams]
-
+    
     if (length(times) > 1) {
-        newdat <- stats::reshape(data, timevar = timevar, idvar = idvar, v.names = v.names1, direction = "wide")
+        newdat <- stats::reshape(data, timevar = timevar, idvar = idvar, v.names = v.names1, 
+            direction = "wide")
     } else if (length(times) == 1) {
         newdat <- data[, colnames(data) != timevar]
         append.cols <- setdiff(colnames(newdat), c(idvar, nv.names))
         append.cols <- which(is.element(colnames(newdat), append.cols))
-        colnames(newdat)[append.cols] <- paste(colnames(newdat)[append.cols], ".", times, sep = "")
+        colnames(newdat)[append.cols] <- paste(colnames(newdat)[append.cols], ".", times, 
+            sep = "")
     }
     intcols <- substr(colnames(newdat), 1, nchar(intvar)) == intvar
-    intcols <- intcols & (substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 1) == "" | substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 1) == ".")
+    intcols <- intcols & (substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 1) == 
+        "" | substr(colnames(newdat), nchar(intvar) + 1, nchar(intvar) + 1) == ".")
     intcols <- colnames(newdat)[intcols]
     int <- newdat[, intcols, drop = FALSE]
     colnames(int) <- gsub(paste(intvar, ".", sep = ""), "", colnames(int))
     intcols1 <- as.numeric(colnames(int))
     int <- int[, order(intcols1, decreasing = FALSE), drop = FALSE]
     rownames(int) <- newdat[, idvar]
-
+    
     v.names <- setdiff(v.names, intvar)
     nv.names <- setdiff(nv.names, intvar)
-
+    
     newdat <- newdat[, setdiff(colnames(newdat), intcols)]
-
+    
     out <- array(NA, c(NROW(newdat), length(nv.names) + length(v.names), NCOL(int)))
     dimnames(out) <- list(newdat[, idvar], c(nv.names, v.names), colnames(int))
-
+    
     for (i in 1:dim(out)[2]) {
         nam.tmp <- dimnames(out)[[2]][i]
         here <- substr(colnames(newdat), 1, nchar(nam.tmp)) == nam.tmp
-        here <- here & (substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == "." | substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == "")
+        here <- here & (substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == 
+            "." | substr(colnames(newdat), nchar(nam.tmp) + 1, nchar(nam.tmp) + 1) == "")
         tmp <- newdat[, here, drop = FALSE]
         if (sum(here, na.rm = TRUE) > 1) {
             colnames(tmp) <- gsub(paste(dimnames(out)[[2]][i], ".", sep = ""), "", colnames(tmp))
@@ -1235,7 +1301,7 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
         }
         out[, i, ] <- as.matrix(tmp)
     }
-
+    
     nv.names <- NULL
     if (dim(out)[3] > 1) {
         for (i in 1:dim(out)[2]) {
@@ -1248,9 +1314,9 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
     } else {
         nv.names <- dimnames(out)[[2]]
     }
-
+    
     v.names <- setdiff(dimnames(out)[[2]], nv.names)
-
+    
     return(list(bigdat = out, Intervention = int, nv.names = nv.names, v.names = v.names))
 }
 
@@ -1259,12 +1325,13 @@ newreshape <- function(data, timevar, idvar, intvar, v.names = NULL, nv.names = 
 # Sub-function of microsynth(); create results file (e.g., as CSV or XLSX)
 out.results <- function(results, end.pre, end.post = names(results), file = NULL, printFlag = TRUE) {
     use.xlsx <- length(end.post) > 1
-
+    
     if (substr(file, nchar(file) - 3, nchar(file)) == ".csv") {
         file <- substr(file, 1, nchar(file) - 4)
         if (use.xlsx) {
             if (printFlag) {
-                message("WARNING: Cannot return .csv file since length(end.post) > 1.  Returning .xlsx file instead.\n", sep = "", appendLF = FALSE)
+                message("WARNING: Cannot return .csv file since length(end.post) > 1.  Returning .xlsx file instead.\n", 
+                  sep = "", appendLF = FALSE)
             }
         }
     } else if (substr(file, nchar(file) - 3, nchar(file)) == ".xls") {
@@ -1274,12 +1341,12 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
         file <- substr(file, 1, nchar(file) - 5)
         use.xlsx <- TRUE
     }
-
+    
     if (use.xlsx) {
         xlsx.loaded <- is.element("xlsx", loadedNamespaces())
         file <- paste(file, ".xlsx", sep = "")
         if (!requireNamespace("xlsx", quietly = TRUE)) {
-            stop("The xlsx package is needed when saving output with multiple post-intervention times, or when the file name specifies a .xlsx extension. Please install xlsx, or if you'd like to write to .csv, only select a single post-intervention time and append the filename appropriately.",
+            stop("The xlsx package is needed when saving output with multiple post-intervention times, or when the file name specifies a .xlsx extension. Please install xlsx, or if you'd like to write to .csv, only select a single post-intervention time and append the filename appropriately.", 
                 call. = FALSE)
         }
         if (!xlsx.loaded) {
@@ -1290,16 +1357,17 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
         cspValColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0000"))
         csOtherColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.00"))
         csPercColumn <- xlsx::CellStyle(wb, dataFormat = xlsx::DataFormat("0.0%"))
-
+        
         for (i in 1:length(end.post)) {
             out <- results[[i]]
             keep <- rowMeans(is.na(out)) < 1
             out <- out[keep, , drop = FALSE]
-
-            is.pct <- grepl("pct", tolower(colnames(out))) | grepl("lower", tolower(colnames(out))) | grepl("upper", tolower(colnames(out)))
+            
+            is.pct <- grepl("pct", tolower(colnames(out))) | grepl("lower", tolower(colnames(out))) | 
+                grepl("upper", tolower(colnames(out)))
             is.pval <- grepl("pval", tolower(colnames(out)))
             is.oth <- !is.pct & !is.pval
-
+            
             pct.list <- rep(list(csPercColumn), sum(is.pct))
             names(pct.list) <- as.character(which(is.pct))
             pval.list <- rep(list(cspValColumn), sum(is.pval))
@@ -1314,28 +1382,29 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
             }
             p <- NCOL(out)
             n <- NROW(out)
-
+            
             nam <- paste("Max time = ", end.post[i], sep = "")
             sheet <- xlsx::createSheet(wb, sheetName = nam)
             xlsx::setColumnWidth(sheet, colIndex = 1:(p + 1), colWidth = 13)
             xlsx::addDataFrame(out, sheet, colStyle = c(pct.list, pval.list, oth.list))
-
+            
             bord1 <- xlsx::Border(color = "black", position = "BOTTOM", pen = "BORDER_THIN")
-            cb <- xlsx::CellBlock(sheet, startRow = 1, startColumn = 1, noRows = (n + 1), noColumns = (p + 1), create = FALSE)
+            cb <- xlsx::CellBlock(sheet, startRow = 1, startColumn = 1, noRows = (n + 1), 
+                noColumns = (p + 1), create = FALSE)
             xlsx::CB.setBorder(cb, border = bord1, rowIndex = 1, colIndex = 1:(p + 1))
-
+            
             font <- xlsx::Font(wb, isBold = TRUE)
             xlsx::CB.setFont(cb, font = font, rowIndex = 1, colIndex = 2:(p + 1))
-
+            
         }
-
+        
         xlsx::saveWorkbook(wb, file = file)
         rm(wb)
     } else {
         file <- paste(file, ".csv", sep = "")
         utils::write.csv(results[[1]], file, na = "")
     }
-
+    
 }
 
 
@@ -1343,10 +1412,10 @@ out.results <- function(results, end.pre, end.post = names(results), file = NULL
 # Sub-function of microsynth(); calculate confidence intervals
 make.ci <- function(means, ses, alpha = 0.05) {
     z.score <- stats::qnorm(1 - alpha/2)
-
+    
     lower <- means - ses * z.score
     upper <- means + ses * z.score
-
+    
     out <- cbind(exp(lower) - 1, exp(upper) - 1)
     rownames(out) <- names(means)
     colnames(out) <- c("Lower", "Upper")
@@ -1359,14 +1428,16 @@ make.ci <- function(means, ses, alpha = 0.05) {
 make.ci2 <- function(stats, delta.out, alpha = 0.05) {
     means <- stats[1, ]
     sds <- sqrt(delta.out[1, ])
-
+    
     z.scores <- stats/sqrt(delta.out)
     quants <- apply(z.scores, 2, stats::quantile, probs = c(alpha/2, 1 - alpha/2), na.rm = TRUE)
-
+    
     lower <- means - sds * quants[2, ]
     upper <- means - sds * quants[1, ]
-
-    out <- cbind(exp(lower) - 1, exp(upper) - 1)
+    
+    out <- cbind(lower, upper)
+    out[rownames(out) != "Omnibus", ] <- exp(out[rownames(out) != "Omnibus", ]) - 1
+    #out <- cbind(exp(lower) - 1, exp(upper) - 1)
     rownames(out) <- colnames(stats)
     colnames(out) <- c("Lower", "Upper")
     return(out)
@@ -1376,9 +1447,9 @@ make.ci2 <- function(stats, delta.out, alpha = 0.05) {
 
 # Sub-function of microsynth(); allow parellalization
 msCluster <- function(n) {
-
+    
     requireNamespace("parallel", quietly = TRUE)
-
+    
     if (is.logical(n)) {
         if (n) {
             n1 <- parallel::detectCores()
@@ -1392,11 +1463,11 @@ msCluster <- function(n) {
     } else {
         n1 <- n
     }
-
+    
     # use 2 cores if CRAN, otherwise, use number detected
     chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
     cores <- ifelse(chk == TRUE, 2, n1)
-
+    
     return(cores)
 }
 
@@ -1409,20 +1480,21 @@ remove.vars <- function(vars, nams, objnam = "result.var", printFlag = TRUE) {
     } else {
         vars1 <- vars
     }
-
+    
     rm.vars <- setdiff(vars1, nams)
-
+    
     if (length(rm.vars) > 0) {
         rm.here <- which(is.element(vars1, rm.vars))
         vars <- vars[-rm.here]
         if (printFlag) {
-            message("WARNING: The following variables will be removed from ", objnam, " since they are not in the dataset: \n", sep = "", appendLF = FALSE)
+            message("WARNING: The following variables will be removed from ", objnam, " since they are not in the dataset: \n", 
+                sep = "", appendLF = FALSE)
         }
         if (printFlag) {
             message(paste(rm.vars, collapse = ", ", sep = ""), "\n\n", sep = "", appendLF = FALSE)
         }
     }
-
+    
     return(vars)
 }
 

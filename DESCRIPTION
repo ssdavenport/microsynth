@@ -1,21 +1,35 @@
 Package: microsynth
 Title: Synthetic Control Methods with Micro- And Meso-Level Data
-Version: 2.0.45
-Authors@R: c(
-    person("Michael", "Robbins", , "mrobbins@rand.org", role = c("aut", "cre")),
-    person("Steven", "Davenport", , "ssdport@gmail.com", role = "aut")
-  )
-Description: A generalization of the 'Synth' package that is designed for
-    data at a more granular level (e.g., micro-level). Provides functions
-    to construct weights (including propensity score-type weights) and run
-    analyses for synthetic control methods with micro- and meso-level
-    data; see Robbins, Saunders, and Kilmer (2017)
-    <doi:10.1080/01621459.2016.1213634> and Robbins and Davenport (2021)
-    <doi:10.18637/jss.v097.i02>.
+Version: 2.0.50
+Authors@R: 
+    c(person(given = "Michael",
+             family = "Robbins",
+             role = c("aut", "cre"),
+             email = "mrobbins@rand.org"),
+      person(given = "Steven",
+             family = "Davenport",
+             role = "aut",
+             email = "ssdport@gmail.com"))
+Description: A generalization of the 'Synth' package that is
+    designed for data at a more granular level (e.g., micro-level).
+    Provides functions to construct weights (including propensity
+    score-type weights) and run analyses for synthetic control methods
+    with micro- and meso-level data; see Robbins, Saunders, and Kilmer
+    (2017) <doi:10.1080/01621459.2016.1213634> and Robbins and Davenport
+    (2021) <doi:10.18637/jss.v097.i02>.
 License: GPL-3
-VignetteBuilder: 
-    knitr
-Additional_repositories: https://ssdavenport.github.io/drat
+VignetteBuilder: knitr
 Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
+Imports: methods, survey, kernlab, LowRankQP, stats, parallel, utils,
+        pracma
+Suggests: MASS, xlsx, knitr, rmarkdown, testthat (>= 3.0.0)
+Depends: R (>= 2.10)
+Config/testthat/edition: 3
+NeedsCompilation: no
+Packaged: 2025-03-25 01:53:22 UTC; mrobbins
+Author: Michael Robbins [aut, cre],
+  Steven Davenport [aut]
+Maintainer: Michael Robbins <mrobbins@rand.org>
